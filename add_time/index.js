@@ -66,7 +66,9 @@ function initialize() {
 	};
 	conn3.send();
 
-	function addTimestampToLatLng(event) {
+	timestamps = new Array();
+
+	google.maps.event.addListener(map, 'click', function(event) {
 		if (google.maps.geometry.poly.isLocationOnEdge(event.latLng, userPolyline, 0.0005)) {
 			var formContent = '<div class="timestamp">'+
 									'<form>'+
@@ -75,16 +77,27 @@ function initialize() {
 										'<input type="text" name="time"/>'+
 									'<form>'+
 								'</div>'
-			var infowindow = new google.maps.InfoWindow({
+			var infowindow = new InfoBox({
 				content: formContent,
 				position: closestPointOnPolyline(userPolyline, event.latLng, 0.000001)
 			});
+			timestamps.push(infowindow);
+
+			google.maps.event.addListener(infowindow, 'closeclick', function(event) {
+				var marker = new google.maps.Marker({
+					position: infowindow.getPosition(),
+					map: map
+				});
+				google.maps.event.addListener(marker, 'click', function(event) {
+					marker.setMap(null);
+					infowindow.open(map);
+				});
+			});
+
 			infowindow.open(map);
 			console.log(closestPointOnPolyline(userPolyline, event.latLng, 0.00001, map));
 		}
-	}
-
-	google.maps.event.addListener(map, 'click', addTimestampToLatLng);
+	});
 }
 
 function createLatLng(coord) {
