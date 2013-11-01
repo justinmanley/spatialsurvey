@@ -1,0 +1,49 @@
+html { 
+	height: 100% 
+}
+
+body { 
+	height: 100%; margin: 0; padding: 0
+}
+
+#map-canvas {
+	height: 100% 
+}
+
+#next-button {
+	background: -webkit-linear-gradient(top,#4387fd,#4683ea);
+	background: linear-gradient(top,#4387fd,#4683ea);
+	background: #357ae8;
+	border: 0px;
+	height: 29px;
+	width: 80px;
+	margin-bottom: 30px;
+	color: #ffffff;
+	font-weight: bold;
+}
+
+
+#instructions {
+	width: 150px;
+	padding: 10px 15px;
+	background-color: rgba(256, 256, 256, 0.7);
+}
+
+#instructions p {
+	font-size: 110%;
+}
+
+#instructions input {
+	width: 50px;
+	border-radius:3px;
+}
+
+#instructions #start-end-time-question {
+	float: left;
+	margin-left: 10px;
+}
+
+.timestamp input {
+	width: 50px;
+	background-color: #f2f2f2;
+}
