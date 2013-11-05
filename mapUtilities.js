@@ -11,7 +11,6 @@ var latToLngScalingFactor = function() {
 	return unitDistanceLat/unitDistanceLng;
 } ();
 
-
 // Constructor for a Segment object.  Takes an array containing two LatLng points.
 // -------------------------------------------
 function Segment(segment) 
@@ -61,6 +60,65 @@ function Line(point, slope)
 
 		);
 	};
+}
+
+// ---------------------------------------------------------------
+function TimeAt(time, point)
+// ---------------------------------------------------------------
+{
+	this.getTime = function() { return time; };
+	this.getPoint = function() { return point; };
+}
+
+// ----------------------------------------------------------------
+function TransitType() 
+// ----------------------------------------------------------------
+{
+	//
+}
+
+// ----------------------------------------------------------------
+function PersonPath() 
+// ----------------------------------------------------------------
+{
+	if ( !(this instanceof arguments.callee) ) 
+	   throw new Error("Constructor called as a function");
+
+	// an array of latLng points
+	var path;
+	this.setPath = function(p) { path = p.getPath(); };
+	this.getPath = function() { return ( path === undefined ) ? new Array() : path; };
+
+	// an array of TimeAt objects
+	var times;
+	this.setTimes = function(t) { times = t; };
+	this.getTimes = function() { return ( times === undefined ) ? new Array() : times; };
+
+	this.toKML = function() {
+		var kml = '<?xml version="1.0" encoding="UTF-8"?>'+
+			'xmlns="http://www.opengis.net/kml/2.2"'+
+			'<Document>'+
+				'<name>FS Survey Response</name>'+
+					'<description>FS Survey Response</description>'+
+				'<Placemark>'+
+					'<name>Path</name>'+
+					'<description>none</description>'+
+					'<LineString>'+
+						'<altitudeMode>relative</altitudeMode>'+
+						'<coordinates>'
+
+		points = path.getArray();
+		for (i = 0; i < points.length; i++) {
+			kml += JSON.stringify(points[i].lat()) + ',' + JSON.stringify(points[i].lng()) + '\n';
+		}
+
+		kml +=			'</coordinates>'+
+					'</LineString>'+
+				'</Placemark>'+
+			'</Document>'
+
+		return kml;
+	}
 }
 
 // ------------------------------------------------------------

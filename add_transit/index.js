@@ -11,23 +11,18 @@ function initialize() {
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	});
 
-
-	var backForm = document.createElement('form');
-	backForm.id = 'previous-page-form';
-	backForm.setAttribute('method', 'post');
-	backForm.setAttribute('action', '../advance.php');
-	backForm.innerHTML = '<input type="hidden" name="user-polyline-data" id="user-polyline-data-prev"/>'+
-							'<input type="hidden" name="previous-page-name" id="next-page-name"/>'+
-							'<input type="submit" id="previous-button" value="&#8592"/>';
-	map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(backForm);
-
 	var nextForm = document.createElement('form');
 	nextForm.id = 'next-page-form';
 	nextForm.setAttribute('method', 'post');
 	nextForm.setAttribute('action', '../advance.php');
-	nextForm.innerHTML = '<input type="hidden" name="user-polyline-data" id="user-polyline-data"/>'+
-							'<input type="hidden" name="next-page-name" id="next-page-name"/>'+
-							'<input type="submit" id="previous-button" value="NEXT"/>';
+	conn1 = new XMLHttpRequest();
+	conn1.open('GET', '../submit.php', true);
+	conn1.onreadystatechange = function() {
+		if (this.readyState !== 4 ) return; 
+		if (this.status !== 200 ) return; 
+		nextForm.innerHTML = this.responseText;
+	};
+	conn1.send();
 	map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextForm);
 
 	var instructions = document.createElement('div');
@@ -71,47 +66,15 @@ function initialize() {
 	};
 	conn3.send();
 
-	timestamps = new Array();
-
-	google.maps.event.addListener(map, 'click', function(event) {
-		if (google.maps.geometry.poly.isLocationOnEdge(event.latLng, userPolyline, 0.0005)) {
-			var formContent = '<div class="timestamp">'+
-									'<form>'+
-										'<label for="time">Time</label>'+
-										'<br />'+
-										'<input type="text" name="time"/>'+
-									'<form>'+
-								'</div>'
-			var infowindow = new InfoBox({
-				content: formContent,
-				position: closestPointOnPolyline(userPolyline, event.latLng, 0.000001)
-			});
-			timestamps.push(infowindow);
-
-			google.maps.event.addListener(infowindow, 'closeclick', function(event) {
-				var marker = new google.maps.Marker({
-					position: infowindow.getPosition(),
-					map: map
-				});
-				google.maps.event.addListener(marker, 'click', function(event) {
-					marker.setMap(null);
-					infowindow.open(map);
-				});
-			});
-
-			infowindow.open(map);
-			console.log(closestPointOnPolyline(userPolyline, event.latLng, 0.00001, map));
-		}
-	});
-
 	google.maps.event.addDomListener(nextForm, 'click', function() {
 		var nextForm = document.getElementById('next-page-form');
-		var userPolylineValue = document.getElementById('user-polyline-data');
+		var kml = document.getElementById('user-polyline-data');
 		var nextPageName = document.getElementById('next-page-name');
-		userPolylineValue.setAttribute('value', JSON.stringify([userPolyline.getPath().getArray()]));
-		nextPageName.setAttribute('value', 'add_transit');		
+		userPolylineValue.setAttribute('value', JSON.stringify(userPolyline.toKML()));
+		nextPageName.setAttribute('value', 'save');		
 		nextForm.submit();
-	});
+	});		
+
 }
 
 function createLatLng(coord) {

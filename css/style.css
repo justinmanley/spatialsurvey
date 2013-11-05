@@ -17,11 +17,22 @@ body {
 	border: 0px;
 	height: 29px;
 	width: 80px;
-	margin-bottom: 30px;
+	margin: 30px 10px;
 	color: #ffffff;
 	font-weight: bold;
 }
 
+#previous-button {
+	background: -webkit-linear-gradient(top,#4387fd,#4683ea);
+	background: linear-gradient(top,#4387fd,#4683ea);
+	background: #357ae8;
+	border: 0px;
+	height: 29px;
+	width: 80px;
+	margin: 30px 10px;
+	color: #ffffff;
+	font-weight: bold;
+}
 
 #instructions {
 	width: 150px;
