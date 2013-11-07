@@ -66,7 +66,7 @@ function initialize() {
 	google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
 		console.log(userPath);
 		console.log('new polyline');
-		console.log(polyline.getPath().getArray());
+		console.log(polyline);
 		userPath.push(polyline.getPath().getArray());
 		console.log(polyline.getPath());
 	});

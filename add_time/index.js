@@ -27,7 +27,8 @@ function initialize() {
 	nextForm.setAttribute('action', '../advance.php');
 	nextForm.innerHTML = '<input type="hidden" name="user-polyline-data" id="user-polyline-data"/>'+
 							'<input type="hidden" name="next-page-name" id="next-page-name"/>'+
-							'<input type="submit" id="previous-button" value="NEXT"/>';
+							'<input type="hidden" name="userpath" id="userpath"/>'+
+							'<input type="submit" id="next-button" value="NEXT"/>';
 	map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextForm);
 
 	var instructions = document.createElement('div');
@@ -54,8 +55,8 @@ function initialize() {
 	conn3.onreadystatechange = function() {
 		if (this.readyState !== 4 ) return; 
 		if (this.status !== 200 ) return; 
-		polylineCoords = eval(JSON.parse(this.responseText));
-		userPolylinePath = polylineCoords[0].map(createLatLng);
+		polyline = eval(JSON.parse(this.responseText));
+		userPolylinePath = polyline[0].map(createLatLng);
 		userPolyline.setPath(userPolylinePath);
 		var startMarker = new google.maps.Marker({
 			position: userPolylinePath[0],
@@ -66,26 +67,35 @@ function initialize() {
 			map: map
 		});
 		userPolyline.setMap(map);
-		console.log(userPolyline.getPath());
-		
 	};
 	conn3.send();
 
+	console.log(userPolyline.getPath());
 	timestamps = new Array();
 
 	google.maps.event.addListener(map, 'click', function(event) {
 		if (google.maps.geometry.poly.isLocationOnEdge(event.latLng, userPolyline, 0.0005)) {
+			var position = closestPointOnPolyline(userPolyline, event.latLng, 0.000001);
 			var formContent = '<div class="timestamp">'+
-									'<form>'+
+									'<form class="timestamp-form">'+
 										'<label for="time">Time</label>'+
 										'<br />'+
 										'<input type="text" name="time"/>'+
+										'<input type="hidden" name="position"' + JSON.stringify(position) + '/>'
 									'<form>'+
-								'</div>'
+								'</div>';
+			// var formContent = '<div>8:00pm</div>';
 			var infowindow = new InfoBox({
 				content: formContent,
-				position: closestPointOnPolyline(userPolyline, event.latLng, 0.000001)
+				position: position,
+				boxStyle: {
+					background: '#ffffff',
+					opacity: 0.75,
+					padding: '5px'
+				},
+				// closeBoxURL: ""
 			});
+
 			timestamps.push(infowindow);
 
 			google.maps.event.addListener(infowindow, 'closeclick', function(event) {
@@ -115,7 +125,19 @@ function initialize() {
 }
 
 function createLatLng(coord) {
-	return new google.maps.LatLng(coord.lb, coord.mb);
+	return new google.maps.LatLng(coord.nb, coord.ob);
+}
+
+function getContainer(matchClass) {
+	inputs = new Array(); 
+    var elems = document.getElementsByTagName('*'), i;
+    for (i in elems) {
+        if((' ' + elems[i].className + ' ').indexOf(' ' + matchClass + ' ')
+                > -1) {
+        	inputs.push(elems[i]);
+        }
+    }
+    return inputs;
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);
