@@ -19,8 +19,8 @@ function initialize() {
 	backForm.id = 'previous-page-form';
 	backForm.setAttribute('method', 'post');
 	backForm.setAttribute('action', '../advance.php');
-	backForm.innerHTML = '<input type="hidden" name="user-polyline-data" id="user-polyline-data-prev"/>'+
-							'<input type="hidden" name="previous-page-name" id="next-page-name"/>'+
+	backForm.innerHTML = '<input type="hidden" name="path-data-prev" id="path-data-prev"/>'+
+							'<input type="hidden" name="previous-page-name" id="previous-page-name"/>'+
 							'<input type="submit" id="previous-button" value="&#8592"/>';
 	map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(backForm);
 
@@ -28,9 +28,8 @@ function initialize() {
 	nextForm.id = 'next-page-form';
 	nextForm.setAttribute('method', 'post');
 	nextForm.setAttribute('action', '../advance.php');
-	nextForm.innerHTML = '<input type="hidden" name="user-polyline-data" id="user-polyline-data"/>'+
-							'<input type="hidden" name="next-page-name" id="next-page-name"/>'+
-							'<input type="hidden" name="userpath" id="userpath"/>'+
+	nextForm.innerHTML = '<input type="hidden" name="next-page-name" id="next-page-name"/>'+
+							'<input type="hidden" name="path-data" id="path-data"/>'+
 							'<input type="submit" id="next-button" value="NEXT"/>';
 	map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextForm);
 
@@ -45,8 +44,6 @@ function initialize() {
 	};
 	conn2.send();
 	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
-
-
 
 	// load data from previous screen
 	conn3 = new XMLHttpRequest();
@@ -107,10 +104,10 @@ function initialize() {
 
 	google.maps.event.addDomListener(nextForm, 'click', function() {
 		var nextForm = document.getElementById('next-page-form');
-		var userPolylineValue = document.getElementById('user-polyline-data');
+		var pathData = document.getElementById('path-data');
 		var nextPageName = document.getElementById('next-page-name');
-		userPolylineValue.setAttribute('value', JSON.stringify([userPolyline.getPath().getArray()]));
-		nextPageName.setAttribute('value', 'add_transit');		
+		nextPageName.setAttribute('value', 'add_transit');
+		pathData.setAttribute('value', data.toString());		
 		nextForm.submit();
 	});
 }

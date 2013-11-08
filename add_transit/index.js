@@ -11,6 +11,8 @@ function initialize() {
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	});
 
+	var data;
+
 	var nextForm = document.createElement('form');
 	nextForm.id = 'next-page-form';
 	nextForm.setAttribute('method', 'post');
@@ -37,32 +39,17 @@ function initialize() {
 	conn2.send();
 	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
 
-	var userPolyline = new google.maps.Polyline({
-		strokeColor: '#000000',
-		strokeWeight: 2,
-		clickable: false
-	});
-
+	// load data from previous screen
 	conn3 = new XMLHttpRequest();
 	conn3.overrideMimeType('application/json');
 	conn3.open('GET', '../polyline.php', true);
 	conn3.onreadystatechange = function() {
 		if (this.readyState !== 4 ) return; 
 		if (this.status !== 200 ) return; 
-		polylineCoords = eval(JSON.parse(this.responseText));
-		userPolylinePath = polylineCoords[0].map(createLatLng);
-		userPolyline.setPath(userPolylinePath);
-		var startMarker = new google.maps.Marker({
-			position: userPolylinePath[0],
-			map: map
-		});
-		var endMarker = new google.maps.Marker({
-			position: userPolylinePath.last(),
-			map: map
-		});
-		userPolyline.setMap(map);
-		console.log(userPolyline.getPath());
-		
+		var response = eval("(" + JSON.parse(this.responseText) + ")");
+		response.polyline = response.polyline.map(createLatLng);
+		data = personPath(response);
+		data.display(map);
 	};
 	conn3.send();
 
@@ -70,15 +57,10 @@ function initialize() {
 		var nextForm = document.getElementById('next-page-form');
 		var kml = document.getElementById('user-polyline-data');
 		var nextPageName = document.getElementById('next-page-name');
-		userPolylineValue.setAttribute('value', JSON.stringify(userPolyline.toKML()));
 		nextPageName.setAttribute('value', 'save');		
 		nextForm.submit();
 	});		
 
-}
-
-function createLatLng(coord) {
-	return new google.maps.LatLng(coord.lb, coord.mb);
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);

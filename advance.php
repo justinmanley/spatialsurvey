@@ -4,5 +4,6 @@
 		$_SESSION['path-data'] = $_POST['path-data'];
 	if (!isset($_POST['next-page-name'])) 
 		throw new Exception("Error: Destination page not specified.");
+	// print_r($_POST);
 	header('Location: ' . $_POST['next-page-name']);
 ?>

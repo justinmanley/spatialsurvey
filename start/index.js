@@ -22,7 +22,7 @@ function initialize() {
 	});
 	drawingManager.setMap(map);
 
-	var data = {};
+	var data = personPath();
 
 	var nextForm = document.createElement('form');
 	nextForm.id = 'next-page-form';
@@ -63,15 +63,14 @@ function initialize() {
 	instructions.appendChild(startEndTimeForm);
 	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
 
-	google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) { data.polyline = polyline.getPath().getArray(); console.log(JSON.stringify(data)); });
+	google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) { data.setPath(polyline.getPath().getArray()); console.log(JSON.stringify(data)); });
 
 	google.maps.event.addDomListener(nextForm, 'click', function() {
 		var nextForm = document.getElementById('next-page-form');
 		var pathData = document.getElementById('path-data');
 		var nextPageName = document.getElementById('next-page-name');
 		nextPageName.setAttribute('value', 'add_time');
-		console.log(JSON.stringify(data));		
-		pathData.setAttribute('value', JSON.stringify(data));
+		pathData.setAttribute('value', data.toString());
 		nextForm.submit();
 	});
 
