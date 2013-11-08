@@ -11,6 +11,9 @@ function initialize() {
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	});
 
+	// all user data is stored in this object
+	var data;
+
 
 	var backForm = document.createElement('form');
 	backForm.id = 'previous-page-form';
@@ -43,37 +46,26 @@ function initialize() {
 	conn2.send();
 	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
 
-	var userPolyline = new google.maps.Polyline({
-		strokeColor: '#000000',
-		strokeWeight: 2,
-		clickable: false
-	});
 
+
+	// load data from previous screen
 	conn3 = new XMLHttpRequest();
 	conn3.overrideMimeType('application/json');
 	conn3.open('GET', '../polyline.php', true);
 	conn3.onreadystatechange = function() {
 		if (this.readyState !== 4 ) return; 
 		if (this.status !== 200 ) return; 
-		polyline = eval(JSON.parse(this.responseText));
-		userPolylinePath = polyline[0].map(createLatLng);
-		userPolyline.setPath(userPolylinePath);
-		var startMarker = new google.maps.Marker({
-			position: userPolylinePath[0],
-			map: map
-		});
-		var endMarker = new google.maps.Marker({
-			position: userPolylinePath.last(),
-			map: map
-		});
-		userPolyline.setMap(map);
+		var response = eval("(" + JSON.parse(this.responseText) + ")");
+		response.polyline = response.polyline.map(createLatLng);
+		data = personPath(response);
+		data.display(map);
 	};
 	conn3.send();
 
-	console.log(userPolyline.getPath());
 	timestamps = new Array();
 
 	google.maps.event.addListener(map, 'click', function(event) {
+		userPolyline = data.getPolyline();
 		if (google.maps.geometry.poly.isLocationOnEdge(event.latLng, userPolyline, 0.0005)) {
 			var position = closestPointOnPolyline(userPolyline, event.latLng, 0.000001);
 			var formContent = '<div class="timestamp">'+
@@ -84,7 +76,6 @@ function initialize() {
 										'<input type="hidden" name="position"' + JSON.stringify(position) + '/>'
 									'<form>'+
 								'</div>';
-			// var formContent = '<div>8:00pm</div>';
 			var infowindow = new InfoBox({
 				content: formContent,
 				position: position,
@@ -122,10 +113,6 @@ function initialize() {
 		nextPageName.setAttribute('value', 'add_transit');		
 		nextForm.submit();
 	});
-}
-
-function createLatLng(coord) {
-	return new google.maps.LatLng(coord.nb, coord.ob);
 }
 
 function getContainer(matchClass) {

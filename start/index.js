@@ -22,6 +22,8 @@ function initialize() {
 	});
 	drawingManager.setMap(map);
 
+	var data = {};
+
 	var nextForm = document.createElement('form');
 	nextForm.id = 'next-page-form';
 	nextForm.setAttribute('method', 'post');
@@ -61,22 +63,15 @@ function initialize() {
 	instructions.appendChild(startEndTimeForm);
 	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
 
-	userPath = new Array();
-
-	google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
-		console.log(userPath);
-		console.log('new polyline');
-		console.log(polyline);
-		userPath.push(polyline.getPath().getArray());
-		console.log(polyline.getPath());
-	});
+	google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) { data.polyline = polyline.getPath().getArray(); console.log(JSON.stringify(data)); });
 
 	google.maps.event.addDomListener(nextForm, 'click', function() {
 		var nextForm = document.getElementById('next-page-form');
-		var userPolyline = document.getElementById('user-polyline-data');
+		var pathData = document.getElementById('path-data');
 		var nextPageName = document.getElementById('next-page-name');
-		nextPageName.setAttribute('value', 'add_time');		
-		userPolyline.setAttribute('value', JSON.stringify(userPath));
+		nextPageName.setAttribute('value', 'add_time');
+		console.log(JSON.stringify(data));		
+		pathData.setAttribute('value', JSON.stringify(data));
 		nextForm.submit();
 	});
 

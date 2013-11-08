@@ -63,11 +63,23 @@ function Line(point, slope)
 }
 
 // ---------------------------------------------------------------
-function TimeAt(time, point)
+function timeAndPlace(data)
 // ---------------------------------------------------------------
+//		data = 
+// 		{
+//			time     : number from 0 - 23
+// 			position : google.maps.LatLng object 
+// 		}
 {
-	this.getTime = function() { return time; };
-	this.getPoint = function() { return point; };
+	var that = {};
+
+	var getTime = function() { return data.time; };
+	that.getTime = getTime;
+
+	var getPosition = function() { return data.position; };
+	that.getPosition = getPosition; 
+
+	return that;
 }
 
 // ----------------------------------------------------------------
@@ -78,23 +90,44 @@ function TransitType()
 }
 
 // ----------------------------------------------------------------
-function PersonPath() 
+function personPath(data) 
 // ----------------------------------------------------------------
+//		data = 
+//		{
+//			polyline 	   : Array of coordinates in LatLng format (although not LatLng objects)
+//			timestamps     : Array of TimeAt objects
+//			start-time	   : timeAndPlace objects
+//			end-time	   : timeAndPlace object
+//			transit-type   : 
+//			day			   : Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday 
+//	
+//			next-page-name : NOT USED in personPath
+//		}
 {
-	if ( !(this instanceof arguments.callee) ) 
-	   throw new Error("Constructor called as a function");
+	var data = data || {};
+	var that = {};
 
-	// an array of latLng points
-	var path;
-	this.setPath = function(p) { path = p.getPath(); };
-	this.getPath = function() { return ( path === undefined ) ? new Array() : path; };
+	var polyline;
 
-	// an array of TimeAt objects
-	var times;
-	this.setTimes = function(t) { times = t; };
-	this.getTimes = function() { return ( times === undefined ) ? new Array() : times; };
+	var getPath = function() { return data.polyline || new Array(); };
+	that.getPath = getPath;
 
-	this.toKML = function() {
+	var getPolyline = function() {
+		if ( polyline === undefined )
+			polyline = new google.maps.Polyline({
+				path: getPath(),
+				strokeColor: '#000000',
+				strokeWeight: 2,
+				clickable: false			
+			});
+		return polyline;
+	}
+	that.getPolyline = getPolyline;
+
+	var getTimes = function() { return data.timestamps || new Array(); };
+	that.getTimes = getTimes;
+
+	var toKML = function() {
 		var kml = '<?xml version="1.0" encoding="UTF-8"?>'+
 			'xmlns="http://www.opengis.net/kml/2.2"'+
 			'<Document>'+
@@ -107,7 +140,7 @@ function PersonPath()
 						'<altitudeMode>relative</altitudeMode>'+
 						'<coordinates>'
 
-		points = path.getArray();
+		points = getPath().getArray();
 		for (i = 0; i < points.length; i++) {
 			kml += JSON.stringify(points[i].lat()) + ',' + JSON.stringify(points[i].lng()) + '\n';
 		}
@@ -119,6 +152,25 @@ function PersonPath()
 
 		return kml;
 	};
+	that.toKML = toKML;
+
+	var toString = function() { return JSON.stringify(data); };
+	that.toString = toString;
+
+	var display = function(map) {
+		getPolyline().setMap(map);
+		var startMarker = new google.maps.Marker({
+			position: getPath()[0],
+			map: map
+		});
+		var endMarker = new google.maps.Marker({
+			position: getPath().last(),
+			map: map
+		});		
+	};
+	that.display = display;
+
+	return that;
 }
 
 // ------------------------------------------------------------
@@ -213,4 +265,8 @@ function placeMarker(point, map) {
 		position: point,
 		map: map
 	});
+}
+
+function createLatLng(coord) {
+	return new google.maps.LatLng(coord.nb, coord.ob);
 }

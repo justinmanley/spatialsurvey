@@ -1,8 +1,8 @@
 <?php 
 	session_start();
-	print_r($_POST);
-	$_SESSION['user-polyline-data'] = $_POST['user-polyline-data'];
-	$page_name = $_POST['next-page-name']; 
-	$_SESSION['userpath'] = $_POST['userpath'];
-	header('Location: ' . $page_name);
+	if (isset($_POST['path-data']))
+		$_SESSION['path-data'] = $_POST['path-data'];
+	if (!isset($_POST['next-page-name'])) 
+		throw new Exception("Error: Destination page not specified.");
+	header('Location: ' . $_POST['next-page-name']);
 ?>
