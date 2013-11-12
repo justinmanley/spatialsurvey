@@ -63,7 +63,9 @@ function initialize() {
 	instructions.appendChild(startEndTimeForm);
 	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
 
-	google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) { data.setPath(polyline.getPath().getArray()); console.log(JSON.stringify(data)); });
+	google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) { 
+		data.setPath(polyline.getPath().getArray()); 
+	});
 
 	google.maps.event.addDomListener(nextForm, 'click', function() {
 		var nextForm = document.getElementById('next-page-form');

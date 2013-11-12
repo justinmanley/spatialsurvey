@@ -92,23 +92,33 @@ function TransitType()
 // ----------------------------------------------------------------
 function personPath(data) 
 // ----------------------------------------------------------------
-//		data = 
-//		{
-//			polyline 	   : Array of coordinates in LatLng format (although not LatLng objects)
-//			timestamps     : Array of TimeAt objects
-//			start-time	   : timeAndPlace objects
-//			end-time	   : timeAndPlace object
-//			transit-type   : 
-//			day			   : Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday 
-//	
-//			next-page-name : NOT USED in personPath
-//		}
+/*		
+	data = 
+		{
+			polyline 	   : Array of LatLng coordinates
+			timestamps     : Array of TimeAt objects
+			start-time	   : timeAndPlace objects
+			end-time	   : timeAndPlace object
+			transit-type   : 
+			day			   : Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday 
+	
+			next-page-name : NOT USED in personPath
+		}                                         
+*/
 {
 	var data = data || {};
 	var that = {};
 
+	// verbose should be true only in a development environment
+	var verbose = false;
+
 	var polyline;
 
+	// takes an array of LatLng coordinates: i.e. input should be the result of polyline.getPath().getArray()
+	var setPath = function(path) { data.polyline = path };
+	that.setPath = setPath;
+
+	// returns an array of LatLng coordinates
 	var getPath = function() { return data.polyline || new Array(); };
 	that.getPath = getPath;
 
@@ -154,7 +164,12 @@ function personPath(data)
 	};
 	that.toKML = toKML;
 
-	var toString = function() { return JSON.stringify(data); };
+	var toString = function() { 
+		console.log(data.polyline);
+		data.polyline = data.polyline.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
+		console.log(data.polyline);
+		return JSON.stringify(data); 
+	};
 	that.toString = toString;
 
 	var display = function(map) {
@@ -169,6 +184,28 @@ function personPath(data)
 		});		
 	};
 	that.display = display;
+
+	// load data from previous screens
+	var load = function() {
+		conn = new XMLHttpRequest();
+		conn.overrideMimeType('application/json');
+		conn.open('GET', '../polyline.php', true);
+		conn.onreadystatechange = function() {
+			if (this.readyState !== 4 ) return; 
+			if (this.status !== 200 ) return; 
+			if (verbose)
+				console.log(this.responseText);
+			var response = eval("(" + JSON.parse(this.responseText) + ")");
+			response.polyline = response.polyline.map(createLatLng);
+			data = response;
+			if (verbose) {
+				console.log(toString());
+				console.log(getPath());
+			}
+		};
+		conn.send();		
+	}
+	that.load = load;
 
 	return that;
 }
@@ -268,5 +305,9 @@ function placeMarker(point, map) {
 }
 
 function createLatLng(coord) {
-	return new google.maps.LatLng(coord.nb, coord.ob);
+	return new google.maps.LatLng(coord.lat, coord.lng);
+}
+
+function getInstructions(map) {
+	//
 }

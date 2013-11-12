@@ -12,7 +12,7 @@ function initialize() {
 	});
 
 	// all user data is stored in this object
-	var data;
+	var data = personPath();
 
 
 	var backForm = document.createElement('form');
@@ -45,19 +45,8 @@ function initialize() {
 	conn2.send();
 	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
 
-	// load data from previous screen
-	conn3 = new XMLHttpRequest();
-	conn3.overrideMimeType('application/json');
-	conn3.open('GET', '../polyline.php', true);
-	conn3.onreadystatechange = function() {
-		if (this.readyState !== 4 ) return; 
-		if (this.status !== 200 ) return; 
-		var response = eval("(" + JSON.parse(this.responseText) + ")");
-		response.polyline = response.polyline.map(createLatLng);
-		data = personPath(response);
-		data.display(map);
-	};
-	conn3.send();
+	data.load();
+	data.display(map);
 
 	timestamps = new Array();
 

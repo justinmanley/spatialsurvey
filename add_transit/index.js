@@ -11,7 +11,7 @@ function initialize() {
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	});
 
-	var data;
+	var data = personPath();
 
 	var nextForm = document.createElement('form');
 	nextForm.id = 'next-page-form';
@@ -40,18 +40,8 @@ function initialize() {
 	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
 
 	// load data from previous screen
-	conn3 = new XMLHttpRequest();
-	conn3.overrideMimeType('application/json');
-	conn3.open('GET', '../polyline.php', true);
-	conn3.onreadystatechange = function() {
-		if (this.readyState !== 4 ) return; 
-		if (this.status !== 200 ) return; 
-		var response = eval("(" + JSON.parse(this.responseText) + ")");
-		response.polyline = response.polyline.map(createLatLng);
-		data = personPath(response);
-		data.display(map);
-	};
-	conn3.send();
+	data.load();
+	data.display(map);
 
 	google.maps.event.addDomListener(nextForm, 'click', function() {
 		var nextForm = document.getElementById('next-page-form');
