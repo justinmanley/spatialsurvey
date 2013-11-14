@@ -16,6 +16,9 @@ function initialize() {
 	data.display(map);
 
 
+	showNextButton();
+	showInstructions();
+
 	var nextForm = document.createElement('form');
 	nextForm.id = 'next-page-form';
 	nextForm.setAttribute('method', 'post');

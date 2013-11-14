@@ -24,26 +24,9 @@ function initialize() {
 							'<input type="submit" id="previous-button" value="&#8592"/>';
 	map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(backForm);
 
-	var nextForm = document.createElement('form');
-	nextForm.id = 'next-page-form';
-	nextForm.setAttribute('method', 'post');
-	nextForm.setAttribute('action', '../advance.php');
-	nextForm.innerHTML = '<input type="hidden" name="next-page-name" id="next-page-name"/>'+
-							'<input type="hidden" name="path-data" id="path-data"/>'+
-							'<input type="submit" id="next-button" value="NEXT"/>';
-	map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextForm);
 
-	var instructions = document.createElement('div');
-	instructions.id = 'instructions';
-	conn2 = new XMLHttpRequest();
-	conn2.open('GET', 'instructions.php', true);
-	conn2.onreadystatechange = function() {
-		if (this.readyState !== 4 ) return; 
-		if (this.status !== 200 ) return; 
-		instructions.innerHTML = this.responseText;
-	};
-	conn2.send();
-	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
+	showNextButton(map, document, 'add_transit');
+	showInstructions(map, document);
 
 	timestamps = new Array();
 
@@ -86,15 +69,6 @@ function initialize() {
 			infowindow.open(map);
 			console.log(closestPointOnPolyline(userPolyline, event.latLng, 0.00001, map));
 		}
-	});
-
-	google.maps.event.addDomListener(nextForm, 'click', function() {
-		var nextForm = document.getElementById('next-page-form');
-		var pathData = document.getElementById('path-data');
-		var nextPageName = document.getElementById('next-page-name');
-		nextPageName.setAttribute('value', 'add_transit');
-		pathData.setAttribute('value', data.toString());		
-		nextForm.submit();
 	});
 }
 

@@ -311,6 +311,35 @@ function createLatLng(coord) {
 	return new google.maps.LatLng(coord.lat, coord.lng);
 }
 
-function getInstructions(map) {
-	//
+function showInstructions(map, doc) {
+	var instructions = doc.createElement('div');
+	instructions.id = 'instructions';
+	conn2 = new XMLHttpRequest();
+	conn2.open('GET', 'instructions.php', true);
+	conn2.onreadystatechange = function() {
+		if (this.readyState !== 4 ) return; 
+		if (this.status !== 200 ) return; 
+		instructions.innerHTML = this.responseText;
+	};
+	conn2.send();
+	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
+}
+
+
+function showNextButton(map, doc, destination) {
+	var nextForm = doc.createElement('form');
+	nextForm.id = 'next-page-form';
+	nextForm.setAttribute('method', 'post');
+	nextForm.setAttribute('action', '../advance.php');
+	nextForm.innerHTML = '<input type="hidden" name="next-page-name" id="next-page-name" value="' + destination + '"/>'+
+							'<input type="hidden" name="path-data" id="path-data"/>'+
+							'<input type="submit" id="next-button" value="NEXT"/>';
+	map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextForm);	
+
+	google.maps.event.addDomListener(nextForm, 'click', function() {
+		var nextForm = doc.getElementById('next-page-form');
+		var pathData = doc.getElementById('path-data');
+		pathData.setAttribute('value', data.toString());		
+		nextForm.submit();
+	});			
 }
