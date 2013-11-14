@@ -13,7 +13,7 @@ function initialize() {
 
 	// all user data is stored in this object
 	var data = personPath();
-
+	data.display(map);
 
 	var backForm = document.createElement('form');
 	backForm.id = 'previous-page-form';
@@ -44,9 +44,6 @@ function initialize() {
 	};
 	conn2.send();
 	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
-
-	data.load();
-	data.display(map);
 
 	timestamps = new Array();
 

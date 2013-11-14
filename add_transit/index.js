@@ -12,6 +12,9 @@ function initialize() {
 	});
 
 	var data = personPath();
+	// load data from previous screen
+	data.display(map);
+
 
 	var nextForm = document.createElement('form');
 	nextForm.id = 'next-page-form';
@@ -38,10 +41,6 @@ function initialize() {
 	};
 	conn2.send();
 	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
-
-	// load data from previous screen
-	data.load();
-	data.display(map);
 
 	google.maps.event.addDomListener(nextForm, 'click', function() {
 		var nextForm = document.getElementById('next-page-form');

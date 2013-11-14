@@ -110,9 +110,17 @@ function personPath(data)
 	var that = {};
 
 	// verbose should be true only in a development environment
-	var verbose = false;
+	var verbose = true;
 
 	var polyline;
+
+	var debug = function(object, description) {
+		if (verbose) {
+			if (typeof description !== 'undefined')
+				console.log(description);			
+			console.log(object);			
+		}
+	}
 
 	// takes an array of LatLng coordinates: i.e. input should be the result of polyline.getPath().getArray()
 	var setPath = function(path) { data.polyline = path };
@@ -123,13 +131,13 @@ function personPath(data)
 	that.getPath = getPath;
 
 	var getPolyline = function() {
-		if ( polyline === undefined )
-			polyline = new google.maps.Polyline({
-				path: getPath(),
-				strokeColor: '#000000',
-				strokeWeight: 2,
-				clickable: false			
-			});
+		debug(getPath(), "getPath()");
+		var polyline = new google.maps.Polyline({
+			path: getPath(),
+			strokeColor: '#000000',
+			strokeWeight: 2,
+			clickable: false			
+		});
 		return polyline;
 	}
 	that.getPolyline = getPolyline;
@@ -165,47 +173,42 @@ function personPath(data)
 	that.toKML = toKML;
 
 	var toString = function() { 
-		console.log(data.polyline);
+		debug(data.polyline, "data.polyline");
 		data.polyline = data.polyline.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
-		console.log(data.polyline);
 		return JSON.stringify(data); 
 	};
 	that.toString = toString;
 
 	var display = function(map) {
-		getPolyline().setMap(map);
-		var startMarker = new google.maps.Marker({
-			position: getPath()[0],
-			map: map
-		});
-		var endMarker = new google.maps.Marker({
-			position: getPath().last(),
-			map: map
-		});		
+		load(function(){
+			getPolyline().setMap(map);
+			var startMarker = new google.maps.Marker({
+				position: getPath()[0],
+				map: map
+			});
+			var endMarker = new google.maps.Marker({
+				position: getPath().last(),
+				map: map
+			});
+		});	
 	};
 	that.display = display;
 
 	// load data from previous screens
-	var load = function() {
+	var load = function(callback) {
 		conn = new XMLHttpRequest();
 		conn.overrideMimeType('application/json');
 		conn.open('GET', '../polyline.php', true);
 		conn.onreadystatechange = function() {
 			if (this.readyState !== 4 ) return; 
 			if (this.status !== 200 ) return; 
-			if (verbose)
-				console.log(this.responseText);
-			var response = eval("(" + JSON.parse(this.responseText) + ")");
-			response.polyline = response.polyline.map(createLatLng);
-			data = response;
-			if (verbose) {
-				console.log(toString());
-				console.log(getPath());
-			}
+			debug(this.responseText);
+			data = eval("(" + JSON.parse(this.responseText) + ")");
+			setPath(data.polyline.map(createLatLng));
+			callback();
 		};
-		conn.send();		
+		conn.send();
 	}
-	that.load = load;
 
 	return that;
 }
