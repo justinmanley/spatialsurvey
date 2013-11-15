@@ -172,14 +172,15 @@ function personPath(data)
 	};
 	that.toKML = toKML;
 
-	var toString = function() { 
+	var toString = function() {
 		debug(data.polyline, "data.polyline");
 		data.polyline = data.polyline.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
+		debug(data.polyline, "data.polyline");	
 		return JSON.stringify(data); 
 	};
 	that.toString = toString;
 
-	var display = function(map) {
+	var display = function(map, callback) {
 		load(function(){
 			getPolyline().setMap(map);
 			var startMarker = new google.maps.Marker({
@@ -190,12 +191,12 @@ function personPath(data)
 				position: getPath().last(),
 				map: map
 			});
-		});	
+		}, callback);	
 	};
 	that.display = display;
 
 	// load data from previous screens
-	var load = function(callback) {
+	var load = function(callback1, callback2) {
 		conn = new XMLHttpRequest();
 		conn.overrideMimeType('application/json');
 		conn.open('GET', '../polyline.php', true);
@@ -205,7 +206,8 @@ function personPath(data)
 			debug(this.responseText);
 			data = eval("(" + JSON.parse(this.responseText) + ")");
 			setPath(data.polyline.map(createLatLng));
-			callback();
+			callback1();
+			callback2();
 		};
 		conn.send();
 	}
@@ -311,6 +313,20 @@ function createLatLng(coord) {
 	return new google.maps.LatLng(coord.lat, coord.lng);
 }
 
+function getContainer(doc, matchClass) {
+	inputs = new Array(); 
+    var elems = doc.getElementsByTagName('*'), i;
+    for (i in elems) {
+        if((' ' + elems[i].className + ' ').indexOf(' ' + matchClass + ' ')
+                > -1) {
+        	inputs.push(elems[i]);
+        }
+    }
+    return inputs;
+}
+
+/* Add elements to the page */
+
 function showInstructions(map, doc) {
 	var instructions = doc.createElement('div');
 	instructions.id = 'instructions';
@@ -325,21 +341,28 @@ function showInstructions(map, doc) {
 	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
 }
 
-
-function showNextButton(map, doc, destination) {
+function showButton(map, doc, data, destination, type) {
 	var nextForm = doc.createElement('form');
-	nextForm.id = 'next-page-form';
+	nextForm.id = type + '-form';
 	nextForm.setAttribute('method', 'post');
 	nextForm.setAttribute('action', '../advance.php');
-	nextForm.innerHTML = '<input type="hidden" name="next-page-name" id="next-page-name" value="' + destination + '"/>'+
-							'<input type="hidden" name="path-data" id="path-data"/>'+
-							'<input type="submit" id="next-button" value="NEXT"/>';
+	nextForm.innerHTML = '<input type="hidden" name="' + type + '-name" id="' + type + '-name" value="' + destination + '"/>'+
+							'<input type="hidden" name="path-data" id="' + type + '-path-data"/>'+
+							'<input type="submit" id="' + type + '-button" value="NEXT"/>';
 	map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextForm);	
 
+	// it's clear that for some reason, this function is never executed from /start.  But it does seem to exected from /add_time
 	google.maps.event.addDomListener(nextForm, 'click', function() {
-		var nextForm = doc.getElementById('next-page-form');
-		var pathData = doc.getElementById('path-data');
-		pathData.setAttribute('value', data.toString());		
+		var pathData = doc.getElementById(type + '-path-data');
+		pathData.setAttribute('value', data.toString());
 		nextForm.submit();
 	});			
+}
+
+function showNextButton(map, doc, data, destination) {
+	showButton(map, doc, data, destination, 'next-page');
+}
+
+function showPreviousButton() {
+	showButton(map, doc, data, destination, 'previous-page');
 }
