@@ -5,11 +5,11 @@
 	<div id="start-end-time-question">
 		<label for="start-time">Start</label>
 		<br />
-		<input name="start-time"/>
+		<input name="start-time" id="start-time"/>
 	</div>
 	<div id="start-end-time-question">
 	<label for="end-time">End</label>
 	<br />
-	<input name="end-time"/>	
+	<input name="end-time" id="end-time"/>	
 	</div>
 </form>

@@ -21,18 +21,6 @@ function initialize() {
 	});
 	drawingManager.setMap(map);
 
-	var startEndTimeForm = document.createElement('form');
-	startEndTimeForm.id = 'start-end-time';
-	startEndTimeForm.setAttribute('method', 'post');
-	var startTime = document.createElement('input');
-	startTime.type = 'textbox';
-	startTime.name = 'start-time';
-	var endTime = document.createElement('input');
-	endTime.type = 'textbox';
-	endTime.name = 'end-time';
-	startEndTimeForm.appendChild(endTime);
-	startEndTimeForm.appendChild(startTime);
-
 	google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) { 
 		data.setPath(polyline.getPath().getArray());
 	});
@@ -40,9 +28,12 @@ function initialize() {
 	var data = personPath();
 
 	showInstructions(map, document);
-	showNextButton(map, document, data, 'add_time');
-
-
+	showNextButton(map, document, data, 'add_time', function() {
+		var startTime = document.getElementById('start-time').value;
+		var endTime = document.getElementById('end-time').value;
+		data.setStartTime(startTime);
+		data.setEndTime(endTime);
+	});
 
 }
 

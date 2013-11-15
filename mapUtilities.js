@@ -130,6 +130,22 @@ function personPath(data)
 	var getPath = function() { return data.polyline || new Array(); };
 	that.getPath = getPath;
 
+	var setAttr = function(name, value) { data[name] = value; }
+	var getAttr = function(name) { return data[name]; };
+
+	var setStartTime = function(value) { setAttr('startTime', value) };
+	that.setStartTime = setStartTime;
+
+	var setEndTime = function(value) { setAttr('endTime', value) };
+	that.setEndTime = setEndTime;
+
+	var getStartTime = function() { return getAttr('startTime')};
+	that.getStartTime = getStartTime;
+
+	var getEndTime = function() { return getAttr('endTime')};
+	that.getEndTime = getEndTime;
+
+
 	var getPolyline = function() {
 		debug(getPath(), "getPath()");
 		var polyline = new google.maps.Polyline({
@@ -173,10 +189,14 @@ function personPath(data)
 	that.toKML = toKML;
 
 	var toString = function() {
-		debug(data.polyline, "data.polyline");
-		data.polyline = data.polyline.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
-		debug(data.polyline, "data.polyline");	
-		return JSON.stringify(data); 
+		var stringable = new Object();		
+		stringable.polyline = data.polyline.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
+		var properties = ['startTime', 'endTime'];
+		for (i = 0; i < properties.length; i++) {
+			var name = properties[i];
+			if (data.hasOwnProperty(name)) { stringable[name] = data[name]; };	
+		}
+		return JSON.stringify(stringable); 
 	};
 	that.toString = toString;
 
@@ -196,7 +216,7 @@ function personPath(data)
 	that.display = display;
 
 	// load data from previous screens
-	var load = function(callback1, callback2) {
+	var load = function(internalCallback, userCallback) {
 		conn = new XMLHttpRequest();
 		conn.overrideMimeType('application/json');
 		conn.open('GET', '../polyline.php', true);
@@ -206,8 +226,9 @@ function personPath(data)
 			debug(this.responseText);
 			data = eval("(" + JSON.parse(this.responseText) + ")");
 			setPath(data.polyline.map(createLatLng));
-			callback1();
-			callback2();
+			debug(toString(), "toString()");
+			internalCallback();
+			userCallback();
 		};
 		conn.send();
 	}
@@ -341,7 +362,7 @@ function showInstructions(map, doc) {
 	map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
 }
 
-function showButton(map, doc, data, destination, type) {
+function showButton(map, doc, data, destination, addToData, type) {
 	var nextForm = doc.createElement('form');
 	nextForm.id = type + '-form';
 	nextForm.setAttribute('method', 'post');
@@ -351,18 +372,18 @@ function showButton(map, doc, data, destination, type) {
 							'<input type="submit" id="' + type + '-button" value="NEXT"/>';
 	map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextForm);	
 
-	// it's clear that for some reason, this function is never executed from /start.  But it does seem to exected from /add_time
 	google.maps.event.addDomListener(nextForm, 'click', function() {
 		var pathData = doc.getElementById(type + '-path-data');
+		if (typeof addToData !== 'undefined') { addToData(); };
 		pathData.setAttribute('value', data.toString());
 		nextForm.submit();
 	});			
 }
 
-function showNextButton(map, doc, data, destination) {
-	showButton(map, doc, data, destination, 'next-page');
+function showNextButton(map, doc, data, destination, addToData) {
+	showButton(map, doc, data, destination, addToData, 'next-page');
 }
 
-function showPreviousButton() {
-	showButton(map, doc, data, destination, 'previous-page');
+function showPreviousButton(map, doc, data, destination, addToData) {
+	showButton(map, doc, data, destination, addToData, 'previous-page');
 }
