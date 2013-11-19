@@ -111,8 +111,8 @@ function personPath(data)
 
 	// verbose should be true only in a development environment
 	var verbose = true;
-
 	var polyline;
+	var dataStringProperties = [];
 
 	var debug = function(object, description) {
 		if (verbose) {
@@ -120,6 +120,17 @@ function personPath(data)
 				console.log(description);			
 			console.log(object);			
 		}
+	}
+
+	var setAttr = function(property, value) { data[property] = value; }
+	var getAttr = function(property) { return data[property]; };
+
+	// create getters, setters, and add property to the toString method
+	var addProperty = function(property) {
+		that['set' + property.capitalize()] = function(value) { setAttr(property, value); };
+		that['get' + property.capitalize()] = function() { return getAttr(property); };
+
+		dataStringProperties.push(property);
 	}
 
 	// takes an array of LatLng coordinates: i.e. input should be the result of polyline.getPath().getArray()
@@ -130,21 +141,9 @@ function personPath(data)
 	var getPath = function() { return data.polyline || new Array(); };
 	that.getPath = getPath;
 
-	var setAttr = function(name, value) { data[name] = value; }
-	var getAttr = function(name) { return data[name]; };
-
-	var setStartTime = function(value) { setAttr('startTime', value) };
-	that.setStartTime = setStartTime;
-
-	var setEndTime = function(value) { setAttr('endTime', value) };
-	that.setEndTime = setEndTime;
-
-	var getStartTime = function() { return getAttr('startTime')};
-	that.getStartTime = getStartTime;
-
-	var getEndTime = function() { return getAttr('endTime')};
-	that.getEndTime = getEndTime;
-
+	addProperty('startTime');
+	addProperty('endTime');
+	addProperty('timestamps');
 
 	var getPolyline = function() {
 		debug(getPath(), "getPath()");
@@ -191,9 +190,8 @@ function personPath(data)
 	var toString = function() {
 		var stringable = new Object();		
 		stringable.polyline = data.polyline.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
-		var properties = ['startTime', 'endTime'];
-		for (i = 0; i < properties.length; i++) {
-			var name = properties[i];
+		for (i = 0; i < dataStringProperties.length; i++) {
+			var name = dataStringProperties[i];
 			if (data.hasOwnProperty(name)) { stringable[name] = data[name]; };	
 		}
 		return JSON.stringify(stringable); 
@@ -205,11 +203,13 @@ function personPath(data)
 			getPolyline().setMap(map);
 			var startMarker = new google.maps.Marker({
 				position: getPath()[0],
-				map: map
+				map: map,
+				icon: '../marker'
 			});
 			var endMarker = new google.maps.Marker({
 				position: getPath().last(),
-				map: map
+				map: map,
+				icon: '../marker'
 			});
 		}, callback);	
 	};
@@ -386,4 +386,38 @@ function showNextButton(map, doc, data, destination, addToData) {
 
 function showPreviousButton(map, doc, data, destination, addToData) {
 	showButton(map, doc, data, destination, addToData, 'previous-page');
+}
+
+function showTimestampInfoWindow(position) {
+	var info = document.createElement('div');
+	info.setAttribute('class', 'timestamp');
+	info.innerHTML = '<form class="timestamp-form" onclick="false">'+
+			'<label for="time">Time</label>'+
+			'<br />'+
+			'<input type="text" name="time" class="timestamp"/>'+
+			'<input type="hidden" name="position"' + JSON.stringify(position) + '/>'
+		'</form>'
+	return info;
+}
+
+function showPlaceholderInfoWindow(position, time) {
+	var placeholder = document.createElement('div');
+	placeholder.innerHTML = '<div class="timestamp-label" style="font-size: 14pt;">'+time+'</div>'+
+		'<form class="timestamp-form">'+
+			'<input type="hidden" name="position"' + JSON.stringify(position) + '/>'
+		'</form>';
+	return placeholder;
+}
+
+function getTimestamps(xs) {
+	var timestamps = [];
+	for(var i = 0; i < xs.length; i++) {
+		var time = xs[i].getContent().childNodes[0][0].value;
+		timestamps.push(time);
+	}
+	return timestamps;
+}
+
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
 }

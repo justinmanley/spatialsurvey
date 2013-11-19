@@ -41,3 +41,6 @@ body {
   width: 50px;
   background-color: #f2f2f2;
 }
+.timestamp-label {
+  font-size: 14pt;
+}
