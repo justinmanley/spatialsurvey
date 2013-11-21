@@ -201,16 +201,8 @@ function personPath(data)
 	var display = function(map, callback) {
 		load(function(){
 			getPolyline().setMap(map);
-			var startMarker = new google.maps.Marker({
-				position: getPath()[0],
-				map: map,
-				icon: '../marker'
-			});
-			var endMarker = new google.maps.Marker({
-				position: getPath().last(),
-				map: map,
-				icon: '../marker'
-			});
+			addTimestampMarker(map, getPath()[0]);
+			addTimestampMarker(map, getPath().last());
 		}, callback);	
 	};
 	that.display = display;
@@ -416,6 +408,57 @@ function getTimestamps(xs) {
 		timestamps.push(time);
 	}
 	return timestamps;
+}
+
+function addTimestampMarker(map, position) {
+	var infowindow = new InfoBox({
+		content: showTimestampInfoWindow(position),
+		position: position,
+		boxStyle: {
+			background: '#ffffff',
+			opacity: 0.75,
+			padding: '5px'
+		}
+	});
+
+	// timestamps.push(infowindow);
+
+	var label = infowindow.getContent().childNodes[0].childNodes[0];
+	google.maps.event.addDomListener(label, 'click', function(event) {
+		infowindow.setMap(null);
+		// this code might not be very robust
+		var time = infowindow.getContent().childNodes[0][0].value;
+		var placeholder = new InfoBox({
+			content: showPlaceholderInfoWindow(position, time),
+			position: position,
+			boxStyle: {
+				background: 'rgba(0,0,0,0)',
+				opacity: 0.75,
+				padding: '5px'
+			},
+			closeBoxURL: ""
+		});
+		google.maps.event.addDomListener(placeholder.getContent(), 'click', function(event) {
+			placeholder.setMap(null);
+			infowindow.open(map);
+		});
+		var marker = new google.maps.Marker({
+			icon: '../marker.png',
+			position: position,
+			map: map
+		});
+		google.maps.event.addListener(marker, 'click', function(event) {
+			placeholder.setMap(null);
+			marker.setMap(null);
+			infowindow.open(map);
+		});					
+		placeholder.open(map);
+	});
+
+	infowindow.open(map);
+	// console.log(closestPointOnPolyline(userPolyline, event.latLng, 0.00001, map));	
+
+	return infowindow;
 }
 
 String.prototype.capitalize = function() {
