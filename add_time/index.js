@@ -18,7 +18,8 @@ function initialize() {
 
 		showInstructions(map, document);
 		showNextButton(map, document, data, 'add_transit', function() {
-			var times = getTimestamps(timestamps);
+			var times = getTimestamps(timestampMarkers);
+			console.log(times);
 			data.setTimestamps(times);
 		});		
 
@@ -26,7 +27,7 @@ function initialize() {
 			userPolyline = data.getPolyline();
 			if (google.maps.geometry.poly.isLocationOnEdge(event.latLng, userPolyline, 0.0005)) {
 				var position = closestPointOnPolyline(userPolyline, event.latLng, 0.000001);
-				var infowindow = addTimestampMarker(map, position);
+				var infowindow = addTimestampMarker(map, userPolyline, position);
 				timestampMarkers.push(infowindow);
 			}
 		});

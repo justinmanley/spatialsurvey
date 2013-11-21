@@ -201,8 +201,8 @@ function personPath(data)
 	var display = function(map, callback) {
 		load(function(){
 			getPolyline().setMap(map);
-			addTimestampMarker(map, getPath()[0]);
-			addTimestampMarker(map, getPath().last());
+			addTimestampMarker(map, getPolyline(), getPath()[0]);
+			addTimestampMarker(map, getPolyline(), getPath().last());
 		}, callback);	
 	};
 	that.display = display;
@@ -372,45 +372,78 @@ function showButton(map, doc, data, destination, addToData, type) {
 	});			
 }
 
-function showNextButton(map, doc, data, destination, addToData) {
+// -------------------------------------------------------------
+function showNextButton(map, doc, data, destination, addToData) 
+// -------------------------------------------------------------
+{
 	showButton(map, doc, data, destination, addToData, 'next-page');
 }
 
-function showPreviousButton(map, doc, data, destination, addToData) {
+// -------------------------------------------------------------
+function showPreviousButton(map, doc, data, destination, addToData) 
+// -------------------------------------------------------------
+{
 	showButton(map, doc, data, destination, addToData, 'previous-page');
 }
 
-function showTimestampInfoWindow(position) {
+// -------------------------------------------------------------
+function showTimestampInfoWindow(position) 
+// -------------------------------------------------------------
+{
 	var info = document.createElement('div');
 	info.setAttribute('class', 'timestamp');
 	info.innerHTML = '<form class="timestamp-form" onclick="false">'+
 			'<label for="time">Time</label>'+
 			'<br />'+
 			'<input type="text" name="time" class="timestamp"/>'+
-			'<input type="hidden" name="position"' + JSON.stringify(position) + '/>'
+			// '<input type="hidden" name="position-lat" value="' + position.lat() + '"/>'+
+			// '<input type="hidden" name="position-lng" value="' + position.lng() + '"/>'+
 		'</form>'
 	return info;
 }
 
-function showPlaceholderInfoWindow(position, time) {
+// --------------------------------------------------------------
+function showPlaceholderInfoWindow(position, time) 
+// --------------------------------------------------------------
+{
 	var placeholder = document.createElement('div');
 	placeholder.innerHTML = '<div class="timestamp-label" style="font-size: 14pt;">'+time+'</div>'+
-		'<form class="timestamp-form">'+
-			'<input type="hidden" name="position"' + JSON.stringify(position) + '/>'
+		'<form class="placeholder-form">'+
+			// '<input type="hidden" name="position-lat" value="' + position.lat() + '"/>'+
+			// '<input type="hidden" name="position-lng" value="' + position.lng() + '"/>'+
 		'</form>';
 	return placeholder;
 }
 
-function getTimestamps(xs) {
+// Need to make sure that this works for both timestamp windows that are open AND closed
+// ---------------------------------------------------------------
+function getTimestamps(xs) 
+// ---------------------------------------------------------------
+{
 	var timestamps = [];
 	for(var i = 0; i < xs.length; i++) {
 		var time = xs[i].getContent().childNodes[0][0].value;
-		timestamps.push(time);
+		var position = (function() { return { lat: xs.getPosition().lat(), lng: xs.getPosition().lng()}; })();
+		timestamps.push({ time: time, position: position });
 	}
 	return timestamps;
 }
 
-function addTimestampMarker(map, position) {
+// ---------------------------------------------------------------
+function getIcon()
+// ---------------------------------------------------------------
+{
+	return {
+		url: "../marker.png",
+		anchor: new google.maps.Point(10,10)
+	};
+}
+
+// ---------------------------------------------------------------
+function addTimestampMarker(map, polyline, position) 
+// ---------------------------------------------------------------
+{
+	console.log(position);
 	var infowindow = new InfoBox({
 		content: showTimestampInfoWindow(position),
 		position: position,
@@ -430,7 +463,7 @@ function addTimestampMarker(map, position) {
 		var time = infowindow.getContent().childNodes[0][0].value;
 		var placeholder = new InfoBox({
 			content: showPlaceholderInfoWindow(position, time),
-			position: position,
+			position: infowindow.getPosition(),
 			boxStyle: {
 				background: 'rgba(0,0,0,0)',
 				opacity: 0.75,
@@ -438,14 +471,28 @@ function addTimestampMarker(map, position) {
 			},
 			closeBoxURL: ""
 		});
+		// console.log(placeholder.getContent().childNodes[1].childNodes[0].value);
+		// console.log(placeholder.getContent().childNodes[0]);
 		google.maps.event.addDomListener(placeholder.getContent(), 'click', function(event) {
 			placeholder.setMap(null);
 			infowindow.open(map);
 		});
 		var marker = new google.maps.Marker({
-			icon: '../marker.png',
-			position: position,
+			icon: { url: "../marker.png", anchor: new google.maps.Point(10,10) },
+			shape: { type: "rect", coords: [0,0,20,20] },
+			position: infowindow.getPosition(),
+			draggable: true,
 			map: map
+		});
+		// restrict dragging to the polyline
+		google.maps.event.addListener(marker, 'drag', function(event) {
+			var dragPosition = closestPointOnPolyline(userPolyline, marker.getPosition(), 0.000001, map);
+			marker.setPosition(dragPosition);
+			placeholder.setPosition(dragPosition);
+			google.maps.event.addListener(marker, 'dragend', function(event) {
+				infowindow.setPosition(dragPosition);
+				placeholder.setPosition(dragPosition);
+			});			
 		});
 		google.maps.event.addListener(marker, 'click', function(event) {
 			placeholder.setMap(null);
