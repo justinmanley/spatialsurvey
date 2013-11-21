@@ -368,6 +368,7 @@ function showButton(map, doc, data, destination, addToData, type) {
 		var pathData = doc.getElementById(type + '-path-data');
 		if (typeof addToData !== 'undefined') { addToData(); };
 		pathData.setAttribute('value', data.toString());
+		console.log(data.toString());
 		nextForm.submit();
 	});			
 }
@@ -422,8 +423,9 @@ function getTimestamps(xs)
 {
 	var timestamps = [];
 	for(var i = 0; i < xs.length; i++) {
-		var time = xs[i].getContent().childNodes[0][0].value;
-		var position = (function() { return { lat: xs.getPosition().lat(), lng: xs.getPosition().lng()}; })();
+		var timestamp = xs[i];
+		var time = timestamp.getContent().childNodes[0][0].value;
+		var position = (function() { return { lat: timestamp.getPosition().lat(), lng: timestamp.getPosition().lng()}; })();
 		timestamps.push({ time: time, position: position });
 	}
 	return timestamps;
