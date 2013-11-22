@@ -44,3 +44,11 @@ body {
 .timestamp-label {
   font-size: 14pt;
 }
+#test {
+  height: 100%;
+  width: 100%;
+}
+#test #test-map {
+  height: 100%;
+  width: 60%;
+}

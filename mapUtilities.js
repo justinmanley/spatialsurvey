@@ -369,6 +369,9 @@ var spatialsurvey = (function() {
 }());
 
 var mapcalc = (function() {
+
+	var verbose = true;
+
 	var latToLngScalingFactor = function() {
 		var unitDistanceLat = google.maps.geometry.spherical.computeDistanceBetween(
 			new google.maps.LatLng(41.690113, -87.600732),
@@ -463,13 +466,13 @@ var mapcalc = (function() {
 
 		for (i = 0; i < n; i++) {
 			var testPoint = new google.maps.LatLng(point.lat() + i*dx, point.lng() + m*i*dx);
-			// placeMarker(testPoint, map);
+			if (verbose) { placeMarker(testPoint, map); };
 			if (google.maps.geometry.poly.isLocationOnEdge(testPoint, polyline, dx))
 				return testPoint;
 		}
 		for (i = 0; i > -n; i--) {
 			var testPoint = new google.maps.LatLng(point.lat() + i*dx, point.lng() + m*i*dx);
-			// placeMarker(testPoint, map);
+			if (verbose) { placeMarker(testPoint, map); };
 			if (google.maps.geometry.poly.isLocationOnEdge(testPoint, polyline, dx))
 				return testPoint;
 		}
