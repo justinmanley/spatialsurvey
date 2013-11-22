@@ -11,10 +11,10 @@ function initialize() {
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	});
 
-	var data = personPath();
+	var data = spatialsurvey.personPath();
 	data.display(map, function() {
-		showInstructions(map, document);
-		showNextButton(map, document, data, 'save');	
+		spatialsurvey.showInstructions(map, document);
+		spatialsurvey.showNextButton(map, document, data, 'save');	
 	});	
 
 }

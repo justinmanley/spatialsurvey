@@ -25,10 +25,10 @@ function initialize() {
 		data.setPath(polyline.getPath().getArray());
 	});
 
-	var data = personPath();
+	var data = spatialsurvey.personPath();
 
-	showInstructions(map, document);
-	showNextButton(map, document, data, 'add_time', function() {
+	spatialsurvey.showInstructions(map, document);
+	spatialsurvey.showNextButton(map, document, data, 'add_time', function() {
 		var startTime = document.getElementById('start-time').value;
 		var endTime = document.getElementById('end-time').value;
 		data.setStartTime(startTime);
