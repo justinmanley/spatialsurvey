@@ -16,6 +16,15 @@ function initialize() {
 	data.display(map, function() {
 		timestampMarkers = new Array();
 
+		var start = data.getStartTime();
+		var end = data.getEndTime();
+		var pathLength = google.maps.geometry.spherical.computeLength(data.getPath());
+		for (var i = start; i < end; i++) {
+			// position = 
+			var infowindow = spatialsurvey.addTimestampMarker(map, userPolyline, position);
+			timestampMarkers.push(infowindow);
+		}
+
 		spatialsurvey.showInstructions(map, document);
 		spatialsurvey.showNextButton(map, document, data, 'add_transit', function() {
 			var times = spatialsurvey.getTimestamps(timestampMarkers);

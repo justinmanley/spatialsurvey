@@ -370,7 +370,7 @@ var spatialsurvey = (function() {
 
 var mapcalc = (function() {
 
-	var verbose = true;
+	var verbose = false;
 
 	var latToLngScalingFactor = function() {
 		var unitDistanceLat = google.maps.geometry.spherical.computeDistanceBetween(
@@ -385,31 +385,31 @@ var mapcalc = (function() {
 		return unitDistanceLat/unitDistanceLng;
 	} ();
 
-	// Constructor for a Segment object.  Takes an array containing two LatLng points.
-	// -------------------------------------------
-	var Segment = function(segment) 
-	// -------------------------------------------
+// Constructor for a Segment object.  Takes two LatLng points.
+// -------------------------------------------
+	var Segment = function(endpoint1, endpoint2) 
+// -------------------------------------------
 	{
 		this.getVertices = function() {
-			return segment;
+			return [endpoint1, endpoint2];
 		}
 		this.generateSlope = function() {
-			var dx = (latToLngScalingFactor^2)*(segment[0].lat() - segment[1].lat());
-			var dy = segment[0].lng() - segment[1].lng();
+			var dx = (latToLngScalingFactor^2)*(endpoint1.lat() - endpoint2.lat());
+			var dy = endpoint1.lng() - endpoint2.lng();
 			return dy/dx;
 		};
 		this.generatePerpendicularSlope = function() {
 			return -1/this.generateSlope();
 		};
 		this.toLine = function() {
-			return new Line(segment[0], this.generateSlope());
+			return new Line(endpoint1, this.generateSlope());
 		};
 	}
 
-	// Constructor for a Line object.  Takes a LatLng point and a slope (a number).
-	// ------------------------------------------------------------
+// Constructor for a Line object.  Takes a LatLng point and a slope (a number).
+// ------------------------------------------------------------
 	var Line = function(point, slope) 
-	// ------------------------------------------------------------
+// ------------------------------------------------------------
 	{
 		this.getSlope = function () { return slope; };
 		this.getPoint = function () { return point; };
@@ -436,9 +436,37 @@ var mapcalc = (function() {
 		};
 	}
 
-	// ------------------------------------------------------------------------
+// Returns the ith segment of the polyline, indexed from 0 to n.
+// -----------------------------------------------------------------------
+	var getSegment = function(polyline, i) 
+// -----------------------------------------------------------------------
+	{
+		if (polyline.getPath().getArray().length < i + 1)
+			throw "Polyline has fewer than " + i + " segments.";
+		else
+			return new Segment(polyline[i], polyline[i+1]);
+	}
+
+// -----------------------------------------------------------------------
+	var positionAlongPolyline = function(polyline, length) 
+// -----------------------------------------------------------------------
+	{
+		var num = polyline.getPath().getArray().length;
+		var cumulativeLength = 0;
+		for (var i = 0; i < num - 1; i++) {
+			if (cumulativeLength > length) {
+				var nothing = 0;
+				// return the position of a point that is length - (cumulativelength - google.maps.geometry.spherical.computeLength(getSegment(polyline, i-1))); 			}
+			}
+			else {
+				cumulativeLength += google.maps.geometry.spherical.computeLength(getSegment(polyline, i));
+			}
+		}
+	}
+
+// ------------------------------------------------------------------------
 	var getIterationsNumber = function(segment, point, dx, distanceUpperBound)
-	// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 	{
 		var m = segment.generatePerpendicularSlope();
 		var unitDistance = google.maps.geometry.spherical.computeDistanceBetween(
@@ -506,19 +534,19 @@ var mapcalc = (function() {
 		});
 	}
 
-	// ------------------------------------------------------------
+// ------------------------------------------------------------
 	var closestPointOnPolyline = function(polyline, point, t, map) 
-	// ------------------------------------------------------------
+// ------------------------------------------------------------
 	{
 		var criticalPoints = new Array();
 		var v = closestVertex(point, polyline);
 		criticalPoints.push(v.coord);
 		if (v.index > 0) {
-			var segment1 = new Segment([polyline.getPath().getAt(v.index -1), v.coord]);
+			var segment1 = new Segment(polyline.getPath().getAt(v.index -1), v.coord);
 			criticalPoints.push(closestPerpendicularPoint(polyline, segment1, point, t, map));
 		}
 		if (v.index < polyline.getPath().getArray().length - 1) {
-			var segment2 = new Segment([v.coord, polyline.getPath().getAt(v.index + 1)]);
+			var segment2 = new Segment(v.coord, polyline.getPath().getAt(v.index + 1));
 			criticalPoints.push(closestPerpendicularPoint(polyline, segment2, point, t, map));
 		}
 

@@ -1,6 +1,7 @@
 function initialize() {
+	var mapCenter = new google.maps.LatLng(41.790113, -87.600732);
 	var map = new google.maps.Map(document.getElementById("map-canvas"), {
-		center: new google.maps.LatLng(41.790113, -87.600732),
+		center: mapCenter,
 		zoom: 18,
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	});
@@ -29,11 +30,22 @@ function initialize() {
 
 	spatialsurvey.showInstructions(map, document);
 	spatialsurvey.showNextButton(map, document, data, 'add_time', function() {
+		google.maps.event.trigger('polylinecomplete');	
 		var startTime = document.getElementById('start-time').value;
 		var endTime = document.getElementById('end-time').value;
 		data.setStartTime(startTime);
 		data.setEndTime(endTime);
 	});
+
+	// var welcomeContent = document.createElement('div');
+	// welcomeContent.id = 'welcome';
+	// welcomeContent.innerHTML = '<h2>Hello!</h2>';
+	// var welcome = new InfoBox({
+	// 	disableAutoPan: true,
+	// 	position: mapCenter,
+	// 	content: welcomeContent,
+	// }); 
+	// welcome.open(map);
 
 }
 
