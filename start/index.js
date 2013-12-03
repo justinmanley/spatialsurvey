@@ -28,7 +28,6 @@ function initialize() {
 
 	var data = spatialsurvey.personPath();
 
-	spatialsurvey.showInstructions(map, document);
 	spatialsurvey.showNextButton(map, document, data, 'add_time', function() {
 		google.maps.event.trigger('polylinecomplete');	
 		var startTime = document.getElementById('start-time').value;
@@ -41,6 +40,7 @@ function initialize() {
 	var welcome_close = document.getElementsByClassName('close-box')[0];
 	google.maps.event.addDomListener(welcome_close, 'click', function() {
 		document.body.removeChild(document.getElementById('welcome'));
+		spatialsurvey.showInstructions(map, document);	
 	});		
 
 }

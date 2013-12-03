@@ -63,17 +63,22 @@ body {
 
 
 #welcome {
+	@welcome-width: 750px;
+	@welcome-height: (@welcome-width*0.618);
+
 	position: absolute;
-	background-color: #ffffff;
-	height: 300px;
-	width: 400px;
+	background-color: rgba(256,256,256,1);
+	height: @welcome-height;
+	width: @welcome-width;
 	z-index: 1000;
 	left: 50%;
-	margin-left: -150px;
-	top: 100px;
+	margin-left: (-@welcome-width/2);
+	top: 75px;
 	padding: 2px;
 	#welcome-content {
-		padding: 10px;
+		margin: 20px;
+		overflow: auto;
+		height: (@welcome-height - 2*20px);
 	}
 }
 
@@ -82,6 +87,7 @@ body {
 	border: 1px solid #9a9a9a;
 	font-family: sans-serif;
 	color: #9a9a9a; 
+	padding: 1px;
 }	
 
 

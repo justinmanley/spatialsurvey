@@ -55,20 +55,23 @@ body {
 #welcome {
   position: absolute;
   background-color: #ffffff;
-  height: 300px;
-  width: 400px;
+  height: 463.5px;
+  width: 750px;
   z-index: 1000;
   left: 50%;
-  margin-left: -150px;
-  top: 100px;
+  margin-left: -375px;
+  top: 75px;
   padding: 2px;
 }
 #welcome #welcome-content {
-  padding: 10px;
+  margin: 20px;
+  overflow: auto;
+  height: 423.5px;
 }
 .close-box {
   float: right;
   border: 1px solid #9a9a9a;
   font-family: sans-serif;
   color: #9a9a9a;
+  padding: 1px;
 }
