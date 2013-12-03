@@ -37,6 +37,7 @@ function initialize() {
 		data.setEndTime(endTime);	
 	});
 
+	// event handler to close welcome screen
 	var welcome_close = document.getElementsByClassName('close-box')[0];
 	google.maps.event.addDomListener(welcome_close, 'click', function() {
 		document.body.removeChild(document.getElementById('welcome'));
