@@ -34,18 +34,13 @@ function initialize() {
 		var startTime = document.getElementById('start-time').value;
 		var endTime = document.getElementById('end-time').value;
 		data.setStartTime(startTime);
-		data.setEndTime(endTime);
+		data.setEndTime(endTime);	
 	});
 
-	// var welcomeContent = document.createElement('div');
-	// welcomeContent.id = 'welcome';
-	// welcomeContent.innerHTML = '<h2>Hello!</h2>';
-	// var welcome = new InfoBox({
-	// 	disableAutoPan: true,
-	// 	position: mapCenter,
-	// 	content: welcomeContent,
-	// }); 
-	// welcome.open(map);
+	var welcome_close = document.getElementsByClassName('close-box')[0];
+	google.maps.event.addDomListener(welcome_close, 'click', function() {
+		document.body.removeChild(document.getElementById('welcome'));
+	});		
 
 }
 

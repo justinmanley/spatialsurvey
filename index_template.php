@@ -15,5 +15,6 @@
 	</head>
 	<body>
 		<div id="map-canvas"></div>
+		<?php if (isset($extra)) echo $extra; ?>
 	</body>
 </html>

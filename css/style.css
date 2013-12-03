@@ -53,8 +53,22 @@ body {
   width: 60%;
 }
 #welcome {
+  position: absolute;
   background-color: #ffffff;
-  padding: 20px 20px;
-  height: 400px;
-  width: 300px;
+  height: 300px;
+  width: 400px;
+  z-index: 1000;
+  left: 50%;
+  margin-left: -150px;
+  top: 100px;
+  padding: 2px;
+}
+#welcome #welcome-content {
+  padding: 10px;
+}
+.close-box {
+  float: right;
+  border: 1px solid #9a9a9a;
+  font-family: sans-serif;
+  color: #9a9a9a;
 }
