@@ -8,7 +8,7 @@ function initialize() {
 	var drawingManager = new google.maps.drawing.DrawingManager(
 		{
 			drawingMode: google.maps.drawing.OverlayType.POLYLINE,
-			drawingControl: true,
+			drawingControl: false,
 			drawingControlOptions: {
 			position: google.maps.ControlPosition.TOP_CENTER,
 			drawingModes: [
@@ -24,12 +24,24 @@ function initialize() {
 
 	google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) { 
 		data.setPath(polyline.getPath().getArray());
+		drawingManager.setOptions({
+			drawingMode: null
+		});		
+		var deleteButton = addDeleteButton(document);
+		google.maps.event.addListener(polyline, 'rightclick', function(point) {
+			getUndoButton(document).parentNode.parentNode.style.display = 'block';
+			google.maps.event.addDomListener(deleteButton, 'click', function() {
+				console.log('hello');
+				console.log(polyline);
+				if (point.vertex != null)
+					polyline.getPath().removeAt(point.vertex);
+			});
+		});
 	});
 
 	var data = spatialsurvey.personPath();
 
 	spatialsurvey.showNextButton(map, document, data, 'add_time', function() {
-		google.maps.event.trigger('polylinecomplete');	
 		var startTime = document.getElementById('start-time').value;
 		var endTime = document.getElementById('end-time').value;
 		data.setStartTime(startTime);
@@ -41,7 +53,7 @@ function initialize() {
 	google.maps.event.addDomListener(welcome_close, 'click', function() {
 		document.body.removeChild(document.getElementById('welcome'));
 		spatialsurvey.showInstructions(map, document);	
-	});		
+	});	
 
 }
 

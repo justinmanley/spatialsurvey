@@ -10,7 +10,8 @@ body {
   height: 100%;
 }
 #next-page-button,
-#previous-page-button {
+#previous-page-button,
+.next-instruction {
   background: -webkit-linear-gradient(top, #4387fd, #4683ea);
   background: linear-gradient(top, #4387fd, #4683ea);
   background: #357ae8;
@@ -64,9 +65,16 @@ body {
   padding: 2px;
 }
 #welcome #welcome-content {
-  margin: 20px;
+  margin: 50px 50px 0 50px;
   overflow: auto;
-  height: 423.5px;
+  height: 324.5px;
+}
+#welcome #welcome-content img {
+  width: 50%;
+}
+#welcome .next-instruction {
+  display: block;
+  margin: 30px auto;
 }
 .close-box {
   float: right;

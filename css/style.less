@@ -10,14 +10,16 @@ body {
 	height: 100% 
 }
 
-#next-page-button, #previous-page-button {
+@button-height: 29px; 
+@button-margin: 30px;
+#next-page-button, #previous-page-button, .next-instruction {
 	background: -webkit-linear-gradient(top,#4387fd,#4683ea);
 	background: linear-gradient(top,#4387fd,#4683ea);
 	background: #357ae8;
 	border: 0px;
-	height: 29px;
+	height: @button-height;
 	width: 80px;
-	margin: 30px 10px;
+	margin: @button-margin 10px;
 	color: #ffffff;
 	font-weight: bold;
 }
@@ -64,7 +66,9 @@ body {
 
 #welcome {
 	@welcome-width: 750px;
+	// @welcome-width: 550px;
 	@welcome-height: (@welcome-width*0.618);
+	@welcome-margin: 50px;
 
 	position: absolute;
 	background-color: rgba(256,256,256,1);
@@ -74,11 +78,19 @@ body {
 	left: 50%;
 	margin-left: (-@welcome-width/2);
 	top: 75px;
+	// top: 150px;
 	padding: 2px;
 	#welcome-content {
-		margin: 20px;
+		margin: @welcome-margin @welcome-margin 0 @welcome-margin;
 		overflow: auto;
-		height: (@welcome-height - 2*20px);
+		height: (@welcome-height - @welcome-margin - @button-height - 2*@button-margin);
+		img {
+			width: 50%;
+		}
+	}
+	.next-instruction {
+		display: block;
+		margin: @button-margin auto;
 	}
 }
 

@@ -565,3 +565,57 @@ var mapcalc = (function() {
 
 }());
 
+// --------------------------------------------------------------
+function getUndoButton(doc) 
+// --------------------------------------------------------------
+{
+	var images = doc.getElementsByTagName('img');
+	for (var i = 0; i < images.length; i++) {
+		console.log(images[i].src);
+		if (images[i].src == 'https://maps.gstatic.com/mapfiles/undo_poly.png')
+			return images[i];
+	}
+	return -1;
+}
+
+var deleteUrl = 'http://i.imgur.com/RUrKV.png';
+
+// --------------------------------------------------------------
+function getDeleteButton(doc)
+// --------------------------------------------------------------
+{
+	var images = doc.getElementsByTagName('img');
+	for (var i = 0; i < images.length; i++) {
+		console.log(images[i].src);
+		if (images[i].src == deleteUrl)
+			return images[i];
+	}
+	return -1;
+}
+
+// --------------------------------------------------------------
+function addDeleteButton(doc)
+// --------------------------------------------------------------
+{
+	var deleteButton = doc.createElement('div');
+	var undoButton = getUndoButton(doc);
+	deleteButton.setAttribute('style', 'overflow-x: hidden; overflow-y: hidden; position: absolute; width: 30px; height: 27px; top: 21px;');
+	deleteButton.innerHTML = '<img src="' + deleteUrl + '" class="deletePoly" style="height:auto; width:auto; position: absolute; left:0;"/>';
+	undoButton.parentNode.style.height = '21px';
+	undoButton.parentNode.parentNode.appendChild(deleteButton);
+	google.maps.event.clearInstanceListeners(undoButton.parentNode.parentNode);
+	google.maps.event.addDomListener(deleteButton, 'mouseover', function() {
+		deleteButton.getElementsByTagName('img')[0].style.left = '-30px';
+	});	
+	google.maps.event.addDomListener(deleteButton, 'mouseout', function() {
+		deleteButton.getElementsByTagName('img')[0].style.left = '0';
+	});
+	google.maps.event.addDomListener(deleteButton, 'mousedown', function() {
+		deleteButton.getElementsByTagName('img')[0].style.left = '-60px';
+	});	
+	return deleteButton;
+}
+
+// --------------------------------------------------------------
+
+// --------------------------------------------------------------
