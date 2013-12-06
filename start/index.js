@@ -27,16 +27,7 @@ function initialize() {
 		drawingManager.setOptions({
 			drawingMode: null
 		});		
-		var deleteButton = addDeleteButton(document);
-		google.maps.event.addListener(polyline, 'rightclick', function(point) {
-			getUndoButton(document).parentNode.parentNode.style.display = 'block';
-			google.maps.event.addDomListener(deleteButton, 'click', function() {
-				console.log('hello');
-				console.log(polyline);
-				if (point.vertex != null)
-					polyline.getPath().removeAt(point.vertex);
-			});
-		});
+		rightClickButton(map, document, polyline);
 	});
 
 	var data = spatialsurvey.personPath();

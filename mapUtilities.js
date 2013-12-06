@@ -594,16 +594,12 @@ function getDeleteButton(doc)
 }
 
 // --------------------------------------------------------------
-function addDeleteButton(doc)
+function addDeleteButton(doc, polyline)
 // --------------------------------------------------------------
 {
 	var deleteButton = doc.createElement('div');
-	var undoButton = getUndoButton(doc);
 	deleteButton.setAttribute('style', 'overflow-x: hidden; overflow-y: hidden; position: absolute; width: 30px; height: 27px; top: 21px;');
 	deleteButton.innerHTML = '<img src="' + deleteUrl + '" class="deletePoly" style="height:auto; width:auto; position: absolute; left:0;"/>';
-	undoButton.parentNode.style.height = '21px';
-	undoButton.parentNode.parentNode.appendChild(deleteButton);
-	google.maps.event.clearInstanceListeners(undoButton.parentNode.parentNode);
 	google.maps.event.addDomListener(deleteButton, 'mouseover', function() {
 		deleteButton.getElementsByTagName('img')[0].style.left = '-30px';
 	});	
@@ -613,9 +609,44 @@ function addDeleteButton(doc)
 	google.maps.event.addDomListener(deleteButton, 'mousedown', function() {
 		deleteButton.getElementsByTagName('img')[0].style.left = '-60px';
 	});	
+	google.maps.event.addDomListener(deleteButton, 'mouseup', function() {
+		deleteButton.getElementsByTagName('img')[0].style.left = '0';		
+	});
 	return deleteButton;
+
 }
 
-// --------------------------------------------------------------
+// want to create a div which is normally hidden (i.e. display: none)  it should have an event listener on it
+// so that when a point is clicked, it is made visible and its position is just right of the position of the marker
+function rightClickButton(map, doc, polyline)
+{
+	var rightClickDiv = doc.createElement('div');
+	rightClickDiv.setAttribute('style', 'position: absolute; display:none; z-index: -202; cursor: pointer; -webkit-transform: translateZ(0);');
+	getUndoButton(doc).parentNode.parentNode.parentNode.appendChild(rightClickDiv);
 
-// --------------------------------------------------------------
+	var deleteButton = addDeleteButton(doc, polyline);
+	rightClickDiv.appendChild(deleteButton);
+	google.maps.event.addListener(polyline, 'rightclick', function(point) {
+		if (point.vertex != null) {
+			rightClickDiv.style.display = 'block';
+			rightClickDiv.style.left = point.latLng.lat() + 'px';
+			rightClickDiv.style.left = point.latLng.lng() + 'px';
+		}
+		google.maps.event.clearListeners(deleteButton, 'click');
+		google.maps.event.addDomListener(deleteButton, 'click', function(event) {
+			if (point.vertex != null) {
+				polyline.getPath().removeAt(point.vertex);
+			}
+		});
+		google.maps.event.addDomListener(map, 'click', function() {
+			rightClickDiv.style.display = 'none';
+			/* If we don't clear the listener here, this is what happens:
+				* listener gets registered on vertex N
+				* vertex N is deleted
+				* listener still deletes vertex N on rightclick, but the number N now refers to a different vertex
+			*/
+			google.maps.event.clearListeners(deleteButton, 'click');
+		});
+	});
+	return rightClickDiv;
+}
