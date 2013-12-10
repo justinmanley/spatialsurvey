@@ -534,6 +534,27 @@ var mapcalc = (function() {
 		});
 	}
 
+	var validDeleteUrl = false;
+
+// ---------------------------------------------------------------
+	var getDeleteUrl = function() 
+// ---------------------------------------------------------------
+	{
+		var deleteUrl = 'http://i.imgur.com/RUrKV.png';
+		if (!validDeleteUrl) {
+			var request = new XMLHttpRequest();
+			request.open('GET', deleteUrl, false);
+			request.onreadystatechange = function() {
+				if (request.readyState == 4) {
+					if (request.status == 200) { validDeleteUrl = true; };
+				}
+			};
+			request.send();
+		}
+		if (validDeleteUrl) { return deleteUrl;	}
+		else throw "Link to delete vertex image is broken.";
+	}
+
 // ------------------------------------------------------------
 	var closestPointOnPolyline = function(polyline, point, t, map) 
 // ------------------------------------------------------------
@@ -556,97 +577,97 @@ var mapcalc = (function() {
 				return critical[p].coord;
 		}
 		return -1;
-	}
+	};
+
+// --------------------------------------------------------------
+	var getUndoButton = function(doc) 
+// --------------------------------------------------------------
+	{
+		var images = doc.getElementsByTagName('img');
+		for (var i = 0; i < images.length; i++) {
+			console.log(images[i].src);
+			if (images[i].src == 'https://maps.gstatic.com/mapfiles/undo_poly.png')
+				return images[i];
+		}
+		return -1;
+	};
+
+// --------------------------------------------------------------
+	var getDeleteButton = function(doc)
+// --------------------------------------------------------------
+	{
+		var images = doc.getElementsByTagName('img');
+		for (var i = 0; i < images.length; i++) {
+			console.log(images[i].src);
+			if (images[i].src == getDeleteUrl())
+				return images[i];
+		}
+		return -1;
+	};
+
+// --------------------------------------------------------------
+	var addDeleteButton = function(doc, polyline)
+// --------------------------------------------------------------
+	{
+		var deleteButton = doc.createElement('div');
+		deleteButton.setAttribute('style', 'overflow-x: hidden; overflow-y: hidden; position: absolute; width: 30px; height: 27px; top: -10px; left: 5px;');
+		deleteButton.innerHTML = '<img src="' + getDeleteUrl() + '" class="deletePoly" style="height:auto; width:auto; position: absolute; left:0;"/>';
+		google.maps.event.addDomListener(deleteButton, 'mouseover', function() {
+			deleteButton.getElementsByTagName('img')[0].style.left = '-30px';
+		});	
+		google.maps.event.addDomListener(deleteButton, 'mouseout', function() {
+			deleteButton.getElementsByTagName('img')[0].style.left = '0';
+		});
+		google.maps.event.addDomListener(deleteButton, 'mousedown', function() {
+			deleteButton.getElementsByTagName('img')[0].style.left = '-60px';
+		});	
+		google.maps.event.addDomListener(deleteButton, 'mouseup', function() {
+			deleteButton.getElementsByTagName('img')[0].style.left = '0';		
+		});
+		return deleteButton;
+
+	};
+
+// ----------------------------------------------------------------------
+	var rightClickButton = function(map, doc, polyline)
+// ----------------------------------------------------------------------
+	{
+		var deleteButton = addDeleteButton(doc, polyline);
+		var rightClickDiv = new InfoBox({
+			content: deleteButton,
+			closeBoxURL: "",
+			visible: false
+		});
+
+		google.maps.event.addListener(polyline, 'rightclick', function(point) {
+			if (point.vertex != null) {
+				rightClickDiv.setPosition(point.latLng);
+				rightClickDiv.show();
+				rightClickDiv.open(map);		
+
+				google.maps.event.clearListeners(deleteButton, 'click');
+				google.maps.event.addDomListener(deleteButton, 'click', function(event) {
+					polyline.getPath().removeAt(point.vertex);
+					rightClickDiv.hide();
+				});
+				google.maps.event.addDomListener(map, 'click', function() {
+					rightClickDiv.hide();
+					/* If we don't clear the listener here, this is what happens:
+					 *	 listener gets registered on vertex N
+					 *	 vertex N is deleted
+					 *	 listener still deletes vertex N on rightclick, but the number N now refers to a different vertex
+					 */
+					google.maps.event.clearListeners(deleteButton, 'click');
+				});
+			}
+		});
+		return rightClickDiv;
+	};
 
 	// public methods and constructors
 	return {
-		closestPointOnPolyline: closestPointOnPolyline
+		closestPointOnPolyline: closestPointOnPolyline, 
+		rightClickButton: rightClickButton
 	}
 
 }());
-
-// --------------------------------------------------------------
-function getUndoButton(doc) 
-// --------------------------------------------------------------
-{
-	var images = doc.getElementsByTagName('img');
-	for (var i = 0; i < images.length; i++) {
-		console.log(images[i].src);
-		if (images[i].src == 'https://maps.gstatic.com/mapfiles/undo_poly.png')
-			return images[i];
-	}
-	return -1;
-}
-
-var deleteUrl = 'http://i.imgur.com/RUrKV.png';
-
-// --------------------------------------------------------------
-function getDeleteButton(doc)
-// --------------------------------------------------------------
-{
-	var images = doc.getElementsByTagName('img');
-	for (var i = 0; i < images.length; i++) {
-		console.log(images[i].src);
-		if (images[i].src == deleteUrl)
-			return images[i];
-	}
-	return -1;
-}
-
-// --------------------------------------------------------------
-function addDeleteButton(doc, polyline)
-// --------------------------------------------------------------
-{
-	var deleteButton = doc.createElement('div');
-	deleteButton.setAttribute('style', 'overflow-x: hidden; overflow-y: hidden; position: absolute; width: 30px; height: 27px; top: 21px;');
-	deleteButton.innerHTML = '<img src="' + deleteUrl + '" class="deletePoly" style="height:auto; width:auto; position: absolute; left:0;"/>';
-	google.maps.event.addDomListener(deleteButton, 'mouseover', function() {
-		deleteButton.getElementsByTagName('img')[0].style.left = '-30px';
-	});	
-	google.maps.event.addDomListener(deleteButton, 'mouseout', function() {
-		deleteButton.getElementsByTagName('img')[0].style.left = '0';
-	});
-	google.maps.event.addDomListener(deleteButton, 'mousedown', function() {
-		deleteButton.getElementsByTagName('img')[0].style.left = '-60px';
-	});	
-	google.maps.event.addDomListener(deleteButton, 'mouseup', function() {
-		deleteButton.getElementsByTagName('img')[0].style.left = '0';		
-	});
-	return deleteButton;
-
-}
-
-// want to create a div which is normally hidden (i.e. display: none)  it should have an event listener on it
-// so that when a point is clicked, it is made visible and its position is just right of the position of the marker
-function rightClickButton(map, doc, polyline)
-{
-	var rightClickDiv = doc.createElement('div');
-	rightClickDiv.setAttribute('style', 'position: absolute; display:none; z-index: -202; cursor: pointer; -webkit-transform: translateZ(0);');
-	getUndoButton(doc).parentNode.parentNode.parentNode.appendChild(rightClickDiv);
-
-	var deleteButton = addDeleteButton(doc, polyline);
-	rightClickDiv.appendChild(deleteButton);
-	google.maps.event.addListener(polyline, 'rightclick', function(point) {
-		if (point.vertex != null) {
-			rightClickDiv.style.display = 'block';
-			rightClickDiv.style.left = point.latLng.lat() + 'px';
-			rightClickDiv.style.left = point.latLng.lng() + 'px';
-		}
-		google.maps.event.clearListeners(deleteButton, 'click');
-		google.maps.event.addDomListener(deleteButton, 'click', function(event) {
-			if (point.vertex != null) {
-				polyline.getPath().removeAt(point.vertex);
-			}
-		});
-		google.maps.event.addDomListener(map, 'click', function() {
-			rightClickDiv.style.display = 'none';
-			/* If we don't clear the listener here, this is what happens:
-				* listener gets registered on vertex N
-				* vertex N is deleted
-				* listener still deletes vertex N on rightclick, but the number N now refers to a different vertex
-			*/
-			google.maps.event.clearListeners(deleteButton, 'click');
-		});
-	});
-	return rightClickDiv;
-}

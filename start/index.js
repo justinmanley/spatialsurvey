@@ -27,7 +27,7 @@ function initialize() {
 		drawingManager.setOptions({
 			drawingMode: null
 		});		
-		rightClickButton(map, document, polyline);
+		mapcalc.rightClickButton(map, document, polyline);
 	});
 
 	var data = spatialsurvey.personPath();
