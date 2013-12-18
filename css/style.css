@@ -75,6 +75,9 @@ body {
 #welcome .next-instruction {
   display: block;
   margin: 30px auto;
+  background: linear-gradient(top, #8d8d8d, #bdbdbd);
+  background: -webkit-linear-gradient(top, #4387fd, #4683ea);
+  background: #4387fd;
 }
 .close-box {
   float: right;

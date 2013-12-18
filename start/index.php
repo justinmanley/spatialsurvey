@@ -1,16 +1,5 @@
 <?php 
 	$page_name = 'start';
-	$extra = '<div id="welcome">
-				<div class="close-box">X</div>
-				<div id="welcome-content">
-					<h3>Instructions</h3>
-					<p>Use the polyline tool at the top of the page to draw the path that you took around campus yesterday.  Please be as specific as possible!</p>
-					<p>If you make a mistake, don\'t worry; you\'ll have a chance to edit the path you\'ve drawn before you proceed to the next step.</p>
-					<p>When you\'re done, double-click on the last point to save your path, then click the button at the bottom of the page to advance to the next step.</p>
-					<img src="../images/instruction1.gif" />
-				</div><!-- #welcome-content -->
-				<button class="next-instruction">Next</button>				
-			  </div><!-- #welcome -->';
 	require_once('../index_template.php');
 				// <div id="welcome-content">
 				// 	<h2>Facilities Services Campus Movement Survey</h2>
