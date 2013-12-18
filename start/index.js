@@ -16,8 +16,7 @@ function initialize() {
 			]
 		},
 		polylineOptions: {
-			editable: true,
-			draggable: true
+			editable: true
 		},
 	});
 	drawingManager.setMap(map);

@@ -636,31 +636,70 @@ var mapcalc = (function() {
 		var rightClickDiv = new InfoBox({
 			content: deleteButton,
 			closeBoxURL: "",
-			visible: false
+			visible: false,
+		});
+
+		/* Need to define these methods (unfortunately) because
+		 * 	1. InfoBox method isVisible() is not implemented (although documentation says it is)
+		 * 	2. InfoBox attribute visible says whether the infobox is visible ON OPEN, not whether it is visible.`
+		 */
+		rightClickDiv.mapCalcVisibility = false;
+		rightClickDiv.mapCalcShow = function() {
+			rightClickDiv.show();
+			rightClickDiv.mapCalcVisibility = true;
+		}
+		rightClickDiv.mapCalcHide = function() {
+			rightClickDiv.hide();
+			rightClickDiv.mapCalcVisibility = false;
+		}
+		rightClickDiv.mapCalcIsVisible = function() {
+			return rightClickDiv.mapCalcVisibility;
+		}
+
+		google.maps.event.addListener(polyline, 'rightclick', function(point) {
+			if (point.vertex != null) getUndoButton(doc).style.display = 'none';
+		});	
+
+		google.maps.event.addListener(polyline.getPath(), 'set_at', function(point) {
+			if (!rightClickDiv.mapCalcIsVisible()) { getUndoButton(doc).style.display = 'block'; }
+			else { getUndoButton(doc).style.display = 'none'; }
 		});
 
 		google.maps.event.addListener(polyline, 'rightclick', function(point) {
 			if (point.vertex != null) {
 				rightClickDiv.setPosition(point.latLng);
-				rightClickDiv.show();
+				rightClickDiv.mapCalcShow();
 				rightClickDiv.open(map);		
 
+				// Move the delete button if user drags its associated vertex.  Otherwise, hide it.
+				var setAtListener = google.maps.event.addListener(polyline.getPath(), 'set_at', function(newpoint) {
+					if (newpoint == point.vertex) 
+						rightClickDiv.setPosition(polyline.getPath().getAt(newpoint));
+					else {
+						rightClickDiv.mapCalcHide();
+					}
+				});
+
+				// This prevents the user from right-clicking many times in succession on the same
+				// vertex and thereby deleting many more than one vertex.
 				google.maps.event.clearListeners(deleteButton, 'click');
+
 				google.maps.event.addDomListener(deleteButton, 'click', function(event) {
 					polyline.getPath().removeAt(point.vertex);
-					rightClickDiv.hide();
+					rightClickDiv.mapCalcHide();
 				});
 				google.maps.event.addDomListener(map, 'click', function() {
-					rightClickDiv.hide();
+					rightClickDiv.mapCalcHide();
 					/* If we don't clear the listener here, this is what happens:
 					 *	 listener gets registered on vertex N
 					 *	 vertex N is deleted
 					 *	 listener still deletes vertex N on rightclick, but the number N now refers to a different vertex
 					 */
 					google.maps.event.clearListeners(deleteButton, 'click');
+					google.maps.event.removeListener(setAtListener);
 				});
 			}
-		});
+		});	
 		return rightClickDiv;
 	};
 
