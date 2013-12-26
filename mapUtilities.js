@@ -341,7 +341,8 @@ var spatialsurvey = (function() {
 	}
 
 	var instructions = (function() {
-		var content = [];
+		var opt = {};
+		opt.content = [];
 
 		var setupInstructions = function(doc) {
 			var extra = doc.getElementById('extra');
@@ -351,74 +352,90 @@ var spatialsurvey = (function() {
 				'</div>'+				
 				'<div id="welcome-content">'+
 				'</div><!-- #welcome-content -->'+
-				'<button class="next-instruction">Next</button>'+				
+				'<button id="next-instruction">Next</button>'+				
 			  '</div><!-- #welcome -->';
 		}
 		var getInstructions = function(map, doc) {
 			var instructions = doc.createElement('div');
 			instructions.id = 'instructions';
+
+			// initialize the instructions sidebar to be hidden
+			instructions.style.display = 'none';
 			conn2 = new XMLHttpRequest();
 			conn2.open('GET', 'instructions.php', true);
 			conn2.onreadystatechange = function() {
 				if (this.readyState !== 4 ) return; 
 				if (this.status !== 200 ) return; 
-				instructions.innerHTML = this.responseText;
+				instructions.innerHTML = this.responseText;				
 			};
 			conn2.send();
-			map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
+			map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);	
+
 		}
-		var showWelcome = function(doc) {
-			doc.getElementById('welcome').style.display = 'block';
-			hideInstructionSidebar(doc);
+		var showWelcome = function(map, doc, drawingManager) {
+			var welcome = doc.getElementById('welcome');
+			var welcome_content = doc.getElementById('welcome-content');
+
+			welcome.style.display = 'block';
+
+			if (doc.getElementById('instructions') != null) { 			
+				doc.getElementById('instructions').style.display = 'none';			
+			}						
+
+			// initialize welcome screen
+		    var welcome_screen_index = 0;
+		    var content = getContent();
+		    welcome_content.innerHTML = content[welcome_screen_index];
+		    google.maps.event.addDomListener(doc.getElementById('next-instruction'), 'click', function() {
+				console.log(welcome_screen_index);
+				if (welcome_screen_index < content.length - 1) { 
+				    welcome_screen_index += 1;
+				    welcome_content.innerHTML = content[welcome_screen_index]; 
+				}
+				else { startDrawing(map, doc, drawingManager); }
+			});
+
 		}
 		var hideWelcome = function(doc) {
 			doc.getElementById('welcome').style.display = 'none';
-			showInstructionsSidebar(doc);
-		}
-		var showInstructionSidebar = function(doc) {
+			google.maps.event.clearListeners(doc.getElementById('next-instruction'), 'click');
 
-		}
-		var hideInstructionSidebar = function(doc) {
-
+			doc.getElementById('instructions').style.display = 'block';
 		}
 		var startDrawing = function(map, doc, drawingManager, initDrawingManager) {
-			doc.getElementById('welcome').style.display = 'none';
-			if (doc.getElementById('instructions') == null ) { getInstructions(map, doc); }
-			else { showInstructionSidebar(doc); }				
-			drawingManager.setMap(map);		
+			hideWelcome(doc);		
+			drawingManager.setMap(map);			
 
 			google.maps.event.addDomListener(doc.getElementById('instructions-content'), 'click', function() {
-				showWelcome(doc);
-			});			
+				showWelcome(map, doc, drawingManager);
+			});		
 
 			google.maps.event.removeListener(initDrawingManager);				
 		}
 		var setContent = function(array) {
-			content = array;
+			opt.content = array;
 		}	
 		var getContent = function() {
-			return content;
+			return opt.content;
 		}
-		var show = function(map, doc, drawingManager, options) {
+		var init = function(map, doc, drawingManager, options) {
+			// initialize main instructions
 			setupInstructions(doc);
-			var welcome = doc.getElementById('welcome-content');
+
+			// initialize instructions sidebar
+			getInstructions(map, doc);				
+			// var welcome = doc.getElementById('welcome-content');
 
 			if (typeof options !== 'undefined') {
 				if (typeof options.content !== 'undefined') {
 					setContent(options.content);
 				}
+				if (typeof options.visible !== 'undefined') {
+					setVisible(options.visible);
+				}
 			}
 
-			// initialize welcome screen
-		    var welcome_screen_index = 0;
-		    welcome.innerHTML = content[welcome_screen_index];
-		    google.maps.event.addDomListener(doc.getElementsByClassName('next-instruction')[0], 'click', function() {
-				if (welcome_screen_index < content.length - 1) { 
-				    welcome_screen_index += 1;
-				    welcome.innerHTML = content[welcome_screen_index]; 
-				}
-				else { startDrawing(map, doc, drawingManager, initDrawingManager); }
-			});
+			showWelcome(map, doc, drawingManager);	
 
 			// event handler to close welcome screen
 			var welcome_close = doc.getElementsByClassName('close-box')[0];
@@ -429,11 +446,11 @@ var spatialsurvey = (function() {
 			// if user clicks outside of welcome screen, then start drawing
 			var initDrawingManager = google.maps.event.addListener(map, 'click', function() {
 				startDrawing(map, doc, drawingManager, initDrawingManager);				
-			});						
+			});							
 		}
 
 		return {
-			'show': show,
+			'init': init,
 			'setContent': setContent,
 			'getContent': getContent
 		}

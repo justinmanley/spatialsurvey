@@ -11,7 +11,7 @@ body {
 }
 #next-page-button,
 #previous-page-button,
-.next-instruction {
+#next-instruction {
   background: -webkit-linear-gradient(top, #4387fd, #4683ea);
   background: linear-gradient(top, #4387fd, #4683ea);
   background: #357ae8;
@@ -75,7 +75,7 @@ body {
   margin: 0 auto;
   width: 50%;
 }
-#welcome .next-instruction {
+#welcome #next-instruction {
   display: block;
   margin: 30px auto;
   background: linear-gradient(top, #8d8d8d, #bdbdbd);

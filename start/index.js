@@ -38,7 +38,7 @@ function initialize() {
 		'<p>When you\'re done, double-click on the last point to save your path, then click the button at the bottom of the page to advance to the next step.</p>'
 	];
 
-	spatialsurvey.instructions.show(map, document, drawingManager, { content: instructions 	});
+	spatialsurvey.instructions.init(map, document, drawingManager, { content: instructions 	});
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);
