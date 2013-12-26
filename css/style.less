@@ -80,13 +80,16 @@ body {
 	top: 75px;
 	// top: 150px;
 	padding: 2px;
+	box-shadow: 0 0 15px #9a9a9a;
 	#welcome-content {
-		margin: @welcome-margin @welcome-margin 0 @welcome-margin;
+		margin: @welcome-margin*0.5 @welcome-margin 0 @welcome-margin;
 		overflow: auto;
-		height: (@welcome-height - @welcome-margin - @button-height - 2*@button-margin);
-		img {
-			width: 50%;
-		}
+		height: (@welcome-height - @welcome-margin*0.5 - @button-height - 2*@button-margin);
+		img { 
+			display: block; 
+			margin: 0 auto; 
+			width: 50%;	
+		}		
 	}
 	.next-instruction {
 		display: block;
@@ -99,10 +102,10 @@ body {
 
 .close-box {
 	float: right;
-	border: 1px solid #9a9a9a;
-	font-family: sans-serif;
+ 	font-family: sans-serif;
 	color: #9a9a9a; 
 	padding: 1px;
+
 }	
 
 

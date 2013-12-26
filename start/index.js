@@ -19,14 +19,6 @@ function initialize() {
 			drawingMode: null
 		});		
 		mapcalc.rightClickButton(map, document, polyline);
-	});
-
-	var data = spatialsurvey.personPath();
-
-	function startDrawing() {
-		document.getElementById('extra').removeChild(document.getElementById('welcome'));
-		spatialsurvey.showInstructions(map, document);				
-		drawingManager.setMap(map);
 
 		spatialsurvey.showNextButton(map, document, data, 'add_time', function() {
 			var startTime = document.getElementById('start-time').value;
@@ -34,40 +26,19 @@ function initialize() {
 			data.setStartTime(startTime);
 			data.setEndTime(endTime);	
 		});
-		
-		google.maps.event.removeListener(initDrawingManager);	
-	}	
-
-	var welcomeContent = [
-		'<div id="welcome">'+
-			'<div class="close-box">X</div>'+
-			'<div id="welcome-content">'+
-				'<h3>Instructions</h3>'+
-					'<p>Use the polyline tool at the top of the page to draw the path that you took around campus yesterday.  Please be as specific as possible!</p>'+
-					'<p>If you make a mistake, don\'t worry; you\'ll have a chance to edit the path you\'ve drawn before you proceed to the next step.</p>'+
-					'<p>When you\'re done, double-click on the last point to save your path, then click the button at the bottom of the page to advance to the next step.</p>'+
-					'<img src="../images/instruction1.gif" />'+
-			'</div><!-- #welcome-content -->'+
-			'<button class="next-instruction">Next</button>'+				
-		  '</div><!-- #welcome -->'
-	];
-	var welcome = document.getElementById('extra');
-	var welcome_screen_index = 0;
-	welcome.innerHTML = welcomeContent[welcome_screen_index];
-	google.maps.event.addDomListener(document.getElementsByClassName('next-instruction')[0], 'click', function() {
-		if (welcome_screen_index < welcomeContent.length - 1) { 
-			welcome_screen_index += 1;
-			welcome.innerHTML = welcomeContent[welcome_screen_index]; 
-		}
-		else { startDrawing(); }
 	});
 
-	// event handler to close welcome screen
-	var welcome_close = document.getElementsByClassName('close-box')[0];
-	google.maps.event.addDomListener(welcome_close, 'click', startDrawing);
+	var data = spatialsurvey.personPath();
 
-	// if user clicks outside of welcome screen, then start drawing
-	var initDrawingManager = google.maps.event.addListener(map, 'click', startDrawing);		
+	var instructions = [
+		'<h3>Thank you for participating in this survey!</h3>'+
+		'<div id="welcome-img"><img src="../images/instruction1.gif" /></div><!-- #welcome-img -->'+
+		'<p>To start, draw the path that you took around campus today.</p>',
+		'<p>If you make a mistake, don\'t worry; you\'ll have a chance to edit the path you\'ve drawn before you proceed to the next step.</p>'+
+		'<p>When you\'re done, double-click on the last point to save your path, then click the button at the bottom of the page to advance to the next step.</p>'
+	];
+
+	spatialsurvey.instructions.show(map, document, drawingManager, { content: instructions 	});
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);

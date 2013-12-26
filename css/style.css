@@ -63,13 +63,16 @@ body {
   margin-left: -375px;
   top: 75px;
   padding: 2px;
+  box-shadow: 0 0 15px #9a9a9a;
 }
 #welcome #welcome-content {
-  margin: 50px 50px 0 50px;
+  margin: 25px 50px 0 50px;
   overflow: auto;
-  height: 324.5px;
+  height: 349.5px;
 }
 #welcome #welcome-content img {
+  display: block;
+  margin: 0 auto;
   width: 50%;
 }
 #welcome .next-instruction {
@@ -81,7 +84,6 @@ body {
 }
 .close-box {
   float: right;
-  border: 1px solid #9a9a9a;
   font-family: sans-serif;
   color: #9a9a9a;
   padding: 1px;

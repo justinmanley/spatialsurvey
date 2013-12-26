@@ -184,20 +184,6 @@ var spatialsurvey = (function() {
 
 	/* Add elements to the page */
 
-	var showInstructions = function(map, doc) {
-		var instructions = doc.createElement('div');
-		instructions.id = 'instructions';
-		conn2 = new XMLHttpRequest();
-		conn2.open('GET', 'instructions.php', true);
-		conn2.onreadystatechange = function() {
-			if (this.readyState !== 4 ) return; 
-			if (this.status !== 200 ) return; 
-			instructions.innerHTML = this.responseText;
-		};
-		conn2.send();
-		map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
-	}
-
 	var showButton = function(map, doc, data, destination, addToData, type) {
 		var nextForm = doc.createElement('form');
 		nextForm.id = type + '-form';
@@ -354,6 +340,105 @@ var spatialsurvey = (function() {
 		return infowindow;
 	}
 
+	var instructions = (function() {
+		var content = [];
+
+		var setupInstructions = function(doc) {
+			var extra = doc.getElementById('extra');
+			extra.innerHTML = '<div id="welcome">'+
+				'<div class="close-box">'+
+					'<img src="../images/close-icon.png"/>'+
+				'</div>'+				
+				'<div id="welcome-content">'+
+				'</div><!-- #welcome-content -->'+
+				'<button class="next-instruction">Next</button>'+				
+			  '</div><!-- #welcome -->';
+		}
+		var getInstructions = function(map, doc) {
+			var instructions = doc.createElement('div');
+			instructions.id = 'instructions';
+			conn2 = new XMLHttpRequest();
+			conn2.open('GET', 'instructions.php', true);
+			conn2.onreadystatechange = function() {
+				if (this.readyState !== 4 ) return; 
+				if (this.status !== 200 ) return; 
+				instructions.innerHTML = this.responseText;
+			};
+			conn2.send();
+			map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
+		}
+		var showWelcome = function(doc) {
+			doc.getElementById('welcome').style.display = 'block';
+			hideInstructionSidebar(doc);
+		}
+		var hideWelcome = function(doc) {
+			doc.getElementById('welcome').style.display = 'none';
+			showInstructionsSidebar(doc);
+		}
+		var showInstructionSidebar = function(doc) {
+
+		}
+		var hideInstructionSidebar = function(doc) {
+
+		}
+		var startDrawing = function(map, doc, drawingManager, initDrawingManager) {
+			doc.getElementById('welcome').style.display = 'none';
+			if (doc.getElementById('instructions') == null ) { getInstructions(map, doc); }
+			else { showInstructionSidebar(doc); }				
+			drawingManager.setMap(map);		
+
+			google.maps.event.addDomListener(doc.getElementById('instructions-content'), 'click', function() {
+				showWelcome(doc);
+			});			
+
+			google.maps.event.removeListener(initDrawingManager);				
+		}
+		var setContent = function(array) {
+			content = array;
+		}	
+		var getContent = function() {
+			return content;
+		}
+		var show = function(map, doc, drawingManager, options) {
+			setupInstructions(doc);
+			var welcome = doc.getElementById('welcome-content');
+
+			if (typeof options !== 'undefined') {
+				if (typeof options.content !== 'undefined') {
+					setContent(options.content);
+				}
+			}
+
+			// initialize welcome screen
+		    var welcome_screen_index = 0;
+		    welcome.innerHTML = content[welcome_screen_index];
+		    google.maps.event.addDomListener(doc.getElementsByClassName('next-instruction')[0], 'click', function() {
+				if (welcome_screen_index < content.length - 1) { 
+				    welcome_screen_index += 1;
+				    welcome.innerHTML = content[welcome_screen_index]; 
+				}
+				else { startDrawing(map, doc, drawingManager, initDrawingManager); }
+			});
+
+			// event handler to close welcome screen
+			var welcome_close = doc.getElementsByClassName('close-box')[0];
+			google.maps.event.addDomListener(welcome_close, 'click', function() {
+				startDrawing(map, doc, drawingManager, initDrawingManager);
+			});	
+
+			// if user clicks outside of welcome screen, then start drawing
+			var initDrawingManager = google.maps.event.addListener(map, 'click', function() {
+				startDrawing(map, doc, drawingManager, initDrawingManager);				
+			});						
+		}
+
+		return {
+			'show': show,
+			'setContent': setContent,
+			'getContent': getContent
+		}
+	}());
+
 	String.prototype.capitalize = function() {
 	    return this.charAt(0).toUpperCase() + this.slice(1);
 	}
@@ -361,10 +446,10 @@ var spatialsurvey = (function() {
 	// public methods and constructors
 	return {
 		personPath: personPath, 
-		showInstructions: showInstructions,
 		showNextButton: showNextButton,
 		addTimestampMarker: addTimestampMarker,
-		getTimestamps: getTimestamps
+		getTimestamps: getTimestamps,
+		instructions: instructions
 	};
 }());
 
