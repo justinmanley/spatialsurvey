@@ -26,6 +26,8 @@ function initialize() {
 			data.setStartTime(startTime);
 			data.setEndTime(endTime);	
 		});
+
+		test(polyline.getPath().getArray()[0], polyline.getPath().getArray()[1], map);
 	});
 
 	var data = spatialsurvey.personPath();
@@ -39,6 +41,7 @@ function initialize() {
 	];
 
 	spatialsurvey.instructions.init(map, document, drawingManager, { content: instructions 	});
+
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);

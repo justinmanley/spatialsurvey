@@ -578,7 +578,10 @@ var mapcalc = (function() {
 		return distanceUpperBound/unitDistance;
 	}
 
-	var closestPerpendicularPoint = function(polyline, segment, point, dx, map) {
+// -------------------------------------------------------------------------------
+	var closestPerpendicularPoint = function(polyline, segment, point, dx, map) 
+// -------------------------------------------------------------------------------
+	{
 		var segmentVerticesByDistance = segment.getVertices().map(function(p) { return {coord: p, point: point}; }).sort(comparePoints);
 		var distanceUpperBound = google.maps.geometry.spherical.computeDistanceBetween(segmentVerticesByDistance[0].coord, point);
 
@@ -609,8 +612,11 @@ var mapcalc = (function() {
 		return point;
 	}
 
-	// takes a LatLng point and an array of LatLng points
-	var closestVertex = function(point, polyline) {
+// takes a LatLng point and an array of LatLng points
+// -----------------------------------------------------------------------------
+	var closestVertex = function(point, polyline) 
+// -----------------------------------------------------------------------------
+	{
 		orderedCoordArray = new Array();
 		for(i = 0; i < polyline.getPath().getArray().length; i++) {
 			a = {coord: polyline.getPath().getAt(i) , index:i, point:point};
@@ -620,7 +626,10 @@ var mapcalc = (function() {
 		return orderedCoordArray[0];
 	}
 
-	var comparePoints = function(a, b) {
+// -----------------------------------------------------------------------------
+	var comparePoints = function(a, b) 
+// -----------------------------------------------------------------------------
+	{
 		if (google.maps.geometry.spherical.computeDistanceBetween(a.point, a.coord) < google.maps.geometry.spherical.computeDistanceBetween(b.point, b.coord)) 
 			return -1;
 		if (google.maps.geometry.spherical.computeDistanceBetween(b.point, b.coord) < google.maps.geometry.spherical.computeDistanceBetween(a.point, a.coord))
@@ -629,7 +638,10 @@ var mapcalc = (function() {
 			return 0;
 	}
 
-	var placeMarker = function(point, map) {
+// ----------------------------------------------------------------------------
+	var placeMarker = function(point, map) 
+// ----------------------------------------------------------------------------
+	{
 		var marker = new google.maps.Marker({
 			position: point,
 			map: map
@@ -807,8 +819,88 @@ var mapcalc = (function() {
 
 	// public methods and constructors
 	return {
-		closestPointOnPolyline: closestPointOnPolyline, 
-		rightClickButton: rightClickButton
+		'closestPointOnPolyline': closestPointOnPolyline, 
+		'rightClickButton': rightClickButton,
+		'placeMarker': placeMarker
 	}
 
 }());
+
+// --------------------------------------------------------------
+	var dx = function() 
+// --------------------------------------------------------------
+	{
+
+	}
+
+// ---------------------------------------------------------------------
+	Math.sinh = function(x) 
+// ---------------------------------------------------------------------
+	{
+		return 0.5*(Math.exp(x) - Math.exp(-x));
+	}
+
+// ---------------------------------------------------------------------
+	Math.cosh = function(x) 
+// ---------------------------------------------------------------------
+	{
+		return 0.5*	(Math.exp(x) + Math.exp(-x));
+	}
+
+// ---------------------------------------------------------------------
+	Math.tanh = function(x) 
+// ---------------------------------------------------------------------
+	{
+		return Math.sinh(x)/Math.cosh(x);
+	}
+
+// ---------------------------------------------------------------------
+	Math.atanh = function(x) 
+// ---------------------------------------------------------------------
+	{
+		return 0.5*Math.log((1+x)/(1-x));
+	}
+
+// ---------------------------------------------------------------------
+	var bearing = function(point1, point2) 
+// ---------------------------------------------------------------------
+	{
+		var top = Math.atanh(Math.sin(point2.lat()));
+		var bottom = point2.lng() - equatorialIntercept(point1, point2);
+		return top/bottom;
+	}
+
+// ---------------------------------------------------------------------
+	var equatorialIntercept = function(point1, point2)
+// ---------------------------------------------------------------------
+	{
+		var y1 = Math.atanh(Math.sin(point1.lat()));
+		var y2 = Math.atanh(Math.sin(point2.lat()));
+		var top = y2*point1.lng() - y1*point2.lng();
+		var bottom = y2 - y1;
+		return top/bottom;
+	}
+
+// ---------------------------------------------------------------------
+	var rhumbLineLatitude = function(point1, point2)
+// ---------------------------------------------------------------------
+{
+	var azimuth = bearing(point1, point2);
+	var lambda = equatorialIntercept(point1, point2)
+	return Math.asin(Math.tanh(azimuth*(point1.lng() - lambda)));
+}
+
+var test = function(point1, point2, map) {
+	if (point1.lng() > point2.lng()) {
+		var delta = 0.000001;
+		var p = new google.maps.LatLng(rhumbLineLatitude(point2, point1), point2.lng() + delta);
+		console.log(p);
+		console.log('bearing: ' + bearing(point1, point2));
+		console.log('equatorialIntercept: ' + equatorialIntercept(point1, point2));
+		mapcalc.placeMarker(new google.maps.LatLng(0, equatorialIntercept(point1, point2)), map);
+		mapcalc.placeMarker(p, map);
+	}
+	
+}
+
+
