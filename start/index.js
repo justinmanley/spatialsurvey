@@ -27,7 +27,7 @@ function initialize() {
 			data.setEndTime(endTime);	
 		});
 
-		test(polyline.getPath().getArray()[0], polyline.getPath().getArray()[1], map);
+		test(polyline.getPath().getArray()[0], polyline.getPath().getArray()[1], polyline.getPath().getArray()[2], map);
 	});
 
 	var data = spatialsurvey.personPath();

@@ -508,36 +508,6 @@ var mapcalc = (function() {
 		};
 	}
 
-// Constructor for a Line object.  Takes a LatLng point and a slope (a number).
-// ------------------------------------------------------------
-	var Line = function(point, slope) 
-// ------------------------------------------------------------
-	{
-		this.getSlope = function () { return slope; };
-		this.getPoint = function () { return point; };
-		this.getPerpendicularSlope = function () { return -1/slope; };
-		this.calculateIntersection = function(that) {
-			// Assuming that the equations of the two lines are:
-			//     this: y = y_0 + m_0(x - x_0)
-			//     that: y = y_1 + m_1(x - x_1)
-
-			var k = latToLngScalingFactor;
-			var y_0 = point.lat();
-			var y_1 = that.getPoint().lat();
-			var m_0 = slope;
-			var m_1 = that.getSlope();
-			var x_0 = point.lng();
-			var x_1 = that.getPoint().lng();
-
-			var x_intersect = ((y_0 - y_1) - (m_0*x_0 - m_1*x_1))/(m_1 - m_0);
-
-			return new google.maps.LatLng(
-				y_0 + m_0*(x_intersect - x_0), x_intersect
-
-			);
-		};
-	}
-
 // Returns the ith segment of the polyline, indexed from 0 to n.
 // -----------------------------------------------------------------------
 	var getSegment = function(polyline, i) 
@@ -862,6 +832,20 @@ var mapcalc = (function() {
 	}
 
 // ---------------------------------------------------------------------
+	Math.cot = function(x)
+// ---------------------------------------------------------------------
+{
+	return 1/Math.tan(x);
+}
+
+// ---------------------------------------------------------------------
+	Math.sec = function(x)
+// ---------------------------------------------------------------------
+{
+	return 1/Math.cos(x);
+}
+
+// ---------------------------------------------------------------------
 	var bearing = function(point1, point2) 
 // ---------------------------------------------------------------------
 	{
@@ -882,25 +866,119 @@ var mapcalc = (function() {
 	}
 
 // ---------------------------------------------------------------------
-	var rhumbLineLatitude = function(point1, point2)
+	var rhumbLineLatitude = function(point1, point2, longitude)
 // ---------------------------------------------------------------------
 {
-	var azimuth = bearing(point1, point2);
+	var azimuth = Math.cot(bearing(point1, point2));
 	var lambda = equatorialIntercept(point1, point2)
-	return Math.asin(Math.tanh(azimuth*(point1.lng() - lambda)));
+	return Math.asin(Math.tanh(azimuth*(longitude - lambda)));
 }
 
-var test = function(point1, point2, map) {
-	if (point1.lng() > point2.lng()) {
-		var delta = 0.000001;
-		var p = new google.maps.LatLng(rhumbLineLatitude(point2, point1), point2.lng() + delta);
-		console.log(p);
-		console.log('bearing: ' + bearing(point1, point2));
-		console.log('equatorialIntercept: ' + equatorialIntercept(point1, point2));
-		mapcalc.placeMarker(new google.maps.LatLng(0, equatorialIntercept(point1, point2)), map);
-		mapcalc.placeMarker(p, map);
-	}
+// var test = function(point1, point2, map) {
+// 	if (point1.lng() > point2.lng()) {
+// 		var delta = 0.000001;
+// 		var p = new google.maps.LatLng(rhumbLineLatitude(point2, point1, point1.lng()), point2.lng() + delta);
+// 		console.log(p);
+// 		console.log('bearing: ' + bearing(point1, point2));
+// 		console.log('equatorialIntercept: ' + equatorialIntercept(point1, point2));
+// 		mapcalc.placeMarker(new google.maps.LatLng(0, equatorialIntercept(point1, point2)), map);
+// 		mapcalc.placeMarker(p, map);
+// 	}
 	
+// }
+
+// eccentricity from WGS84
+var eccentricity = 0.08181919084;
+
+// semi-major axis in meters
+var semiMajorAxis = 6378137;
+
+var aMap = function(map) {
+	var top = 256*Math.pow(2,map.getZoom());
+	var bottom = 2*Math.PI;
+	return top/bottom;
 }
 
+var dx = function(map, latitude) { 
+	var top = aMap(map)*Math.sec(latitude)*Math.sqrt(1 - (eccentricity*Math.sin(latitude))^2);
+	var bottom = semiMajorAxis;
+	return top/bottom;
+}
+
+// var test = function(point1, point2, map) {
+// 	console.log("rhumbLineLatitude(point1.lng()) == point1.lat()");	
+// 	console.log("rhumbLineLatitude(point1.lng())")
+// 	console.log(rhumbLineLatitude(point1, point2, point1.lng()));
+// 	console.log(point1.lat());
+// 	console.log(rhumbLineLatitude(point1, point2, point1.lng()) == point1.lat());
+
+// 	console.log("simpleLatitude(point1.lng()) == point1.lat())");
+// 	console.log(simpleLatitude(point1, point2, point1.lng()) == point1.lat());
+// 	console.log("simpleLatitude(point1.lng()");
+// 	console.log(simpleLatitude(point1, point2, point1.lng()));
+// 	console.log("point1.lat()");
+// 	console.log(point1.lat());
+
+// 	var delta = point1.lng() + 0.01;
+// 	mapcalc.placeMarker(new google.maps.LatLng(simpleLatitude(point1, point2, delta), delta), map);
+
+// 	console.log(aMap(map));
+// 	console.log(dx(map, point1.lat())*point1.lng());
+// }
+
+var test = function(point1, point2, point3, map) {
+	var l = Line({'point1': point1, 'point2': point2});
+	// mapcalc.placeMarker(l.extrapolate(point1.lat() + 0.001), map);
+	console.log(l.intersection(l.getPerpendicularThroughPoint(point3)));
+	mapcalc.placeMarker(l.intersection(l.getPerpendicularThroughPoint(point3)), map);
+}
+
+/* 
+ * Latitude is treated as the dependent variable (x) and longitude is independent (y).  This is 
+ * convenient because the amount of stretching in the mercator projection depends on latitude,
+ * not longitude.
+ */
+// ------------------------------------------------------------
+	var Line = function(pointSlope) 
+// ------------------------------------------------------------
+	{
+		var line = {};
+		line.getSlope = function() {
+			if (pointSlope.hasOwnProperty('slope')) { return pointSlope.slope; }
+			else 
+			{
+				var top = pointSlope.point1.lng() - pointSlope.point2.lng();
+				var bottom = pointSlope.point1.lat() - pointSlope.point2.lat();			
+				return top/bottom;
+			}
+		}
+		line.getIntercept = function() {
+			return pointSlope.point1.lng() - line.getSlope()*pointSlope.point1.lat();
+		}
+		line.extrapolate = function(latitude) {
+			return new google.maps.LatLng(latitude, line.getSlope()*latitude + line.getIntercept());
+		}
+		line.getPerpendicularThroughPoint = function(point) {
+			return Line({
+				'slope': line.getPerpendicularSlope(),
+				'point1': point
+			});
+		}
+		line.distanceToLine = function(point) {
+			var dlat = (pointSlope.point1.lat() - point.lat())^2;
+			var dlng = (pointSlope.point1.lng() - point.lng())^2;
+			return Math.sqrt(dlat + dlng);
+		}
+		line.getPerpendicularSlope = function () { return -1/line.getSlope(); };
+		line.intersection = function(otherLine) {
+			var top = line.getIntercept() - otherLine.getIntercept();
+			var bottom = otherLine.getSlope() - line.getSlope();
+
+			var lng = line.getSlope()*(top/bottom) + line.getIntercept();
+
+			return new google.maps.LatLng(top/bottom, lng);
+		}
+
+		return line;
+	}
 
