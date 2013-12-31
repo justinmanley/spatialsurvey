@@ -12,7 +12,9 @@ function initialize() {
 	});
 
 	// all user data is stored in this object
-	var data = spatialsurvey.personPath();
+	var surveyHelper = spatialsurvey(map);
+	var mapHelper = mapcalc(map);
+	var data = surveyHelper.personPath();
 	data.display(map, function() {
 		timestampMarkers = new Array();
 
@@ -21,22 +23,22 @@ function initialize() {
 		var pathLength = google.maps.geometry.spherical.computeLength(data.getPath());
 		for (var i = start; i < end; i++) {
 			// position = 
-			var infowindow = spatialsurvey.addTimestampMarker(map, userPolyline, position);
+			var infowindow = surveyHelper.addTimestampMarker(map, userPolyline, position);
 			timestampMarkers.push(infowindow);
 		}
 
-		spatialsurvey.showInstructions(map, document);
-		spatialsurvey.showNextButton(map, document, data, 'add_transit', function() {
-			var times = spatialsurvey.getTimestamps(timestampMarkers);
+		// surveyHelper.showInstructions(map, document);
+		surveyHelper.showNextButton(map, document, data, 'add_transit', function() {
+			var times = surveyHelper.getTimestamps(timestampMarkers);
 			console.log(times);
 			data.setTimestamps(times);
-		});		
+		});
 
 		google.maps.event.addListener(map, 'click', function(event) {
-			userPolyline = data.getPolyline();
+			var userPolyline = data.getPolyline();
 			if (google.maps.geometry.poly.isLocationOnEdge(event.latLng, userPolyline, 0.0005)) {
-				var position = mapcalc.closestPointOnPolyline(userPolyline, event.latLng, 0.000001);
-				var infowindow = spatialsurvey.addTimestampMarker(map, userPolyline, position);
+				var position = mapHelper.closestPointOnPolyline(userPolyline, event.latLng);
+				var infowindow = surveyHelper.addTimestampMarker(userPolyline, position);
 				timestampMarkers.push(infowindow);
 			}
 		});

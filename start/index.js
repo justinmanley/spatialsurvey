@@ -12,25 +12,25 @@ function initialize() {
 			editable: true
 		}
 	});
+	var surveyHelper = spatialsurvey(map);
+	var mapHelper = mapcalc(map);
 
 	google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) { 
 		data.setPath(polyline.getPath().getArray());
 		drawingManager.setOptions({
 			drawingMode: null
 		});		
-		mapcalc.rightClickButton(map, document, polyline);
+		mapHelper.rightClickButton(map, document, polyline);
 
-		spatialsurvey.showNextButton(map, document, data, 'add_time', function() {
+		surveyHelper.showNextButton(map, document, data, 'add_time', function() {
 			var startTime = document.getElementById('start-time').value;
 			var endTime = document.getElementById('end-time').value;
 			data.setStartTime(startTime);
 			data.setEndTime(endTime);	
 		});
-
-		test(polyline.getPath().getArray()[0], polyline.getPath().getArray()[1], polyline.getPath().getArray()[2], map);
 	});
 
-	var data = spatialsurvey.personPath();
+	var data = surveyHelper.personPath();
 
 	var instructions = [
 		'<h3>Thank you for participating in this survey!</h3>'+
@@ -40,7 +40,7 @@ function initialize() {
 		'<p>When you\'re done, double-click on the last point to save your path, then click the button at the bottom of the page to advance to the next step.</p>'
 	];
 
-	spatialsurvey.instructions.init(map, document, drawingManager, { content: instructions 	});
+	surveyHelper.instructions.init(map, document, drawingManager, { content: instructions 	});
 
 }
 
