@@ -754,11 +754,42 @@ var mapcalc = function(map) {
 		return path[0];
 	}
 
+	var distributeTimeStamps = function(polyline, totalTime) 
+	{
+		var path = polyline.getPath().getArray();
+		var totalLength = google.maps.geometry.spherical.computeLength(path);
+		var time = Math.ceil(totalTime);
+		var delta = totalLength/time;
+		var extrapolate = function(i, distance) {
+			var basePoint = polyline.getPath().getAt(i);	
+			if (delta < google.maps.geometry.spherical.computeDistanceBetween(basePoint, polyline.getPath().getAt(i+1))) {
+				var line = Line({
+					'point1': basePoint, 
+					'point2': polyline.getPath().getAt(i+1)
+				});
+				var angle = Math.atan(line.getSlope());
+				var point = new google.maps.LatLng(
+					basePoint.lat() + Math.cos(angle)*distance*metersToLat(basePoint),
+					basePoint.lng() + Math.sin(angle)*distance*metersToLng(basePoint)		
+				);
+				console.log({
+					'lat': Math.cos(angle)*distance*metersToLat(basePoint),
+					'lng': Math.sin(angle)*distance*metersToLng(basePoint)
+				});
+				placeMarker(point);
+				return point;
+			}
+			else if ( i <= time) { extrapolate(polyline, i, distance - delta); }
+		}
+		extrapolate(0, delta);
+	}
+
 	// public methods and constructors
 	return {
 		'closestPointOnPolyline': closestPointOnPolyline, 
 		'rightClickButton': rightClickButton,
-		'placeMarker': placeMarker
+		'placeMarker': placeMarker,
+		'distributeTimeStamps': distributeTimeStamps
 	}
 
 };
@@ -858,4 +889,21 @@ var dx = function(map, latitude) {
 	var bottom = semiMajorAxis;
 	return top/bottom;
 }
+
+var metersToLat = function(point) {
+	var latDistance = google.maps.geometry.spherical.computeDistanceBetween(
+		point,
+		new google.maps.LatLng(point.lat() + 10, point.lng())
+	);
+	return 10/latDistance;
+}
+
+var metersToLng = function(point) {
+	var latDistance = google.maps.geometry.spherical.computeDistanceBetween(
+		point,
+		new google.maps.LatLng(point.lat(), point.lng() + 10)
+	);
+	return 10/latDistance;
+}
+
 
