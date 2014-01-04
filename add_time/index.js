@@ -22,7 +22,6 @@ function initialize() {
 		var end = data.getEndTime();
 		var pathLength = google.maps.geometry.spherical.computeLength(data.getPath());
 		for (var i = start; i < end; i++) {
-			// position = 
 			var infowindow = surveyHelper.addTimestampMarker(map, userPolyline, position);
 			timestampMarkers.push(infowindow);
 		}

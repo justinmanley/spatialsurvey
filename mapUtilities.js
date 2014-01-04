@@ -754,34 +754,61 @@ var mapcalc = function(map) {
 		return path[0];
 	}
 
+	var distanceAlongPolyline = function(polyline, lastVertex, nextPoint) 
+	{
+		var partialPath = new google.maps.Polyline({
+			path: polyline.getPath().getArray().slice(0, lastVertex).push(nextPoint)
+		});
+		return google.maps.geometry.spherical.computeLength(partialPath);
+	}
+
 	var distributeTimeStamps = function(polyline, totalTime) 
 	{
 		var path = polyline.getPath().getArray();
 		var totalLength = google.maps.geometry.spherical.computeLength(path);
 		var time = Math.ceil(totalTime);
 		var delta = totalLength/time;
-		var extrapolate = function(i, distance) {
-			var basePoint = polyline.getPath().getAt(i);	
-			if (delta < google.maps.geometry.spherical.computeDistanceBetween(basePoint, polyline.getPath().getAt(i+1))) {
-				var line = Line({
-					'point1': basePoint, 
-					'point2': polyline.getPath().getAt(i+1)
-				});
-				var angle = Math.atan(line.getSlope());
-				var point = new google.maps.LatLng(
-					basePoint.lat() + Math.cos(angle)*distance*metersToLat(basePoint),
-					basePoint.lng() + Math.sin(angle)*distance*metersToLng(basePoint)		
-				);
-				console.log({
-					'lat': Math.cos(angle)*distance*metersToLat(basePoint),
-					'lng': Math.sin(angle)*distance*metersToLng(basePoint)
-				});
-				placeMarker(point);
-				return point;
+
+		var basePoint = polyline.getPath().getAt(0);
+		var currentVertex = 0;
+		var distance = delta;
+		var spillover = 0;
+		var p = 0;
+
+		for (var i = 0; i < time - 1; i++) {
+			console.log(i);
+			var thisSegmentLength = google.maps.geometry.spherical.computeDistanceBetween(polyline.getPath().getAt(currentVertex), polyline.getPath().getAt(currentVertex+1));
+			if ( spillover + ((i + 1) - p)*delta > thisSegmentLength ) {
+				placeMarker(basePoint);
+				spillover = (spillover + ((i + 1) - p)*delta) - thisSegmentLength;
+				distance = spillover;
+				currentVertex += 1;
+				basePoint = polyline.getPath().getAt(currentVertex);
+				p = i;
 			}
-			else if ( i <= time) { extrapolate(polyline, i, distance - delta); }
+			else {
+				placeMarker(basePoint);				
+				distance = delta;
+				spillover = 0;
+			}
+
+			var endpoint1 = polyline.getPath().getAt(currentVertex);
+			var endpoint2 = polyline.getPath().getAt(currentVertex + 1);
+			var line = Line({
+				'point1': endpoint1, 
+				'point2': endpoint2
+			});
+
+			var angle = Math.atan(line.getSlope());
+			var basePoint = closestPointOnPolyline(polyline, new google.maps.LatLng(
+				basePoint.lat() + Math.sgn(endpoint2.lat() - endpoint1.lat())*Math.sgn(endpoint2.lng() - endpoint1.lng())*Math.cos(angle)*distance*metersToLat(basePoint),
+				basePoint.lng() + Math.sgn(endpoint2.lat() - endpoint1.lat())*Math.sgn(endpoint2.lng() - endpoint1.lng())*Math.sin(angle)*distance*metersToLng(basePoint)		
+			));	
+			console.log(basePoint.lat() + ' + ' + Math.sgn(endpoint2.lat() - endpoint1.lat()) + ' * ' + Math.cos(angle) + ' * ' + distance*metersToLat(basePoint));
+			console.log(basePoint.lng() + ' + ' + Math.sgn(endpoint2.lng() - endpoint1.lng()) + ' * ' + Math.cos(angle) + ' * ' + distance*metersToLng(basePoint));
+			console.log(distance);
+			// spatialsurvey(map).addTimestampMarker(polyline, closestPointOnPolyline(polyline, basePoint));	
 		}
-		extrapolate(0, delta);
 	}
 
 	// public methods and constructors
@@ -799,6 +826,11 @@ var mapcalc = function(map) {
 // --------------------------------------------------------------
 	{
 
+	}
+
+	Math.sgn = function(x) 
+	{
+	    return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
 	}
 
 // ---------------------------------------------------------------------
@@ -893,17 +925,17 @@ var dx = function(map, latitude) {
 var metersToLat = function(point) {
 	var latDistance = google.maps.geometry.spherical.computeDistanceBetween(
 		point,
-		new google.maps.LatLng(point.lat() + 10, point.lng())
+		new google.maps.LatLng(point.lat() + 1, point.lng())
 	);
-	return 10/latDistance;
+	return 1/latDistance;
 }
 
 var metersToLng = function(point) {
-	var latDistance = google.maps.geometry.spherical.computeDistanceBetween(
+	var lngDistance = google.maps.geometry.spherical.computeDistanceBetween(
 		point,
-		new google.maps.LatLng(point.lat(), point.lng() + 10)
+		new google.maps.LatLng(point.lat(), point.lng() + 1)
 	);
-	return 10/latDistance;
+	return 1/lngDistance;
 }
 
 
