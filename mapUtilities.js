@@ -775,21 +775,20 @@ var mapcalc = function(map) {
 		var spillover = 0;
 		var p = 0;
 
-		for (var i = 0; i < time - 1; i++) {
-			console.log(i);
+		placeMarker(basePoint);
+
+		console.log(delta);
+		for (var i = 0; i < time; i++) {
 			var thisSegmentLength = google.maps.geometry.spherical.computeDistanceBetween(polyline.getPath().getAt(currentVertex), polyline.getPath().getAt(currentVertex+1));
 			if ( spillover + ((i + 1) - p)*delta > thisSegmentLength ) {
-				placeMarker(basePoint);
 				spillover = (spillover + ((i + 1) - p)*delta) - thisSegmentLength;
 				distance = spillover;
 				currentVertex += 1;
 				basePoint = polyline.getPath().getAt(currentVertex);
-				p = i;
+				p = i + 1;
 			}
 			else {
-				placeMarker(basePoint);				
 				distance = delta;
-				spillover = 0;
 			}
 
 			var endpoint1 = polyline.getPath().getAt(currentVertex);
@@ -799,14 +798,12 @@ var mapcalc = function(map) {
 				'point2': endpoint2
 			});
 
-			var angle = Math.atan(line.getSlope());
+			var angle = Math.atan(line.getSlope()) > 0 ? Math.atan(line.getSlope()) : Math.atan(Math.PI + line.getSlope());
 			var basePoint = closestPointOnPolyline(polyline, new google.maps.LatLng(
-				basePoint.lat() + Math.sgn(endpoint2.lat() - endpoint1.lat())*Math.sgn(endpoint2.lng() - endpoint1.lng())*Math.cos(angle)*distance*metersToLat(basePoint),
-				basePoint.lng() + Math.sgn(endpoint2.lat() - endpoint1.lat())*Math.sgn(endpoint2.lng() - endpoint1.lng())*Math.sin(angle)*distance*metersToLng(basePoint)		
+				basePoint.lat() + Math.sgn(endpoint2.lat() - endpoint1.lat())*Math.cos(angle)*distance*metersToLat(basePoint),
+				basePoint.lng() + Math.sgn(endpoint2.lng() - endpoint1.lng())*Math.sin(angle)*distance*metersToLng(basePoint)		
 			));	
-			console.log(basePoint.lat() + ' + ' + Math.sgn(endpoint2.lat() - endpoint1.lat()) + ' * ' + Math.cos(angle) + ' * ' + distance*metersToLat(basePoint));
-			console.log(basePoint.lng() + ' + ' + Math.sgn(endpoint2.lng() - endpoint1.lng()) + ' * ' + Math.cos(angle) + ' * ' + distance*metersToLng(basePoint));
-			console.log(distance);
+			placeMarker(basePoint);
 			// spatialsurvey(map).addTimestampMarker(polyline, closestPointOnPolyline(polyline, basePoint));	
 		}
 	}
