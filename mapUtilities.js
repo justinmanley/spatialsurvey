@@ -771,25 +771,43 @@ var mapcalc = function(map) {
 
 		var basePoint = polyline.getPath().getAt(0);
 		var currentVertex = 0;
-		var distance = delta;
 		var spillover = 0;
 		var p = 0;
+		var verticalDistance;
+		var verticalSpillover = 0;
+
+		var segmentLength = function(i) { 
+			return google.maps.geometry.spherical.computeDistanceBetween(polyline.getPath().getAt(i), polyline.getPath().getAt(i+1));
+		}
+		var segmentVerticalChange = function(i) {
+			return google.maps.geometry.spherical.computeDistanceBetween(
+				polyline.getPath().getAt(i), 
+				new google.maps.LatLng(polyline.getPath().getAt(i + 1).lat(), polyline.getPath().getAt(i).lng())
+			);			
+		}
 
 		placeMarker(basePoint);
 
-		console.log(delta);
 		for (var i = 0; i < time; i++) {
-			var thisSegmentLength = google.maps.geometry.spherical.computeDistanceBetween(polyline.getPath().getAt(currentVertex), polyline.getPath().getAt(currentVertex+1));
+			var thisSegmentLength = segmentLength(currentVertex);
+			var thisSegmentVerticalChange = segmentVerticalChange(currentVertex);
+			var verticalDelta = delta*thisSegmentVerticalChange/thisSegmentLength;
+
 			if ( spillover + ((i + 1) - p)*delta > thisSegmentLength ) {
 				spillover = (spillover + ((i + 1) - p)*delta) - thisSegmentLength;
-				distance = spillover;
+
+				var nextSegmentLength = segmentLength(currentVertex + 1);
+				var nextSegmentVerticalChange = segmentVerticalChange(currentVertex + 1);
+
+				var verticalSpillover = spillover*nextSegmentVerticalChange/nextSegmentLength;
+				verticalDistance = verticalSpillover; 
 				currentVertex += 1;
 				basePoint = polyline.getPath().getAt(currentVertex);
 				p = i + 1;
 			}
 			else {
-				distance = delta;
-			}
+				verticalDistance = verticalDelta;
+			}		
 
 			var endpoint1 = polyline.getPath().getAt(currentVertex);
 			var endpoint2 = polyline.getPath().getAt(currentVertex + 1);
@@ -798,11 +816,7 @@ var mapcalc = function(map) {
 				'point2': endpoint2
 			});
 
-			var angle = Math.atan(line.getSlope()) > 0 ? Math.atan(line.getSlope()) : Math.atan(Math.PI + line.getSlope());
-			var basePoint = closestPointOnPolyline(polyline, new google.maps.LatLng(
-				basePoint.lat() + Math.sgn(endpoint2.lat() - endpoint1.lat())*Math.cos(angle)*distance*metersToLat(basePoint),
-				basePoint.lng() + Math.sgn(endpoint2.lng() - endpoint1.lng())*Math.sin(angle)*distance*metersToLng(basePoint)		
-			));	
+			basePoint = line.extrapolate(basePoint.lat() + Math.sgn(endpoint2.lat() - endpoint1.lat())*verticalDistance*metersToLat(basePoint))
 			placeMarker(basePoint);
 			// spatialsurvey(map).addTimestampMarker(polyline, closestPointOnPolyline(polyline, basePoint));	
 		}

@@ -15,6 +15,14 @@ function initialize() {
 	var surveyHelper = spatialsurvey(map);
 	var mapHelper = mapcalc(map);
 
+	// google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
+	// 	line = Line({
+	// 		'point1': polyline.getPath().getAt(0),
+	// 		'point2': polyline.getPath().getAt(1)
+	// 	});
+	// 	line.extrapolate()
+	// });
+
 	google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) { 
 		data.setPath(polyline.getPath().getArray());
 		drawingManager.setOptions({
