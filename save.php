@@ -7,7 +7,10 @@ if ( !$conn ) { die ('Could not connect: ' . mysqli_error($conn)); }
 
 $pathstring = require_once('kml_template.php');
 $path = mysqli_escape_string($conn, $pathstring);
-$sql = "INSERT INTO paths ( id, path, time_submitted ) VALUES ( DEFAULT, $path, NOW() )";
+$sql = <<<sqlstring
+
+INSERT INTO paths ( id, kml_string, time_submitted ) VALUES ( DEFAULT, "$path", NOW() )
+sqlstring;
 
 mysqli_select_db($conn, 'spatialsurvey');
 
