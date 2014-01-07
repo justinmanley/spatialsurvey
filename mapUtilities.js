@@ -764,17 +764,11 @@ var mapcalc = function(map) {
 
 	var distributeTimeStamps = function(polyline, totalTime) 
 	{
+		/* These variables remain constant, and so may safely be referenced by functions defined herein. */
 		var path = polyline.getPath().getArray();
 		var totalLength = google.maps.geometry.spherical.computeLength(path);
 		var time = Math.ceil(totalTime);
 		var delta = totalLength/time;
-
-		var basePoint = polyline.getPath().getAt(0);
-		var currentVertex = 0;
-		var spillover = 0;
-		var p = 0;
-		var verticalDistance;
-		var verticalSpillover = 0;
 
 		var segmentLength = function(i) { 
 			return google.maps.geometry.spherical.computeDistanceBetween(polyline.getPath().getAt(i), polyline.getPath().getAt(i+1));
@@ -786,39 +780,66 @@ var mapcalc = function(map) {
 			);			
 		}
 
-		placeMarker(basePoint);
+		var getSpilloverPastVertex = function(info) {
+			if (info.currentVertex < path.length - 1) {
+				var thisSegmentLength = segmentLength(info.currentVertex);
+				return info.spillover + ((info.i + 1) - info.oldI)*delta - thisSegmentLength;
+			}
+			else return 0;
+		}
 
-		for (var i = 0; i < time; i++) {
-			var thisSegmentLength = segmentLength(currentVertex);
-			var thisSegmentVerticalChange = segmentVerticalChange(currentVertex);
+		var getVerticalDistance = function(info) {
+			var thisSegmentLength = segmentLength(info.currentVertex);
+			var thisSegmentVerticalChange = segmentVerticalChange(info.currentVertex);
 			var verticalDelta = delta*thisSegmentVerticalChange/thisSegmentLength;
 
-			if ( spillover + ((i + 1) - p)*delta > thisSegmentLength ) {
-				spillover = (spillover + ((i + 1) - p)*delta) - thisSegmentLength;
+			info.verticalDistance = verticalDelta;
+			while ( getSpilloverPastVertex(info) > 0 ) {
+				info.spillover = getSpilloverPastVertex(info);
+				info.currentVertex += 1;
 
-				var nextSegmentLength = segmentLength(currentVertex + 1);
-				var nextSegmentVerticalChange = segmentVerticalChange(currentVertex + 1);
+				if (info.currentVertex < path.length - 1) {
+					var nextSegmentLength = segmentLength(info.currentVertex);
+					var nextSegmentVerticalChange = segmentVerticalChange(info.currentVertex);
 
-				var verticalSpillover = spillover*nextSegmentVerticalChange/nextSegmentLength;
-				verticalDistance = verticalSpillover; 
-				currentVertex += 1;
-				basePoint = polyline.getPath().getAt(currentVertex);
-				p = i + 1;
+					var verticalSpillover = info.spillover*nextSegmentVerticalChange/nextSegmentLength;
+				}
+				else {
+					var verticalSpillover = 0;
+				}
+
+				info.basePoint = polyline.getPath().getAt(info.currentVertex);
+				info.oldI = info.i + 1;
+				info.verticalDistance = verticalSpillover;
 			}
-			else {
-				verticalDistance = verticalDelta;
-			}		
+			return info;
+		};
 
-			var endpoint1 = polyline.getPath().getAt(currentVertex);
-			var endpoint2 = polyline.getPath().getAt(currentVertex + 1);
-			var line = Line({
-				'point1': endpoint1, 
-				'point2': endpoint2
-			});
+		var thisTimestampInfo = {
+			'basePoint': polyline.getPath().getAt(0),
+			'i': 0,
+			'currentVertex': 0,
+			'spillover': 0,
+			'oldI': 0,
+			'verticalSpillover': 0
+		};
+		placeMarker(thisTimestampInfo.basePoint);
+		for (var i = 0; i < time; i++) {
+			thisTimestampInfo = getVerticalDistance(thisTimestampInfo);
+	
+			if (thisTimestampInfo.currentVertex < path.length - 1) {
+				var endpoint1 = polyline.getPath().getAt(thisTimestampInfo.currentVertex);
+				var endpoint2 = polyline.getPath().getAt(thisTimestampInfo.currentVertex + 1);
+				var line = Line({
+					'point1': endpoint1, 
+					'point2': endpoint2
+				});
 
-			basePoint = line.extrapolate(basePoint.lat() + Math.sgn(endpoint2.lat() - endpoint1.lat())*verticalDistance*metersToLat(basePoint))
-			placeMarker(basePoint);
+				thisTimestampInfo.basePoint = line.extrapolate(thisTimestampInfo.basePoint.lat() + Math.sgn(endpoint2.lat() - endpoint1.lat())*thisTimestampInfo.verticalDistance*metersToLat(thisTimestampInfo.basePoint));	
+			}
+			placeMarker(thisTimestampInfo.basePoint);
 			// spatialsurvey(map).addTimestampMarker(polyline, closestPointOnPolyline(polyline, basePoint));	
+			thisTimestampInfo.i++;
 		}
 	}
 
