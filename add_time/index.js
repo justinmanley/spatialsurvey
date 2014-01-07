@@ -26,8 +26,7 @@ function initialize() {
 			timestampMarkers.push(infowindow);
 		}
 
-		// surveyHelper.showInstructions(map, document);
-		surveyHelper.showNextButton(map, document, data, 'add_transit', function() {
+		surveyHelper.showNextButton(map, document, data, 'save', function() {
 			var times = surveyHelper.getTimestamps(timestampMarkers);
 			console.log(times);
 			data.setTimestamps(times);
