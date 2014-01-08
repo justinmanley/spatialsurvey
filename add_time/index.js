@@ -12,10 +12,10 @@ function initialize() {
 	});
 
 	// all user data is stored in this object
-	var surveyHelper = spatialsurvey(map);
-	var mapHelper = mapcalc(map);
+	var surveyHelper = spatialsurvey(map, document);
+	var mapHelper = mapcalc(map, document);
 	var data = surveyHelper.personPath();
-	data.display(map, function() {
+	data.display(function() {
 		timestampMarkers = new Array();
 
 		var start = data.getStartTime();

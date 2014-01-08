@@ -1,6 +1,6 @@
-var spatialsurvey = function(map) {
-	var map = map;
+var spatialsurvey = function(map, doc) {
 
+	var map = map;
 
 	// ---------------------------------------------------------------
 	var timeAndPlace = function(data)
@@ -46,6 +46,7 @@ var spatialsurvey = function(map) {
 			}                                         
 	*/
 	{
+		var doc = doc;
 		var data = data || {};
 		var that = {};
 
@@ -139,11 +140,10 @@ var spatialsurvey = function(map) {
 		};
 		that.toString = toString;
 
-		var display = function(map, callback) {
+		var display = function(callback) {
 			load(function(){
 				getPolyline().setMap(map);
-				addTimestampMarker(getPolyline(), getPath()[0]);
-				addTimestampMarker(getPolyline(), getPath().last());
+				mapcalc(map, doc).distributeTimeStamps(getPolyline(), 10);
 			}, callback);	
 		};
 		that.display = display;
@@ -221,19 +221,28 @@ var spatialsurvey = function(map) {
 	}
 
 	// -------------------------------------------------------------
-	var showTimestampInfoWindow = function(position) 
+	var getTimestampInfoWindow = function(position) 
 	// -------------------------------------------------------------
 	{
 		var info = document.createElement('div');
 		info.setAttribute('class', 'timestamp');
+
+
 		info.innerHTML = '<form class="timestamp-form" onclick="false">'+
-				'<label for="time">Time</label>'+
 				'<br />'+
 				'<input type="text" name="time" class="timestamp"/>'+
 				// '<input type="hidden" name="position-lat" value="' + position.lat() + '"/>'+
 				// '<input type="hidden" name="position-lng" value="' + position.lng() + '"/>'+
-			'</form>'
-		return info;
+			'</form>';
+		var infoLabel = document.createElement('label');
+		infoLabel.setAttribute('class', 'timestamp-label');
+		infoLabel.setAttribute('for', 'time');
+		infoLabel.innerHTML = 'Time';
+		info.insertBefore(infoLabel, info.firstChild);		
+		return {
+			'content': info,
+			'label': infoLabel
+		};
 	}
 
 	// --------------------------------------------------------------
@@ -264,9 +273,9 @@ var spatialsurvey = function(map) {
 		return timestamps;
 	}
 
-	// ---------------------------------------------------------------
+// ---------------------------------------------------------------
 	var getIcon = function()
-	// ---------------------------------------------------------------
+// ---------------------------------------------------------------
 	{
 		return {
 			url: "../marker.png",
@@ -274,74 +283,94 @@ var spatialsurvey = function(map) {
 		};
 	}
 
-	// ---------------------------------------------------------------
-	var addTimestampMarker = function(polyline, position) 
-	// ---------------------------------------------------------------
+// ---------------------------------------------------------------------
+	var addTimestampMarker = function(polyline, position)
+// ---------------------------------------------------------------------	
 	{
-		console.log(position);
-		var infowindow = new InfoBox({
-			content: showTimestampInfoWindow(position),
+		var timestamp = {};
+		var open = true;
+		var infowindowContent = getTimestampInfoWindow(position);
+		timestamp.infowindow = new InfoBox({
+			content: infowindowContent.content,
 			position: position,
 			boxStyle: {
 				background: '#ffffff',
-				opacity: 0.75,
-				padding: '5px'
-			}
+				opacity: 1,
+				padding: '5px',
+				width: '60px',
+				height: '60px'
+			},
+			closeBoxURL: "../images/close-icon.png",
+			pixelOffset: new google.maps.Size(-34,-95)
+		});
+		timestamp.pyramid = new google.maps.Marker({
+			icon: { url: "../images/pyramid.png", anchor: new google.maps.Point(10,30) },
+			shape: { type: "rect", coords: [0,0,20,20] },
+			position: position,
+			draggable: true			
+		});
+		timestamp.marker =  new google.maps.Marker({
+			icon: { url: "../marker.png", anchor: new google.maps.Point(10,10) },
+			shape: { type: "rect", coords: [0,0,20,20] },
+			position: position,
+			draggable: true,
+			map: map
 		});
 
-		// timestamps.push(infowindow);
+		timestamp.open = function() {
+			timestamp.infowindow.open(map, timestamp.pyramid);
+			timestamp.pyramid.setMap(map);
+			timestamp.marker.setMap(null);
+			open = true;
+		}
+		timestamp.close = function() {
+			timestamp.infowindow.setMap(null);
+			timestamp.pyramid.setMap(null);
+			timestamp.marker.setMap(map);
+			open = false;
+		}
+		timestamp.isOpen = function() {
+			return open;
+		}
 
-		var label = infowindow.getContent().childNodes[0].childNodes[0];
-		google.maps.event.addDomListener(label, 'click', function(event) {
-			infowindow.setMap(null);
-			// this code might not be very robust
-			var time = infowindow.getContent().childNodes[0][0].value;
-			var placeholder = new InfoBox({
-				content: showPlaceholderInfoWindow(position, time),
-				position: infowindow.getPosition(),
-				boxStyle: {
-					background: 'rgba(0,0,0,0)',
-					'border-radius': '5px',
-					padding: '5px'
-				},
-				closeBoxURL: ""
-			});
-			google.maps.event.addDomListener(placeholder.getContent(), 'click', function(event) {
-				placeholder.setMap(null);
-				infowindow.open(map);
-			});
-			var marker = new google.maps.Marker({
-				icon: { url: "../marker.png", anchor: new google.maps.Point(10,10) },
-				shape: { type: "rect", coords: [0,0,20,20] },
-				position: infowindow.getPosition(),
-				draggable: true,
-				map: map
-			});
-			// restrict dragging to the polyline
-			google.maps.event.addListener(marker, 'drag', function(event) {
-				var dragPosition = mapcalc(map).closestPointOnPolyline(polyline, marker.getPosition());
-				marker.setPosition(dragPosition);
-				placeholder.setPosition(dragPosition);
-				google.maps.event.addListener(marker, 'dragend', function(event) {
-					infowindow.setPosition(dragPosition);
-					placeholder.setPosition(dragPosition);
-				});			
-			});
-			google.maps.event.addListener(marker, 'click', function(event) {
-				placeholder.setMap(null);
-				marker.setMap(null);
-				infowindow.open(map);
-			});					
-			placeholder.open(map);
+
+		google.maps.event.addListener(timestamp.marker, 'drag', function(event) {
+			var dragPosition = mapcalc(map, doc).closestPointOnPolyline(polyline, timestamp.marker.getPosition());
+			timestamp.marker.setPosition(dragPosition);
+			google.maps.event.addListener(timestamp.marker, 'dragend', function(event) {
+				timestamp.pyramid.setPosition(dragPosition);
+			});				
+		});
+		google.maps.event.addListener(timestamp.pyramid, 'drag', function(event) {
+			var dragPosition = mapcalc(map, doc).closestPointOnPolyline(polyline, timestamp.pyramid.getPosition());
+			timestamp.pyramid.setPosition(dragPosition);
+			google.maps.event.addListener(timestamp.pyramid, 'dragend', function(event) {
+				timestamp.marker.setPosition(dragPosition);
+			});				
+		});
+		google.maps.event.addDomListener(infowindowContent.content, 'drag', function(event) {
+			var dragPosition = mapcalc(map, doc).closestPointOnPolyline(polyline, timestamp.pyramid.getPosition());
+			timestamp.pyramid.setPosition(dragPosition);
+			google.maps.event.addListener(timestamp.pyramid, 'dragend', function(event) {
+				timestamp.marker.setPosition(dragPosition);
+			});				
+		});				
+		google.maps.event.addListener(timestamp.marker, 'click', function(){
+			timestamp.open();
+		});
+		var timestampLabel = infowindowContent.label;
+		google.maps.event.addDomListener(timestampLabel, 'click', function() {
+			timestamp.close();
 		});
 
-		infowindow.open(map);
-		// console.log(closestPointOnPolyline(userPolyline, event.latLng, 0.00001, map));	
-
-		return infowindow;
+		return timestamp;
 	}
 
-	var instructions = (function() {
+/* SUB-MODULE: spatialsurvey.instructions */
+// -----------------------------------------------------------------------------------
+	var instructions = (function() 
+// -----------------------------------------------------------------------------------
+	{
 		var opt = {};
 		opt.content = [];
 
@@ -461,7 +490,7 @@ var spatialsurvey = function(map) {
 	    return this.charAt(0).toUpperCase() + this.slice(1);
 	}
 
-	// public methods and constructors
+	// public methods and constructors for module spatialsurvey
 	return {
 		personPath: personPath, 
 		showNextButton: showNextButton,
@@ -471,7 +500,10 @@ var spatialsurvey = function(map) {
 	};
 };
 
-var mapcalc = function(map) {
+// -----------------------------------------------------------------------------
+var mapcalc = function(map, doc) 
+// -----------------------------------------------------------------------------
+{
 
 	var map = map;
 	var verbose = false;
@@ -576,7 +608,7 @@ var mapcalc = function(map) {
 		var deleteButton = addDeleteButton(doc, polyline);
 		var rightClickDiv = new InfoBox({
 			content: deleteButton,
-			closeBoxURL: "",
+			closeBoxURL: "../images/close-icon.png",
 			visible: false,
 		});
 
@@ -705,7 +737,10 @@ var mapcalc = function(map) {
 		return line;
 	}
 
-	var closestPointOnPolyline = function(polyline, point) {
+// ---------------------------------------------------------------------------------------
+	var closestPointOnPolyline = function(polyline, point)
+// ---------------------------------------------------------------------------------------
+	{
 		var path = polyline.getPath().getArray().slice(0);
 		var intersections = [];
 		for (var n = 0; n < path.length - 1; n++) {
@@ -730,7 +765,10 @@ var mapcalc = function(map) {
 		return intersections[0].point;
 	}
 
-	var isBetween = function(endpt1, endpt2, pt) {
+// ----------------------------------------------------------------------------
+	var isBetween = function(endpt1, endpt2, pt) 
+// ----------------------------------------------------------------------------
+	{
 		var lat1 = (endpt1.lat() <= pt.lat()) && (pt.lat() <= endpt2.lat());
 		var lat2 = (endpt2.lat() <= pt.lat()) && (pt.lat() <= endpt1.lat());
 		var betweenLat = lat1 || lat2;
@@ -754,7 +792,9 @@ var mapcalc = function(map) {
 		return path[0];
 	}
 
+// ------------------------------------------------------------------------------
 	var distanceAlongPolyline = function(polyline, lastVertex, nextPoint) 
+// ------------------------------------------------------------------------------	
 	{
 		var partialPath = new google.maps.Polyline({
 			path: polyline.getPath().getArray().slice(0, lastVertex).push(nextPoint)
@@ -762,7 +802,9 @@ var mapcalc = function(map) {
 		return google.maps.geometry.spherical.computeLength(partialPath);
 	}
 
+// -------------------------------------------------------------------------------
 	var distributeTimeStamps = function(polyline, totalTime) 
+// -------------------------------------------------------------------------------	
 	{
 		/* These variables remain constant, and so may safely be referenced by functions defined herein. */
 		var path = polyline.getPath().getArray();
@@ -838,7 +880,7 @@ var mapcalc = function(map) {
 				thisTimestampInfo.basePoint = line.extrapolate(thisTimestampInfo.basePoint.lat() + Math.sgn(endpoint2.lat() - endpoint1.lat())*thisTimestampInfo.verticalDistance*metersToLat(thisTimestampInfo.basePoint));	
 			}
 			placeMarker(thisTimestampInfo.basePoint);
-			// spatialsurvey(map).addTimestampMarker(polyline, closestPointOnPolyline(polyline, basePoint));	
+			// spatialsurvey(map, doc).addTimestampMarker(polyline, closestPointOnPolyline(polyline, basePoint));	
 			thisTimestampInfo.i++;
 		}
 	}
@@ -853,14 +895,9 @@ var mapcalc = function(map) {
 
 };
 
-// --------------------------------------------------------------
-	var dx = function() 
-// --------------------------------------------------------------
-	{
-
-	}
-
+// ---------------------------------------------------------------------
 	Math.sgn = function(x) 
+// ---------------------------------------------------------------------	
 	{
 	    return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
 	}

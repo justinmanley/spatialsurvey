@@ -12,8 +12,8 @@ function initialize() {
 			editable: true
 		}
 	});
-	var surveyHelper = spatialsurvey(map);
-	var mapHelper = mapcalc(map);
+	var surveyHelper = spatialsurvey(map, document);
+	var mapHelper = mapcalc(map, document);
 
 	google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) { 
 		data.setPath(polyline.getPath().getArray());
