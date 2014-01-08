@@ -40,8 +40,6 @@ function initialize() {
 				timestampMarkers.push(infowindow);
 			}
 		});
-
-		mapHelper.distributeTimeStamps(data.getPolyline(), 10);
 	});
 
 }
