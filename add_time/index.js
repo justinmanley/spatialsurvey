@@ -34,7 +34,8 @@ function initialize() {
 
 		google.maps.event.addListener(map, 'click', function(event) {
 			var userPolyline = data.getPolyline();
-			if (google.maps.geometry.poly.isLocationOnEdge(event.latLng, userPolyline, 0.0005)) {
+			var tolerance = 0.05*Math.pow(1.1, -map.getZoom());
+			if (google.maps.geometry.poly.isLocationOnEdge(event.latLng, userPolyline, tolerance)) {
 				var position = mapHelper.closestPointOnPolyline(userPolyline, event.latLng);
 				var infowindow = surveyHelper.addTimestampMarker(userPolyline, position);
 				timestampMarkers.push(infowindow);

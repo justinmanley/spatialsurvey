@@ -373,12 +373,10 @@ var spatialsurvey = function(map, doc) {
 				timestamp.closed.setPosition(dragPosition);
 			});			
 		});		
-		google.maps.event.addDomListener(openedContent.label, 'click', function() {
-			timestamp.close();
-		});
-		google.maps.event.addDomListener(closedContent.label, 'click', function() {
-			timestamp.open();
-		});
+
+		google.maps.event.addDomListener(openedContent.label, 'click', function() { timestamp.close(); 	});
+		google.maps.event.addDomListener(closedContent.label, 'click', function() { timestamp.open();   });
+
 		google.maps.event.addListener(timestamp.opened, 'closeclick', function() {
 			timestamp.pyramid.setMap(null);
 		});
