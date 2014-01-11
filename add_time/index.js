@@ -18,13 +18,13 @@ function initialize() {
 	data.display(function() {
 		timestampMarkers = new Array();
 
-		var start = data.getStartTime();
-		var end = data.getEndTime();
-		var pathLength = google.maps.geometry.spherical.computeLength(data.getPath());
-		for (var i = start; i < end; i++) {
-			var infowindow = surveyHelper.addTimestampMarker(map, userPolyline, position);
-			timestampMarkers.push(infowindow);
-		}
+		// var start = data.getStartTime();
+		// var end = data.getEndTime();
+		// var pathLength = google.maps.geometry.spherical.computeLength(data.getPath());
+		// for (var i = start; i < end; i++) {
+		// 	var infowindow = surveyHelper.addTimestampMarker(map, data.getPolyline(), position);
+		// 	timestampMarkers.push(infowindow);
+		// }
 
 		surveyHelper.showNextButton(map, document, data, 'save', function() {
 			var times = surveyHelper.getTimestamps(timestampMarkers);

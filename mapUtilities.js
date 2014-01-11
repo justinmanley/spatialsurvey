@@ -393,10 +393,10 @@ var spatialsurvey = function(map, doc) {
 	var instructions = (function() 
 // -----------------------------------------------------------------------------------
 	{
-		var opt = {};
-		opt.content = [];
+		var data = {};
+		data.content = [];
 
-		var setupInstructions = function(doc) {
+		var setupPrimaryInstructions = function() {
 			var extra = doc.getElementById('extra');
 			extra.innerHTML = '<div id="welcome">'+
 				'<div class="close-box">'+
@@ -407,24 +407,17 @@ var spatialsurvey = function(map, doc) {
 				'<button id="next-instruction">Next</button>'+				
 			  '</div><!-- #welcome -->';
 		}
-		var getInstructions = function(map, doc) {
+		var setupSidebarInstructions = function() {
 			var instructions = doc.createElement('div');
 			instructions.id = 'instructions';
 
 			// initialize the instructions sidebar to be hidden
 			instructions.style.display = 'none';
-			conn2 = new XMLHttpRequest();
-			conn2.open('GET', 'instructions.php', true);
-			conn2.onreadystatechange = function() {
-				if (this.readyState !== 4 ) return; 
-				if (this.status !== 200 ) return; 
-				instructions.innerHTML = this.responseText;				
-			};
-			conn2.send();
+			instructions.innerHTML = getSidebarContent();
 			map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);	
 
 		}
-		var showWelcome = function(map, doc, drawingManager) {
+		var showPrimaryInstructions = function(drawingManager) {
 			var welcome = doc.getElementById('welcome');
 			var welcome_content = doc.getElementById('welcome-content');
 
@@ -436,7 +429,7 @@ var spatialsurvey = function(map, doc) {
 
 			// initialize welcome screen
 		    var welcome_screen_index = 0;
-		    var content = getContent();
+		    var content = getPrimaryContent();
 		    welcome_content.innerHTML = content[welcome_screen_index];
 		    google.maps.event.addDomListener(doc.getElementById('next-instruction'), 'click', function() {
 				console.log(welcome_screen_index);
@@ -444,67 +437,68 @@ var spatialsurvey = function(map, doc) {
 				    welcome_screen_index += 1;
 				    welcome_content.innerHTML = content[welcome_screen_index]; 
 				}
-				else { startDrawing(map, doc, drawingManager); }
+				else { startDrawing(drawingManager); }
 			});
 
 		}
-		var hideWelcome = function(doc) {
+		var hidePrimaryInstructions = function() {
 			doc.getElementById('welcome').style.display = 'none';
 			google.maps.event.clearListeners(doc.getElementById('next-instruction'), 'click');
 
 			doc.getElementById('instructions').style.display = 'block';
 		}
-		var startDrawing = function(map, doc, drawingManager, initDrawingManager) {
-			hideWelcome(doc);		
+		var startDrawing = function(drawingManager, initDrawingManager) {
+			hidePrimaryInstructions();		
 			drawingManager.setMap(map);			
 
 			google.maps.event.addDomListener(doc.getElementById('instructions-content'), 'click', function() {
-				showWelcome(map, doc, drawingManager);
+				showPrimaryInstructions(drawingManager);
 			});		
 
 			google.maps.event.removeListener(initDrawingManager);				
 		}
-		var setContent = function(array) {
-			opt.content = array;
-		}	
-		var getContent = function() {
-			return opt.content;
-		}
-		var init = function(map, doc, drawingManager, options) {
-			// initialize main instructions
-			setupInstructions(doc);
+		var setPrimaryContent = function(array) { data.content = array; }	
+		var getPrimaryContent = function() { return data.content; }
+		var setSidebarContent = function(content) { data.sidebar = content; }
+		var getSidebarContent = function() { return data.sidebar; }
 
-			// initialize instructions sidebar
-			getInstructions(map, doc);				
-			// var welcome = doc.getElementById('welcome-content');
-
+		var init = function(drawingManager, options) {
 			if (typeof options !== 'undefined') {
 				if (typeof options.content !== 'undefined') {
-					setContent(options.content);
+					setPrimaryContent(options.content);
 				}
 				if (typeof options.visible !== 'undefined') {
 					setVisible(options.visible);
 				}
+				if (typeof options.sidebar !== 'undefined') {
+					setSidebarContent(options.sidebar);
+				}
 			}
 
-			showWelcome(map, doc, drawingManager);	
+			// initialize main instructions
+			setupPrimaryInstructions();
+
+			// initialize instructions sidebar
+			setupSidebarInstructions();				
+
+			showPrimaryInstructions(drawingManager);	
 
 			// event handler to close welcome screen
 			var welcome_close = doc.getElementsByClassName('close-box')[0];
 			google.maps.event.addDomListener(welcome_close, 'click', function() {
-				startDrawing(map, doc, drawingManager, initDrawingManager);
+				startDrawing(drawingManager, initDrawingManager);
 			});	
 
 			// if user clicks outside of welcome screen, then start drawing
 			var initDrawingManager = google.maps.event.addListener(map, 'click', function() {
-				startDrawing(map, doc, drawingManager, initDrawingManager);				
+				startDrawing(drawingManager, initDrawingManager);				
 			});							
 		}
 
 		return {
 			'init': init,
-			'setContent': setContent,
-			'getContent': getContent
+			'setPrimaryContent': setPrimaryContent,
+			'getPrimaryContent': getPrimaryContent
 		}
 	}());
 
