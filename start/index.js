@@ -22,12 +22,12 @@ function initialize() {
 		});		
 		mapHelper.rightClickButton(map, document, polyline);
 
-		surveyHelper.showNextButton(map, document, data, 'add_time', function() {
-			var startTime = document.getElementById('start-time').value;
-			var endTime = document.getElementById('end-time').value;
+		surveyHelper.showNextButton(data, 'add_time', function() {
+			var startTime = document.getElementById('sidebar-start-time').value;
+			var endTime = document.getElementById('sidebar-end-time').value;
 			data.setStartTime(startTime);
 			data.setEndTime(endTime);	
-		});
+		}, 'start');
 	});
 
 	var data = surveyHelper.personPath();
@@ -35,7 +35,8 @@ function initialize() {
 	var instructionsPrimary = [
 		'<h3>Thank you for participating in this survey!</h3>'+
 		'<div id="welcome-img"><img src="../images/instruction1.gif" /></div><!-- #welcome-img -->'+
-		'<p>To start, draw the path that you took around campus today.</p>',
+		'<p>To start, draw the path that you took around campus today.</p>'
+		,
 		'<p>If you make a mistake, don\'t worry; you\'ll have a chance to edit the path you\'ve drawn before you proceed to the next step.</p>'+
 		'<p>When you\'re done, double-click on the last point to save your path, then click the button at the bottom of the page to advance to the next step.</p>'
 	];
@@ -49,14 +50,15 @@ function initialize() {
 									'<div id="start-end-time-question">'+
 										'<label for="start-time">Start</label>'+
 										'<br />'+
-										'<input name="start-time" id="start-time"/>'+
+										'<input name="start-time" id="sidebar-start-time"/>'+
 									'</div>'+
 									'<div id="start-end-time-question">'+
 										'<label for="end-time">End</label>'+
 										'<br />'+
-										'<input name="end-time" id="end-time"/>'+
+										'<input name="end-time" id="sidebar-end-time"/>'+
 									'</div>'+
 								'</form>';
+
 	surveyHelper.instructions.init(drawingManager, { 
 		content: instructionsPrimary, 
 		sidebar: instructionsSidebar 
@@ -65,3 +67,17 @@ function initialize() {
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);
+
+		// ,
+		// '<form>'+
+		// 	'<div id="start-end-time-question">'+
+		// 		'<label for="start-time">Start</label>'+
+		// 		'<br />'+
+		// 		'<input name="start-time" id="primary-start-time"/>'+
+		// 	'</div>'+
+		// 	'<div id="start-end-time-question">'+
+		// 		'<label for="end-time">End</label>'+
+		// 		'<br />'+
+		// 		'<input name="end-time" id="primary-end-time"/>'+
+		// 	'</div>'+
+		// '</form>'

@@ -18,19 +18,11 @@ function initialize() {
 	data.display(function() {
 		timestampMarkers = new Array();
 
-		// var start = data.getStartTime();
-		// var end = data.getEndTime();
-		// var pathLength = google.maps.geometry.spherical.computeLength(data.getPath());
-		// for (var i = start; i < end; i++) {
-		// 	var infowindow = surveyHelper.addTimestampMarker(map, data.getPolyline(), position);
-		// 	timestampMarkers.push(infowindow);
-		// }
-
-		surveyHelper.showNextButton(map, document, data, 'save', function() {
-			var times = surveyHelper.getTimestamps(timestampMarkers);
-			console.log(times);
-			data.setTimestamps(times);
-		});
+		surveyHelper.showNextButton(data, 'save', function() {
+			// var times = surveyHelper.getTimestamps(timestampMarkers);
+			// console.log(times);
+			// data.setTimestamps(times);
+		}, 'add_time');
 
 		google.maps.event.addListener(map, 'click', function(event) {
 			var userPolyline = data.getPolyline();
