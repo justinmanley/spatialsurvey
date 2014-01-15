@@ -54,6 +54,9 @@ body {
   height: 100%;
   width: 60%;
 }
+.timestamp-closed {
+  float: left;
+}
 #welcome {
   position: absolute;
   background-color: #ffffff;
@@ -84,8 +87,11 @@ body {
   background: #4387fd;
 }
 .close-box {
-  float: right;
+  float: left;
   font-family: sans-serif;
   color: #9a9a9a;
   margin: 5px;
+}
+#error-message {
+  background-color: #ff4e4e;
 }

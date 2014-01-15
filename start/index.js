@@ -22,12 +22,18 @@ function initialize() {
 		});		
 		mapHelper.rightClickButton(map, document, polyline);
 
-		surveyHelper.showNextButton(data, 'add_time', function() {
+		surveyHelper.showNextButton(data, 'add_time', 'start', function() {
 			var startTime = document.getElementById('sidebar-start-time').value;
-			var endTime = document.getElementById('sidebar-end-time').value;
-			data.setStartTime(startTime);
-			data.setEndTime(endTime);	
-		}, 'start');
+			var endTime = document.getElementById('sidebar-end-time').value;	
+			if ( surveyHelper.isValidTime(startTime) && surveyHelper.isValidTime(endTime)) {
+				data.setStartTime(startTime);
+				data.setEndTime(endTime);
+				return true;
+			}
+			else { 
+				return false; 
+			}
+		});
 	});
 
 	var data = surveyHelper.personPath();

@@ -188,7 +188,10 @@ var spatialsurvey = function(map, doc) {
 
 	/* Add elements to the page */
 
-	var showButton = function(data, destination, addToData, type, currentPageName) {
+// -------------------------------------------------------------------------------------
+	var showButton = function(data, destination, type, currentPageName, validate) 
+// -------------------------------------------------------------------------------------
+	{
 		var nextForm = doc.createElement('form');
 		nextForm.id = type + '-form';
 		nextForm.setAttribute('method', 'post');
@@ -196,30 +199,54 @@ var spatialsurvey = function(map, doc) {
 		nextForm.innerHTML = '<input type="hidden" name="' + type + '-name" id="' + type + '-name" value="' + destination + '"/>'+
 								'<input type="hidden" name="current-page-name" id="current-page-name" value="'+currentPageName+'"/>'+
 								'<input type="hidden" name="path-data" id="' + type + '-path-data"/>'+
-								'<input type="submit" id="' + type + '-button" value="NEXT"/>';
+								'<button type="button" id="' + type + '-button">NEXT</button>';
 		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextForm);	
 
+		google.maps.event.addDomListenerOnce(nextForm, 'click', function() {
+			if ( !validate() ) {
+				var instructionsSidebar = doc.getElementById('instructions-content');
+				var errorMessage = doc.createElement('p');
+				errorMessage.id = 'error-message';
+				errorMessage.innerHTML = 'Please enter your start and end time.';
+				instructionsSidebar.appendChild(errorMessage);	
+
+				setTimeout(function() { errorMessage.style.backgroundColor = oldColor; }, 1500)							
+			}
+		});
+
 		google.maps.event.addDomListener(nextForm, 'click', function() {
-			var pathData = doc.getElementById(type + '-path-data');
-			if (typeof addToData !== 'undefined') { addToData(); };
-			pathData.setAttribute('value', data.toString());
-			console.log(data.toString());
-			nextForm.submit();
-		});			
+			if ( validate() ) { 
+				var pathData = doc.getElementById(type + '-path-data');
+				pathData.setAttribute('value', data.toString());
+				nextForm.submit(); 
+			} 
+			else {
+				var startTimeForm = doc.getElementById('sidebar-start-time');
+				var endTimeForm = doc.getElementById('sidebar-end-time');
+
+				var oldColor = startTimeForm.style.backgroundColor;
+
+				startTimeForm.style.backgroundColor = '#ff4e4e';
+				endTimeForm.style.backgroundColor = '#ff4e4e';
+
+				setTimeout(function() { startTimeForm.style.backgroundColor = oldColor; }, 1500);
+				setTimeout(function() { endTimeForm.style.backgroundColor = oldColor; }, 1500);
+			}
+		});		
 	}
 
 	// -------------------------------------------------------------
-	var showNextButton = function(data, destination, addToData, currentPageName) 
+	var showNextButton = function(data, destination, currentPageName, validate) 
 	// -------------------------------------------------------------
 	{
-		showButton(data, destination, addToData, 'next-page', currentPageName);
+		showButton(data, destination, 'next-page', currentPageName, validate);
 	}
 
 	// -------------------------------------------------------------
-	var showPreviousButton = function(data, destination, addToData, currentPageName) 
+	var showPreviousButton = function(data, destination, currentPageName, validate) 
 	// -------------------------------------------------------------
 	{
-		showButton(data, destination, addToData, 'previous-page', currentPageName);
+		showButton(data, destination, 'previous-page', currentPageName, validate);
 	}
 
 	// -------------------------------------------------------------
@@ -283,6 +310,14 @@ var spatialsurvey = function(map, doc) {
 			timestamps.push({ time: time, position: position });
 		}
 		return timestamps;
+	}
+
+// ----------------------------------------------------------------------
+	var isValidTime = function(timeString) 
+// ----------------------------------------------------------------------
+	{
+		var regex = /^(\d|[1][0-2])(:([0-5]\d))?\s?(AM|PM)$/i;
+		return regex.test(timeString);
 	}
 
 // ---------------------------------------------------------------
@@ -521,11 +556,13 @@ var spatialsurvey = function(map, doc) {
 
 	// public methods and constructors for module spatialsurvey
 	return {
-		personPath: personPath, 
-		showNextButton: showNextButton,
-		addTimestampMarker: addTimestampMarker,
-		getTimestamps: getTimestamps,
-		instructions: instructions
+		'personPath': personPath, 
+		'showNextButton': showNextButton,
+		'addTimestampMarker': addTimestampMarker,
+		'getTimestamps': getTimestamps,
+		'instructions': instructions,
+		'isValidTime': isValidTime
+
 	};
 };
 

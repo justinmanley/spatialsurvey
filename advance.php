@@ -7,14 +7,10 @@
 
 	function validateTime($timeString) {
 		$regex = '/^(\d|[1][0-2])(:([0-5]\d))?\s?(AM|PM)$/i';
-		if ( preg_match($regex, $timeString) === 1) {
-			$_SESSION['error-message'] = ''; // clear the error message 
-			header('Location: ' . $_POST['next-page-name']);			
-		}			
-		else {
-			$_SESSION['error-message'] = 'Please enter the time you left home and the time you returned home.';
+		if ( preg_match($regex, $timeString) === 1)
+			header('Location: ' . $_POST['next-page-name']);				
+		else
 			header('Location: ' . $_POST['current-page-name']);
-		}
 	}
 
 	function validateTimes() {
