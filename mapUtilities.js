@@ -89,8 +89,8 @@ var spatialsurvey = function(map, doc) {
 			if (typeof data.polyline === 'undefined') {
 				var polyline = new google.maps.Polyline({
 					path: getPath(),
-					strokeColor: '#000000',
-					strokeWeight: 2,
+					strokeColor: '#ffffff',
+					strokeWeight: 3,
 					clickable: false
 				});
 				data.polyline = polyline;
@@ -435,14 +435,14 @@ var spatialsurvey = function(map, doc) {
 
 		var setupPrimaryInstructions = function() {
 			var extra = doc.getElementById('extra');
-			extra.innerHTML = '<div id="welcome">'+
+			extra.innerHTML = '<div id="instructions-main">'+
 				'<div class="close-box">'+
 					'<img src="../images/close-icon.png"/>'+
 				'</div>'+				
-				'<div id="welcome-content">'+
-				'</div><!-- #welcome-content -->'+
+				'<div id="instructions-main-content">'+
+				'</div><!-- #instructions-main-content -->'+
 				'<button id="next-instruction">Next</button>'+				
-			  '</div><!-- #welcome -->';
+			  '</div><!-- #instructions-main -->';
 		}
 		var setupSidebarInstructions = function() {
 			var instructions = doc.createElement('div');
@@ -455,31 +455,36 @@ var spatialsurvey = function(map, doc) {
 		}
 		var showPrimaryInstructions = function(drawingManager) {
 			data.primaryIsVisible = true;
-			var welcome = doc.getElementById('welcome');
-			var welcome_content = doc.getElementById('welcome-content');
+			var instructions_main = doc.getElementById('instructions-main');
+			var instructions_main_content = doc.getElementById('instructions-main-content');
 
-			welcome.style.display = 'block';
+			instructions_main.style.display = 'block';
 
 			if (doc.getElementById('instructions') != null) { 			
 				doc.getElementById('instructions').style.display = 'none';			
 			}				
 
-			// initialize welcome screen
-		    var welcome_screen_index = 0;
+			// initialize instructions_main screen
+		    var instructions_main_screen_index = 0;
 		    var content = getPrimaryContent();
-		    welcome_content.innerHTML = content[welcome_screen_index];
-		    google.maps.event.addDomListener(doc.getElementById('next-instruction'), 'click', function() {
-				console.log(welcome_screen_index);
-				if (welcome_screen_index < content.length - 1) { 
-				    welcome_screen_index += 1;
-				    welcome_content.innerHTML = content[welcome_screen_index]; 
+		    var nextButton = doc.getElementById('next-instruction');
+
+		    instructions_main_content.innerHTML = content[instructions_main_screen_index].content;
+		    nextButton.innerHTML = typeof content[instructions_main_screen_index].buttonText !== 'undefined' ? content[instructions_main_screen_index].buttonText : 'NEXT';
+
+		    google.maps.event.addDomListener(nextButton, 'click', function() {
+				console.log(instructions_main_screen_index);
+				if (instructions_main_screen_index < content.length - 1) { 
+				    instructions_main_screen_index += 1;
+				    instructions_main_content.innerHTML = content[instructions_main_screen_index].content;
+				    nextButton.innerHTML = typeof content[instructions_main_screen_index].buttonText !== 'undefined' ? content[instructions_main_screen_index].buttonText : 'NEXT';
 				}
 				else { startDrawing(drawingManager); }
 			});
 		}
 		var hidePrimaryInstructions = function() {
 			data.primaryIsVisible = false;
-			doc.getElementById('welcome').style.display = 'none';
+			doc.getElementById('instructions-main').style.display = 'none';
 			google.maps.event.clearListeners(doc.getElementById('next-instruction'), 'click');
 
 			doc.getElementById('instructions').style.display = 'block';

@@ -57,7 +57,7 @@ body {
 .timestamp-closed {
   float: left;
 }
-#welcome {
+#instructions-main {
   position: absolute;
   background-color: #ffffff;
   height: 463.5px;
@@ -68,18 +68,22 @@ body {
   top: 75px;
   padding: 2px;
   box-shadow: 0 0 15px #9a9a9a;
+  font-family: 'Andada', serif;
 }
-#welcome #welcome-content {
+#instructions-main h2 {
+  text-align: center;
+}
+#instructions-main #instructions-main-content {
   margin: 25px 50px 0 50px;
   overflow: auto;
   height: 349.5px;
 }
-#welcome #welcome-content img {
+#instructions-main #instructions-main-content img {
   display: block;
   margin: 0 auto;
-  width: 50%;
+  width: 80%;
 }
-#welcome #next-instruction {
+#instructions-main #next-instruction {
   display: block;
   margin: 30px auto;
   background: linear-gradient(top, #8d8d8d, #bdbdbd);
@@ -87,7 +91,7 @@ body {
   background: #4387fd;
 }
 .close-box {
-  float: left;
+  float: right;
   font-family: sans-serif;
   color: #9a9a9a;
   margin: 5px;

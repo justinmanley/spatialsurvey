@@ -72,31 +72,33 @@ body {
 }
 
 
-#welcome {
-	@welcome-width: 750px;
-	// @welcome-width: 550px;
-	@welcome-height: (@welcome-width*0.618);
-	@welcome-margin: 50px;
+#instructions-main {
+	@instructions-main-width: 750px;
+	// @instructions-main-width: 550px;
+	@instructions-main-height: (@instructions-main-width*0.618);
+	@instructions-main-margin: 50px;
 
 	position: absolute;
 	background-color: rgba(256,256,256,1);
-	height: @welcome-height;
-	width: @welcome-width;
+	height: @instructions-main-height;
+	width: @instructions-main-width;
 	z-index: 1000;
 	left: 50%;
-	margin-left: (-@welcome-width/2);
+	margin-left: (-@instructions-main-width/2);
 	top: 75px;
 	// top: 150px;
 	padding: 2px;
 	box-shadow: 0 0 15px #9a9a9a;
-	#welcome-content {
-		margin: @welcome-margin*0.5 @welcome-margin 0 @welcome-margin;
+	font-family: 'Andada', serif;
+	h2 { text-align: center; }
+	#instructions-main-content {
+		margin: @instructions-main-margin*0.5 @instructions-main-margin 0 @instructions-main-margin;
 		overflow: auto;
-		height: (@welcome-height - @welcome-margin*0.5 - @button-height - 2*@button-margin);
+		height: (@instructions-main-height - @instructions-main-margin*0.5 - @button-height - 2*@button-margin);
 		img { 
 			display: block; 
 			margin: 0 auto; 
-			width: 50%;	
+			width: 80%;	
 		}		
 	}
 	#next-instruction {
@@ -109,7 +111,7 @@ body {
 }
 
 .close-box {
-	float: left;
+	float: right;
  	font-family: sans-serif;
 	color: #9a9a9a; 
 	margin: 5px;

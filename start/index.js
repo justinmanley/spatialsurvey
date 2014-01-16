@@ -3,13 +3,14 @@ function initialize() {
 	var map = new google.maps.Map(document.getElementById("map-canvas"), {
 		center: mapCenter,
 		zoom: 18,
-		mapTypeId: google.maps.MapTypeId.ROADMAP
+		mapTypeId: google.maps.MapTypeId.SATELLITE
 	});
 	var drawingManager = new google.maps.drawing.DrawingManager({
 		drawingMode: google.maps.drawing.OverlayType.POLYLINE,
 		drawingControl: false,
 		polylineOptions: {
-			editable: true
+			editable: true,
+			strokeColor: '#ffff4d'
 		}
 	});
 	var surveyHelper = spatialsurvey(map, document, drawingManager);
@@ -39,12 +40,22 @@ function initialize() {
 	var data = surveyHelper.personPath();
 
 	var instructionsPrimary = [
-		'<h3>Thank you for participating in this survey!</h3>'+
-		'<div id="welcome-img"><img src="../images/instruction1.gif" /></div><!-- #welcome-img -->'+
-		'<p>To start, draw the path that you took around campus today.</p>'
-		,
-		'<p>If you make a mistake, don\'t worry; you\'ll have a chance to edit the path you\'ve drawn before you proceed to the next step.</p>'+
-		'<p>When you\'re done, double-click on the last point to save your path, then click the button at the bottom of the page to advance to the next step.</p>'
+		{ 
+			content: '<h2>Instructions</h2>'+
+					'<h3>Draw the path that you took around campus yesterday.</h3>'+
+					'<div class="instructions-main-img"><img src="../images/instructions1.gif" /></div><!-- .instructions-main-img -->',
+			buttonText: 'NEXT'
+		},
+		{
+			content: '<h3>When you\'re done, double-click on the last point to save your path, then click the button at the bottom of the page to advance to the next step.</h3>'+
+					'<div class="instructions-main-img"><img src="../images/instructions2.gif" /></div><!-- .instructions-main-img -->',
+			buttonText: 'GOT IT'
+
+		},
+		{
+			content: '<h3>If you make a mistake, don\'t worry! You\'ll have a chance to edit the path you\'ve drawn.  You can edit the path once it\'s completed by dragging the midpoints of segments or by deleting vertices.</h3>',
+			buttonText: 'START'
+		}
 	];
 
 	var instructionsSidebar = '<div id="instructions-content">'+
