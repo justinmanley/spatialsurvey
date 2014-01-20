@@ -9,4 +9,5 @@ Spatialsurvey exports two modules, spatialsurvey, and mapcalc.
 
 mapcalc
 -------------
-mapcalc.closestPointOnPolyline()
+mapcalc.closestPointOnPolyline(polyline, point)
+mapcalc.distributeTimeStamps(polyline, startTime, endTime)
