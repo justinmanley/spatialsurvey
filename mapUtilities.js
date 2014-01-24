@@ -880,8 +880,8 @@ var mapcalc = function(map, doc)
 		/* These variables remain constant, and so may safely be referenced by functions defined herein. */
 		var path = polyline.getPath().getArray();
 		var totalLength = google.maps.geometry.spherical.computeLength(path);
-		var totalTime = 3;
-		var time = Math.ceil(totalTime);
+		var totalTime = getTotalTime(startTime, endTime);
+		var time = Math.ceil(totalTime/3);
 		var delta = totalLength/time;
 
 		var segmentLength = function(i) { 
@@ -1080,3 +1080,27 @@ var metersToLng = function(point) {
 }
 
 
+var getTotalTime = function(startTimeString, endTimeString) 
+{
+	var regex = /^(\d|[1][0-2])(?::)?([0-5]\d)?\s?(AM|PM)$/i;
+	var startParsed = regex.exec(startTimeString);
+	console.log(startParsed);
+	var startHour = startParsed[1];
+	var startMinute = typeof startParsed[2] === 'undefined' ? 0 : startParsed[2];
+	var startTime = parseInt(startHour) + (startMinute/60)
+
+	if ( /^P.?M.?$/i.test(startParsed[3]) ) 
+		endTime += 12;	
+
+	var endParsed = regex.exec(endTimeString);
+	var endHour = endParsed[1];
+	var endMinute = typeof endParsed[2] === 'undefined' ? 0 : endParsed[2];
+	var endTime = parseInt(endHour) + (endMinute/60);
+
+	if ( /^P.?M.?$/i.test(endParsed[3]) ) 
+		endTime += 12; 
+	else if ( /^A.?M.?$/i.test(endParsed[3]) )
+		endTime += 24;
+
+	return endTime - startTime;
+}

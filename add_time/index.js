@@ -18,11 +18,12 @@ function initialize() {
 	data.display(function() {
 		timestampMarkers = new Array();
 
-		surveyHelper.showNextButton(data, 'save', function() {
+		surveyHelper.showNextButton(data, 'save', 'add_time', function() {
 			// var times = surveyHelper.getTimestamps(timestampMarkers);
 			// console.log(times);
 			// data.setTimestamps(times);
-		}, 'add_time');
+			return true;
+		});
 
 		google.maps.event.addListener(map, 'click', function(event) {
 			var userPolyline = data.getPolyline();
