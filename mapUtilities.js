@@ -250,7 +250,7 @@ var spatialsurvey = function(map, doc) {
 	}
 
 	// -------------------------------------------------------------
-	var getTimestampInfoWindow = function(position, timeString) 
+	var timestampOpenedContent = function(position, timeString) 
 	// -------------------------------------------------------------
 	{
 		if ( typeof timeString === 'undefined') { var timeString = ''; }		
@@ -276,7 +276,7 @@ var spatialsurvey = function(map, doc) {
 	}
 
 	// --------------------------------------------------------------
-	var getClosedInfoWindow = function(position, timeString) 
+	var timestampClosedContent = function(position, timeString) 
 	// --------------------------------------------------------------
 	{
 		if ( typeof timeString === 'undefined') { var timeString = ''; }
@@ -299,13 +299,12 @@ var spatialsurvey = function(map, doc) {
 
 	// Need to make sure that this works for both timestamp windows that are open AND closed
 	// ---------------------------------------------------------------
-	var getTimestamps = function(xs) 
+	var getTimestamps = function() 
 	// ---------------------------------------------------------------
 	{
-		var timestamps = [];
-		for(var i = 0; i < xs.length; i++) {
-			var timestamp = xs[i];
-			var time = timestamp.getContent().childNodes[0][0].value;
+		var timestamps = doc.getElementsByClassName('timestamp');
+		for(var i = 0; i < timestamps.length; i++) {
+			var time = timestamps[i].value;
 			var position = (function() { return { lat: timestamp.getPosition().lat(), lng: timestamp.getPosition().lng()}; })();
 			timestamps.push({ time: time, position: position });
 		}
@@ -350,8 +349,8 @@ var spatialsurvey = function(map, doc) {
 	{
 		var timestamp = {};
 		var open = true;
-		var openedContent = getTimestampInfoWindow(position, timeString);
-		var closedContent = getClosedInfoWindow(position, timeString)
+		var openedContent = timestampOpenedContent(position, timeString);
+		var closedContent = timestampClosedContent(position, timeString)
 		timestamp.opened = new InfoBox({
 			content: openedContent.content,
 			position: position,
@@ -881,8 +880,9 @@ var mapcalc = function(map, doc)
 		var path = polyline.getPath().getArray();
 		var totalLength = google.maps.geometry.spherical.computeLength(path);
 		var totalTime = getTotalTime(startTime, endTime);
-		var time = Math.ceil(totalTime/3);
-		var delta = totalLength/time;
+		var timeDelta = 1.5;
+		var numberOfTimestamps = Math.ceil(totalTime/timeDelta);
+		var delta = totalLength/numberOfTimestamps;
 
 		var segmentLength = function(i) { 
 			return google.maps.geometry.spherical.computeDistanceBetween(polyline.getPath().getAt(i), polyline.getPath().getAt(i+1));
@@ -938,7 +938,7 @@ var mapcalc = function(map, doc)
 			'verticalSpillover': 0
 		};
 		spatialsurvey(map, doc).addTimestampMarker(polyline, closestPointOnPolyline(polyline, thisTimestampInfo.basePoint), startTime);	
-		for (var i = 0; i < time; i++) {
+		for (var i = 0; i < numberOfTimestamps; i++) {
 			thisTimestampInfo = getVerticalDistance(thisTimestampInfo);
 	
 			if (thisTimestampInfo.currentVertex < path.length - 1) {
@@ -951,11 +951,17 @@ var mapcalc = function(map, doc)
 
 				thisTimestampInfo.basePoint = line.extrapolate(thisTimestampInfo.basePoint.lat() + Math.sgn(endpoint2.lat() - endpoint1.lat())*thisTimestampInfo.verticalDistance*metersToLat(thisTimestampInfo.basePoint));	
 			}
-			// placeMarker(thisTimestampInfo.basePoint);
-			spatialsurvey(map, doc).addTimestampMarker(polyline, thisTimestampInfo.basePoint, '');	
+
+			
+			if (i == numberOfTimestamps - 1) // last timestamp
+				spatialsurvey(map, doc).addTimestampMarker(polyline, thisTimestampInfo.basePoint, endTime);
+			else
+				spatialsurvey(map, doc).addTimestampMarker(polyline, thisTimestampInfo.basePoint, incrementTimestamp(startTime, timeDelta*(i+1)));	
+
 			thisTimestampInfo.i++;
 		}
 	}
+
 
 	// public methods and constructors
 	return {
@@ -1079,7 +1085,6 @@ var metersToLng = function(point) {
 	return 1/lngDistance;
 }
 
-
 var getTotalTime = function(startTimeString, endTimeString) 
 {
 	var regex = /^(\d|[1][0-2])(?::)?([0-5]\d)?\s?(AM|PM)$/i;
@@ -1103,4 +1108,33 @@ var getTotalTime = function(startTimeString, endTimeString)
 		endTime += 24;
 
 	return endTime - startTime;
+}
+
+var incrementTimestamp = function(baseTimeString, timeDifference) {
+	var regex = /^(\d|[1][0-2])(?::)?([0-5]\d)?\s?(AM|PM)$/i;
+
+	var baseParsed = regex.exec(baseTimeString);
+	var baseHour = parseInt(baseParsed[1]);
+	var baseMinute = typeof baseParsed[2] === 'undefined' ? 0 : baseParsed[2];
+
+	var newTime = new Date();
+
+	newTime.setHours(parseInt(baseParsed[1]) + Math.floor(timeDifference));
+	newTime.setMinutes(baseMinute + 60*(timeDifference - Math.floor(timeDifference)));
+
+	var newHour = newTime.getHours();
+	var period = newHour >= 12 ? ' pm' : ' am';
+
+	var newHourString = String(newHour) % 12 == 0 ? 12 : String(newHour % 12);
+
+	var newMinuteString = newTime.getMinutes() == 0 ? '' : ':' + String(padInteger(newTime.getMinutes(),2));
+
+	var newTimeString = newHourString + newMinuteString + period;
+
+	return newTimeString;
+}
+
+function padInteger(num, length) {
+
+    return (num / Math.pow(10, length)).toFixed(length).substr(2);
 }
