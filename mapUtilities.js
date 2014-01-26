@@ -1112,18 +1112,20 @@ var getTotalTime = function(startTimeString, endTimeString)
 	var startMinute = typeof startParsed[2] === 'undefined' ? 0 : startParsed[2];
 	var startTime = parseInt(startHour) + (startMinute/60)
 
-	if ( /^P.?M.?$/i.test(startParsed[3]) ) 
-		endTime += 12;	
+	// if ( /^P.?M.?$/i.test(startParsed[3]) ) 
+	// 	endTime += 12;	
 
 	var endParsed = regex.exec(endTimeString);
-	var endHour = endParsed[1];
+	var endHour = parseInt(endParsed[1]);
 	var endMinute = typeof endParsed[2] === 'undefined' ? 0 : endParsed[2];
-	var endTime = parseInt(endHour) + (endMinute/60);
+	var endTime = endHour + (endMinute/60);
 
-	if ( /^P.?M.?$/i.test(endParsed[3]) ) 
+	if ( /^P.?M.?$/i.test(endParsed[3]) && endHour != 12 ) 
 		endTime += 12; 
-	else if ( /^A.?M.?$/i.test(endParsed[3]) )
+	else if ( /^A.?M.?$/i.test(endParsed[3]) && endHour != 12 )
 		endTime += 24;
+	else if ( /^A.?M.?$/i.test(endParsed[3]) && endHour == 12 )
+		endTime += 12;
 
 	return endTime - startTime;
 }
@@ -1156,11 +1158,13 @@ var timestringToInteger = function(timeString) {
 	var regex = /^(\d|[1][0-2])(?::)?([0-5]\d)?\s?(AM|PM)$/i;
 	var parsed = regex.exec(timeString);
 
-	var hour = parseInt(parsed[1]);
+	var hour = parseInt(parsed[1]) % 24;
 	var minute = typeof parsed[2] === 'undefined' ? 0 : parseInt(parsed[2])/60;
 
-	if ( /^P.?M.?$/i.test(parsed[3]) ) 
+	if ( /^P.?M.?$/i.test(parsed[3]) && hour != 12) 
 		hour += 12; 
+	if ( /^A.?M.?$/i.test(parsed[3]) && hour == 12 )
+		hour = 0;
 
 	return hour + minute;
 }
