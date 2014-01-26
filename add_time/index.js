@@ -19,10 +19,9 @@ function initialize() {
 		timestampMarkers = new Array();
 
 		surveyHelper.showNextButton(data, 'save', 'add_time', function() {
-			// var times = surveyHelper.getTimestamps(timestampMarkers);
-			// console.log(times);
-			// data.setTimestamps(times);
 			return true;
+		}, function() {
+			//
 		});
 
 		google.maps.event.addListener(map, 'click', function(event) {

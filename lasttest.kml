@@ -1,0 +1,1551 @@
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.opengis.net/kml/2.2 http://schemas.opengis.net/kml/2.2.0/ogckml22.xsd http://www.google.com/kml/ext/2.2 http://code.google.com/apis/kml/schema/kml22gx.xsd">
+<Document id="Pedestrian_Campus_Movement">
+  <name>Pedestrian_Campus_Movement</name>
+  <Snippet></Snippet>
+  <Folder id="FeatureLayer0">
+    <name>Pedestrian_Campus_Movement</name>
+    <Snippet></Snippet>
+  <Placemark id="ID_00000">
+    <name>0</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+    
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#LineStyle00</styleUrl>
+        <MultiGeometry>
+          <LineString>
+            <extrude>0</extrude><altitudeMode>clampedToGround</altitudeMode>
+            <coordinates>-87.604052424431,41.790583153245,0 -87.603140473366,41.791754003799,0</coordinates>
+          </LineString>
+        </MultiGeometry>
+      </Placemark>
+
+  <Placemark id="ID_00001">
+    <name>0</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+    
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#LineStyle00</styleUrl>
+        <MultiGeometry>
+          <LineString>
+            <extrude>0</extrude><altitudeMode>clampedToGround</altitudeMode>
+            <coordinates>-87.603140473366,41.791754003799,0 -87.601579427719,41.791782284949,0</coordinates>
+          </LineString>
+        </MultiGeometry>
+      </Placemark>
+
+  <Placemark id="ID_00002">
+    <name>0</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+    
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#LineStyle00</styleUrl>
+        <MultiGeometry>
+          <LineString>
+            <extrude>0</extrude><altitudeMode>clampedToGround</altitudeMode>
+            <coordinates>-87.601579427719,41.791782284949,0 -87.600163221359,41.791737035103,0</coordinates>
+          </LineString>
+        </MultiGeometry>
+      </Placemark>
+
+  <Placemark id="ID_00003">
+    <name>0</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+    
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#LineStyle00</styleUrl>
+        <MultiGeometry>
+          <LineString>
+            <extrude>0</extrude><altitudeMode>clampedToGround</altitudeMode>
+            <coordinates>-87.600163221359,41.791737035103,0 -87.598902583122,41.791714410168,0</coordinates>
+          </LineString>
+        </MultiGeometry>
+      </Placemark>
+
+  <Placemark id="ID_00004">
+    <name>0</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+    
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#LineStyle00</styleUrl>
+        <MultiGeometry>
+          <LineString>
+            <extrude>0</extrude><altitudeMode>clampedToGround</altitudeMode>
+            <coordinates>-87.598902583122,41.791714410168,0 -87.597808241844,41.790973439139,0</coordinates>
+          </LineString>
+        </MultiGeometry>
+      </Placemark>
+
+  <Placemark id="ID_00005">
+    <name>0</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+    
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#LineStyle00</styleUrl>
+        <MultiGeometry>
+          <LineString>
+            <extrude>0</extrude><altitudeMode>clampedToGround</altitudeMode>
+            <coordinates>-87.597808241844,41.790973439139,0 -87.597647309303,41.790520933535,0</coordinates>
+          </LineString>
+        </MultiGeometry>
+      </Placemark>
+
+  <Placemark id="ID_00006">
+    <name>0</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+    
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#LineStyle00</styleUrl>
+        <MultiGeometry>
+          <LineString>
+            <extrude>0</extrude><altitudeMode>clampedToGround</altitudeMode>
+            <coordinates>-87.597647309303,41.790520933535,0 -87.598414421082,41.788518557897,0</coordinates>
+          </LineString>
+        </MultiGeometry>
+      </Placemark>
+
+  <Placemark id="ID_00007">
+    <name>0</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+    
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#LineStyle00</styleUrl>
+        <MultiGeometry>
+          <LineString>
+            <extrude>0</extrude><altitudeMode>clampedToGround</altitudeMode>
+            <coordinates>-87.598414421082,41.788518557897,0 -87.601101994514,41.788360175233,0</coordinates>
+          </LineString>
+        </MultiGeometry>
+      </Placemark>
+
+  <Placemark id="ID_00008">
+    <name>0</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+    
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#LineStyle00</styleUrl>
+        <MultiGeometry>
+          <LineString>
+            <extrude>0</extrude><altitudeMode>clampedToGround</altitudeMode>
+            <coordinates>-87.601101994514,41.788360175233,0 -87.602362632751,41.789186023392,0</coordinates>
+          </LineString>
+        </MultiGeometry>
+      </Placemark>
+
+  <Placemark id="ID_00009">
+    <name>0</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+    
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#LineStyle00</styleUrl>
+        <MultiGeometry>
+          <LineString>
+            <extrude>0</extrude><altitudeMode>clampedToGround</altitudeMode>
+            <coordinates>-87.602362632751,41.789186023392,0 -87.60361790657,41.789106832934,0</coordinates>
+          </LineString>
+        </MultiGeometry>
+      </Placemark>
+
+  <Placemark id="ID_00010">
+    <name>0</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+    
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#LineStyle00</styleUrl>
+        <MultiGeometry>
+          <LineString>
+            <extrude>0</extrude><altitudeMode>clampedToGround</altitudeMode>
+            <coordinates>-87.60361790657,41.789106832934,0 -87.604127526283,41.788575123039,0</coordinates>
+          </LineString>
+        </MultiGeometry>
+      </Placemark>
+  <Placemark id="ID_00000">
+    <name>SG07</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>ART_ID</td>
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>DESCRIPTIO</td>
+
+  <td></td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#IconStyle00</styleUrl>
+        <Point>
+          <altitudeMode>clampToGround</altitudeMode>
+          <coordinates> -87.60405242443085,41.790583153245265,0</coordinates>
+        </Point>
+      </Placemark>  <Placemark id="ID_00001">
+    <name>SG07</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>ART_ID</td>
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>DESCRIPTIO</td>
+
+  <td></td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#IconStyle00</styleUrl>
+        <Point>
+          <altitudeMode>clampToGround</altitudeMode>
+          <coordinates> -87.60301584917579,41.791756261590535,0</coordinates>
+        </Point>
+      </Placemark>  <Placemark id="ID_00002">
+    <name>SG07</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>ART_ID</td>
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>DESCRIPTIO</td>
+
+  <td></td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#IconStyle00</styleUrl>
+        <Point>
+          <altitudeMode>clampToGround</altitudeMode>
+          <coordinates> -87.6010760769891,41.791766202163664,0</coordinates>
+        </Point>
+      </Placemark>  <Placemark id="ID_00003">
+    <name>SG07</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>ART_ID</td>
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>DESCRIPTIO</td>
+
+  <td></td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#IconStyle00</styleUrl>
+        <Point>
+          <altitudeMode>clampToGround</altitudeMode>
+          <coordinates> -87.59913655480204,41.79171860930653,0</coordinates>
+        </Point>
+      </Placemark>  <Placemark id="ID_00004">
+    <name>SG07</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>ART_ID</td>
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>DESCRIPTIO</td>
+
+  <td></td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#IconStyle00</styleUrl>
+        <Point>
+          <altitudeMode>clampToGround</altitudeMode>
+          <coordinates> -87.59774971648687,41.790808879181576,0</coordinates>
+        </Point>
+      </Placemark>  <Placemark id="ID_00005">
+    <name>SG07</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>ART_ID</td>
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>DESCRIPTIO</td>
+
+  <td></td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#IconStyle00</styleUrl>
+        <Point>
+          <altitudeMode>clampToGround</altitudeMode>
+          <coordinates> -87.59807056523846,41.78941611752591,0</coordinates>
+        </Point>
+      </Placemark>  <Placemark id="ID_00006">
+    <name>SG07</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>ART_ID</td>
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>DESCRIPTIO</td>
+
+  <td></td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#IconStyle00</styleUrl>
+        <Point>
+          <altitudeMode>clampToGround</altitudeMode>
+          <coordinates> -87.59910090035976,41.78847810266102,0</coordinates>
+        </Point>
+      </Placemark>  <Placemark id="ID_00007">
+    <name>SG07</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>ART_ID</td>
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>DESCRIPTIO</td>
+
+  <td></td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#IconStyle00</styleUrl>
+        <Point>
+          <altitudeMode>clampToGround</altitudeMode>
+          <coordinates> -87.6010354247826,41.78836409828578,0</coordinates>
+        </Point>
+      </Placemark>  <Placemark id="ID_00008">
+    <name>SG07</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>ART_ID</td>
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>DESCRIPTIO</td>
+
+  <td></td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#IconStyle00</styleUrl>
+        <Point>
+          <altitudeMode>clampToGround</altitudeMode>
+          <coordinates> -87.60255762426584,41.78917372211817,0</coordinates>
+        </Point>
+      </Placemark>  <Placemark id="ID_00009">
+    <name>SG07</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>ART_ID</td>
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>DESCRIPTIO</td>
+
+  <td></td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#IconStyle00</styleUrl>
+        <Point>
+          <altitudeMode>clampToGround</altitudeMode>
+          <coordinates> -87.60412752628326,41.7885751230386,0</coordinates>
+        </Point>
+      </Placemark></Folder>
+<Style id="LineStyle00">
+  <LabelStyle>
+    <color>00000000</color>
+    <scale>0.000000</scale>
+  </LabelStyle>
+  <LineStyle>
+    <color>ff00a16e</color>
+    <width>1.000000</width>
+  </LineStyle>
+  <PolyStyle>
+    <color>00000000</color>
+    <outline>0</outline>
+  </PolyStyle>
+</Style>
+</Document>
+</kml>

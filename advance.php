@@ -19,7 +19,7 @@
 		validateTime($data->endTime);
 		if (isset($data->timestamps)) {
 			foreach($data->timestamps as $timeString) {
-				validateTime($timeString);
+				validateTime($timeString->time);
 			}
 		}
 	}

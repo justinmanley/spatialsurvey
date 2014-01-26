@@ -46,13 +46,13 @@ var spatialsurvey = function(map, doc) {
 			}                                         
 	*/
 	{
-		var doc = doc;
+		// var doc = doc;
 		var data = data || {};
 		var that = {};
 
 		// verbose should be true only in a development environment
 		var verbose = true;
-		var dataStringProperties = [];
+		var dataStringProperties = ['timestamps'];
 
 		var debug = function(object, description) {
 			if (verbose) {
@@ -99,8 +99,20 @@ var spatialsurvey = function(map, doc) {
 		}
 		that.getPolyline = getPolyline;
 
-		var getTimes = function() { return data.timestamps || new Array(); };
-		that.getTimes = getTimes;
+		var getTimestamps = function() {
+			var timestampWindows = doc.getElementsByClassName('timestamp-form');
+			debug(timestampWindows, 'timestampWindows');
+			var timestamps = [];
+			for(var i = 0; i < timestampWindows.length; i++) {
+
+				var time = timestampWindows[i].getElementsByClassName('timestamp')[0].value;
+				var lat = timestampWindows[i].getElementsByClassName('timestamp-position-lat')[0].value;
+				var lng = timestampWindows[i].getElementsByClassName('timestamp-position-lng')[0].value;
+
+				timestamps.push({ 'time': time, 'position': { 'lat': lat, 'lng': lng }});
+			}
+			return timestamps;
+		}		
 
 		var toKML = function() {
 			var kml = '<?xml version="1.0" encoding="UTF-8"?>'+
@@ -132,6 +144,10 @@ var spatialsurvey = function(map, doc) {
 		var toString = function() {
 			var stringable = new Object();		
 			stringable.path = data.path.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
+
+			data.timestamps = getTimestamps();
+			debug(getTimestamps(), 'timestamps');
+
 			for (i = 0; i < dataStringProperties.length; i++) {
 				var name = dataStringProperties[i];
 				if (data.hasOwnProperty(name)) { stringable[name] = data[name]; };	
@@ -160,7 +176,7 @@ var spatialsurvey = function(map, doc) {
 				debug(this.responseText);
 				data = eval("(" + JSON.parse(this.responseText) + ")");
 				setPath(data.path.map(createLatLng));
-				debug(toString(), "toString()");
+				// debug(toString(), "toString()");
 				internalCallback();
 				userCallback();
 			};
@@ -189,7 +205,7 @@ var spatialsurvey = function(map, doc) {
 	/* Add elements to the page */
 
 // -------------------------------------------------------------------------------------
-	var showButton = function(data, destination, type, currentPageName, validate) 
+	var showButton = function(data, destination, type, currentPageName, validate, errorHandler) 
 // -------------------------------------------------------------------------------------
 	{
 		var nextForm = doc.createElement('form');
@@ -204,13 +220,8 @@ var spatialsurvey = function(map, doc) {
 
 		google.maps.event.addDomListenerOnce(nextForm, 'click', function() {
 			if ( !validate() ) {
-				var instructionsSidebar = doc.getElementById('instructions-content');
-				var errorMessage = doc.createElement('p');
-				errorMessage.id = 'error-message';
-				errorMessage.innerHTML = 'Please enter your start and end time.';
-				instructionsSidebar.appendChild(errorMessage);	
-
-				setTimeout(function() { errorMessage.style.backgroundColor = oldColor; }, 1500)							
+				console.log(errorHandler);
+				errorHandler();						
 			}
 		});
 
@@ -236,17 +247,17 @@ var spatialsurvey = function(map, doc) {
 	}
 
 	// -------------------------------------------------------------
-	var showNextButton = function(data, destination, currentPageName, validate) 
+	var showNextButton = function(data, destination, currentPageName, validate, errorHandler) 
 	// -------------------------------------------------------------
 	{
-		showButton(data, destination, 'next-page', currentPageName, validate);
+		showButton(data, destination, 'next-page', currentPageName, validate, errorHandler);
 	}
 
 	// -------------------------------------------------------------
-	var showPreviousButton = function(data, destination, currentPageName, validate) 
+	var showPreviousButton = function(data, destination, currentPageName, validate, errorHandler) 
 	// -------------------------------------------------------------
 	{
-		showButton(data, destination, 'previous-page', currentPageName, validate);
+		showButton(data, destination, 'previous-page', currentPageName, validate, errorHandler);
 	}
 
 	// -------------------------------------------------------------
@@ -261,8 +272,8 @@ var spatialsurvey = function(map, doc) {
 		info.innerHTML = '<form class="timestamp-form" onclick="false">'+
 				'<br />'+
 				'<input type="text" name="time" class="timestamp" value="'+timeString+'"/>'+
-				// '<input type="hidden" name="position-lat" value="' + position.lat() + '"/>'+
-				// '<input type="hidden" name="position-lng" value="' + position.lng() + '"/>'+
+				'<input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + position.lat() + '"/>'+
+				'<input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + position.lng() + '"/>'+
 			'</form>';
 		var infoLabel = document.createElement('label');
 		infoLabel.setAttribute('class', 'timestamp-label');
@@ -287,28 +298,14 @@ var spatialsurvey = function(map, doc) {
 		label.innerHTML = timeString;
 		placeholder.setAttribute('class', 'timestamp-closed')
 		placeholder.innerHTML = '<form class="placeholder-form">'+
-				// '<input type="hidden" name="position-lat" value="' + position.lat() + '"/>'+
-				// '<input type="hidden" name="position-lng" value="' + position.lng() + '"/>'+
+				'<input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + position.lat() + '"/>'+
+				'<input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + position.lng() + '"/>'+
 			'</form>';
 		placeholder.insertBefore(label, placeholder.firstChild);
 		return {
 			'content': placeholder,
 			'label': label
 		};
-	}
-
-	// Need to make sure that this works for both timestamp windows that are open AND closed
-	// ---------------------------------------------------------------
-	var getTimestamps = function() 
-	// ---------------------------------------------------------------
-	{
-		var timestamps = doc.getElementsByClassName('timestamp');
-		for(var i = 0; i < timestamps.length; i++) {
-			var time = timestamps[i].value;
-			var position = (function() { return { lat: timestamp.getPosition().lat(), lng: timestamp.getPosition().lng()}; })();
-			timestamps.push({ time: time, position: position });
-		}
-		return timestamps;
 	}
 
 // ----------------------------------------------------------------------
@@ -401,14 +398,22 @@ var spatialsurvey = function(map, doc) {
 		timestamp.isOpen = function() {
 			return open;
 		}
+		timestamp.savePosition = function(position) {
+			timestamp.opened.getContent().getElementsByClassName('timestamp-position-lat')[0].value = position.lat();
+			timestamp.opened.getContent().getElementsByClassName('timestamp-position-lng')[0].value = position.lng();
+
+			timestamp.closed.getContent().getElementsByClassName('timestamp-position-lat')[0].value = position.lat();
+			timestamp.closed.getContent().getElementsByClassName('timestamp-position-lng')[0].value = position.lng();	
+		}
 
 		google.maps.event.addListener(timestamp.pyramid, 'drag', function(event) {
 			var dragPosition = mapcalc(map, doc).closestPointOnPolyline(polyline, timestamp.pyramid.getPosition());
-			timestamp.pyramid.setPosition(dragPosition);
-			google.maps.event.addListener(timestamp.pyramid, 'dragend', function(event) {
-				timestamp.closed.setPosition(dragPosition);
-			});			
+			timestamp.pyramid.setPosition(dragPosition);		
 		});		
+		google.maps.event.addListener(timestamp.pyramid, 'dragend', function(event) {
+			timestamp.closed.setPosition(event.latLng);
+			timestamp.savePosition(event.latLng);
+		});			
 
 		google.maps.event.addDomListener(openedContent.label, 'click', function() { timestamp.close(); 	});
 		google.maps.event.addDomListener(closedContent.label, 'click', function() { timestamp.open();   });
@@ -563,7 +568,6 @@ var spatialsurvey = function(map, doc) {
 		'personPath': personPath, 
 		'showNextButton': showNextButton,
 		'addTimestampMarker': addTimestampMarker,
-		'getTimestamps': getTimestamps,
 		'instructions': instructions,
 		'isValidTime': isValidTime
 

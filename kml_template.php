@@ -1,5 +1,4 @@
 <?php 
-// header('Content-type: application/vnd.google-earth.kml+xml');
 
 session_start();
 $data = json_decode($_SESSION['path-data']);
@@ -7,11 +6,11 @@ $data = json_decode($_SESSION['path-data']);
 $kml_output = <<<output1
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://www.opengis.net/kml/2.2 http://schemas.opengis.net/kml/2.2.0/ogckml22.xsd http://www.google.com/kml/ext/2.2 http://code.google.com/apis/kml/schema/kml22gx.xsd">
-<Document id="Accessable_Routes_UTM">
-  <name>Accessable_Routes_UTM</name>
+<Document id="Pedestrian_Campus_Movement">
+  <name>Pedestrian_Campus_Movement</name>
   <Snippet></Snippet>
   <Folder id="FeatureLayer0">
-    <name>Accessable_Routes_UTM</name>
+    <name>Pedestrian_Campus_Movement</name>
     <Snippet></Snippet>
 output1;
 
@@ -101,6 +100,99 @@ for ($i = 0; $i < sizeof($data->path) - 1; $i++)
 sup;
 }
 
+$timestamps = '';
+
+for ($i = 0; $i < sizeof($data->timestamps); $i++) {
+  $timestamp_id = sprintf('%05d', $i);
+
+  $lat = $data->timestamps[$i]->position->lat;
+  $lng = $data->timestamps[$i]->position->lng;
+  $time = $data->timestamps[$i]->time;
+
+  $timestamps .= <<<timestamp
+  <Placemark id="ID_$timestamp_id">
+    <name>$time</name>
+    <Snippet></Snippet>
+    <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <head>
+
+  <META http-equiv="Content-Type" content="text/html"/>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+  </head>
+
+  <body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+  <tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr>
+
+  <td>
+
+  <table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+  <tr>
+
+  <td>FID</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>Id</td>
+
+  <td>0</td>
+
+  </tr>
+
+  <tr>
+
+  <td>ART_ID</td>
+
+  <td>SG07</td>
+
+  </tr>
+
+  <tr bgcolor="#D4E4F3">
+
+  <td>DESCRIPTIO</td>
+
+  <td></td>
+
+  </tr>
+
+  </table>
+
+  </td>
+
+  </tr>
+
+  </table>
+
+  </body>
+
+  </html>
+
+  ]]></description>
+        <styleUrl>#IconStyle00</styleUrl>
+        <Point>
+          <altitudeMode>clampToGround</altitudeMode>
+          <coordinates> $lng,$lat,0</coordinates>
+        </Point>
+      </Placemark>
+timestamp;
+}
+
 $ending = <<<ending
 </Folder>
 <Style id="LineStyle00">
@@ -121,7 +213,7 @@ $ending = <<<ending
 </kml>
 ending;
 
-return $kml_output . $output . $ending;
+return $kml_output . $output . $timestamps . $ending;
 
 ?>
 

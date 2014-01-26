@@ -34,6 +34,14 @@ function initialize() {
 			else { 
 				return false; 
 			}
+		}, function() {
+			var instructionsSidebar = document.getElementById('instructions-content');
+			var errorMessage = document.createElement('p');
+			errorMessage.id = 'error-message';
+			errorMessage.innerHTML = 'Please enter your start and end time.';
+			instructionsSidebar.appendChild(errorMessage);	
+
+			setTimeout(function() { errorMessage.style.backgroundColor = oldColor; }, 1500);
 		});
 	});
 
