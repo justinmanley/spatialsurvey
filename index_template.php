@@ -12,6 +12,7 @@
 			src="http://google-maps-utility-library-v3.googlecode.com/svn/tags/infobox/1.1.9/src/infobox.js">
 		</script>
 		<script type="text/javascript" src="../mapUtilities.js"></script>
+		<script type="text/javascript" src="../colors/rainbowvis.js"></script>		
 		<script type="text/javascript" src="index.js"></script>
 	</head>
 	<body>

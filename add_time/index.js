@@ -29,7 +29,7 @@ function initialize() {
 			var tolerance = 0.05*Math.pow(1.1, -map.getZoom());
 			if (google.maps.geometry.poly.isLocationOnEdge(event.latLng, userPolyline, tolerance)) {
 				var position = mapHelper.closestPointOnPolyline(userPolyline, event.latLng);
-				var infowindow = surveyHelper.addTimestampMarker(userPolyline, position);
+				var infowindow = surveyHelper.addTimestampMarker(userPolyline, position, '', true);
 				timestampMarkers.push(infowindow);
 			}
 		});

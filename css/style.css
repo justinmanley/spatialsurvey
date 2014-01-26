@@ -38,13 +38,23 @@ body {
   width: 50px;
   border-radius: 3px;
 }
-.timestamp form input {
+.timestamp-opened form input {
   width: 50px;
   background-color: #f2f2f2;
   margin: 0 auto;
 }
-.timestamp .timestamp-label {
+.timestamp-opened .timestamp-label {
   font-size: 11pt;
+}
+.timestamp-closed {
+  text-align: center;
+}
+.timestamp-closed .timestamp-label {
+  font-size: 10pt;
+}
+.timestamp-closed .daytime-indicator {
+  height: 5px;
+  width: 60px;
 }
 #test {
   height: 100%;
@@ -53,9 +63,6 @@ body {
 #test #test-map {
   height: 100%;
   width: 60%;
-}
-.timestamp-closed {
-  float: left;
 }
 #instructions-main {
   position: absolute;

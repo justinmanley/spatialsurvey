@@ -266,7 +266,7 @@ var spatialsurvey = function(map, doc) {
 	{
 		if ( typeof timeString === 'undefined') { var timeString = ''; }		
 		var info = document.createElement('div');
-		info.setAttribute('class', 'timestamp');
+		info.setAttribute('class', 'timestamp-opened');
 
 
 		info.innerHTML = '<form class="timestamp-form" onclick="false">'+
@@ -292,16 +292,28 @@ var spatialsurvey = function(map, doc) {
 	{
 		if ( typeof timeString === 'undefined') { var timeString = ''; }
 		var placeholder = document.createElement('div');
+
 		var label = document.createElement('div');
 		label.setAttribute('class', 'timestamp-label');
-		label.style['font-size'] = '14pt';
 		label.innerHTML = timeString;
+
+		var indicatorColor = new ColourGradient();
+		indicatorColor.setNumberRange(15, 21);
+		indicatorColor.setGradient('#ffea00', '#000080');
+
+		var daytimeIndicator = document.createElement('div');
+		daytimeIndicator.setAttribute('class', 'daytime-indicator');
+		console.log(indicatorColor.colourAt(timestringToInteger(timeString)));
+		daytimeIndicator.setAttribute('style', 'background-color: ' + '#' + String(indicatorColor.colourAt(timestringToInteger(timeString))));
+
 		placeholder.setAttribute('class', 'timestamp-closed')
-		placeholder.innerHTML = '<form class="placeholder-form">'+
+		placeholder.innerHTML = '<form class="timestamp-form">'+
+				'<input type="hidden" name="time" class="timestamp" value="'+timeString+'"/>'+				
 				'<input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + position.lat() + '"/>'+
 				'<input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + position.lng() + '"/>'+
 			'</form>';
 		placeholder.insertBefore(label, placeholder.firstChild);
+		placeholder.insertBefore(daytimeIndicator, placeholder.firstChild);
 		return {
 			'content': placeholder,
 			'label': label
@@ -341,11 +353,11 @@ var spatialsurvey = function(map, doc) {
 	}
 
 // ---------------------------------------------------------------------
-	var addTimestampMarker = function(polyline, position, timeString)
+	var addTimestampMarker = function(polyline, position, timeString, openOnCreation)
 // ---------------------------------------------------------------------	
 	{
 		var timestamp = {};
-		var open = true;
+		var open = typeof openOnCreation === 'undefined' ? false : openOnCreation;
 		var openedContent = timestampOpenedContent(position, timeString);
 		var closedContent = timestampClosedContent(position, timeString)
 		timestamp.opened = new InfoBox({
@@ -371,11 +383,11 @@ var spatialsurvey = function(map, doc) {
 				opacity: 1,
 				padding: '5px',
 				width: '60px',
-				height: '60px',
+				height: '20px',
 				'border-radius': '7px'
 			},
-			closeBoxURL: "../images/close-icon.png",
-			pixelOffset: new google.maps.Size(-34,-95)
+			closeBoxURL: "",
+			pixelOffset: new google.maps.Size(-34,-55)
 		});		
 		timestamp.pyramid = new google.maps.Marker({
 			icon: { url: "../images/pyramid.png", anchor: new google.maps.Point(10,30) },
@@ -387,7 +399,6 @@ var spatialsurvey = function(map, doc) {
 		timestamp.open = function() {
 			timestamp.opened.open(map, timestamp.pyramid);
 			timestamp.pyramid.setMap(map);
-			timestamp.closed.close();
 			open = true;
 		}
 		timestamp.close = function() {
@@ -415,17 +426,20 @@ var spatialsurvey = function(map, doc) {
 			timestamp.savePosition(event.latLng);
 		});			
 
-		google.maps.event.addDomListener(openedContent.label, 'click', function() { timestamp.close(); 	});
+		google.maps.event.addDomListener(openedContent.label, 'click', function() { timestamp.close();  });
 		google.maps.event.addDomListener(closedContent.label, 'click', function() { timestamp.open();   });
 
 		google.maps.event.addListener(timestamp.opened, 'closeclick', function() {
 			timestamp.pyramid.setMap(null);
-		});
-		google.maps.event.addListener(timestamp.closed, 'closeclick', function() {
-			timestamp.pyramid.setMap(null);
-		});		
+			timestamp.opened.setMap(null);
+			timestamp.closed.setMap(null);
+		});	
 
-		timestamp.open();
+		if ( timestamp.isOpen() )
+			timestamp.open();
+		else
+			timestamp.close();
+
 		return timestamp;
 	}
 
@@ -941,7 +955,7 @@ var mapcalc = function(map, doc)
 			'oldI': 0,
 			'verticalSpillover': 0
 		};
-		spatialsurvey(map, doc).addTimestampMarker(polyline, closestPointOnPolyline(polyline, thisTimestampInfo.basePoint), startTime);	
+		spatialsurvey(map, doc).addTimestampMarker(polyline, closestPointOnPolyline(polyline, thisTimestampInfo.basePoint), startTime, false);	
 		for (var i = 0; i < numberOfTimestamps; i++) {
 			thisTimestampInfo = getVerticalDistance(thisTimestampInfo);
 	
@@ -958,9 +972,9 @@ var mapcalc = function(map, doc)
 
 			
 			if (i == numberOfTimestamps - 1) // last timestamp
-				spatialsurvey(map, doc).addTimestampMarker(polyline, thisTimestampInfo.basePoint, endTime);
+				spatialsurvey(map, doc).addTimestampMarker(polyline, thisTimestampInfo.basePoint, endTime, false);
 			else
-				spatialsurvey(map, doc).addTimestampMarker(polyline, thisTimestampInfo.basePoint, incrementTimestamp(startTime, timeDelta*(i+1)));	
+				spatialsurvey(map, doc).addTimestampMarker(polyline, thisTimestampInfo.basePoint, incrementTimestamp(startTime, timeDelta*(i+1)), false);	
 
 			thisTimestampInfo.i++;
 		}
@@ -1136,6 +1150,19 @@ var incrementTimestamp = function(baseTimeString, timeDifference) {
 	var newTimeString = newHourString + newMinuteString + period;
 
 	return newTimeString;
+}
+
+var timestringToInteger = function(timeString) {
+	var regex = /^(\d|[1][0-2])(?::)?([0-5]\d)?\s?(AM|PM)$/i;
+	var parsed = regex.exec(timeString);
+
+	var hour = parseInt(parsed[1]);
+	var minute = typeof parsed[2] === 'undefined' ? 0 : parseInt(parsed[2])/60;
+
+	if ( /^P.?M.?$/i.test(parsed[3]) ) 
+		hour += 12; 
+
+	return hour + minute;
 }
 
 function padInteger(num, length) {
