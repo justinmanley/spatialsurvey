@@ -16,6 +16,8 @@ function initialize() {
 	var surveyHelper = spatialsurvey(map, document, drawingManager);
 	var mapHelper = mapcalc(map, document);
 
+	surveyHelper.instructions.showProgress(0, 4);
+
 	google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) { 
 		data.setPath(polyline.getPath().getArray());
 		drawingManager.setOptions({

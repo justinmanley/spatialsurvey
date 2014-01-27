@@ -1,9 +1,3 @@
-if(!Array.prototype.last) {
-    Array.prototype.last = function() {
-        return this[this.length - 1];
-    }
-}
-
 function initialize() {
 	var map = new google.maps.Map(document.getElementById("map-canvas"), {
 		center: new google.maps.LatLng(41.790113, -87.600732),

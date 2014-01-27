@@ -161,7 +161,7 @@ var spatialsurvey = function(map, doc) {
 				getPolyline().setMap(map);
 				console.log(that);
 				mapcalc(map, doc).distributeTimeStamps(getPolyline(), that.getStartTime(), that.getEndTime());
-			}, callback);	
+			}, callback);			
 		};
 		that.display = display;
 
@@ -279,10 +279,21 @@ var spatialsurvey = function(map, doc) {
 		infoLabel.setAttribute('class', 'timestamp-label');
 		infoLabel.setAttribute('for', 'time');
 		infoLabel.innerHTML = 'Time';
-		info.insertBefore(infoLabel, info.firstChild);		
+		info.insertBefore(infoLabel, info.firstChild);	
+
+		function getTime() {
+			return info.querySelector('.timestamp').value;
+		}
+
+		function clearTime() {
+			info.querySelector('.timestamp').value = '';
+		}
+
 		return {
 			'content': info,
-			'label': infoLabel
+			'label': infoLabel,
+			'getTime': getTime,
+			'clearTime': clearTime
 		};
 	}
 
@@ -297,16 +308,16 @@ var spatialsurvey = function(map, doc) {
 		label.setAttribute('class', 'timestamp-label');
 		label.innerHTML = timeString;
 
-		var indicatorColor = new ColourGradient();
-		indicatorColor.setNumberRange(15, 21);
-		indicatorColor.setGradient('#ffea00', '#000080');
+		var indicatorColor = new MultiColorGradient();
+		indicatorColor.setNumberRange([5.5, 9, 13, 15, 21]);
+		indicatorColor.setGradient(['#000080', '#ffea00', '#fff04d', '#ffea00', '#000080']);
+		indicatorColor.generateGradient();
 
 		var daytimeIndicator = document.createElement('div');
 		daytimeIndicator.setAttribute('class', 'daytime-indicator');
-		console.log(indicatorColor.colourAt(timestringToInteger(timeString)));
-		daytimeIndicator.setAttribute('style', 'background-color: ' + '#' + String(indicatorColor.colourAt(timestringToInteger(timeString))));
+		daytimeIndicator.setAttribute('style', 'background-color: ' + '#' + String(indicatorColor.colorAt(timestringToInteger(timeString))));
 
-		placeholder.setAttribute('class', 'timestamp-closed')
+		placeholder.setAttribute('class', 'timestamp-closed');
 		placeholder.innerHTML = '<form class="timestamp-form">'+
 				'<input type="hidden" name="time" class="timestamp" value="'+timeString+'"/>'+				
 				'<input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + position.lat() + '"/>'+
@@ -314,9 +325,21 @@ var spatialsurvey = function(map, doc) {
 			'</form>';
 		placeholder.insertBefore(label, placeholder.firstChild);
 		placeholder.insertBefore(daytimeIndicator, placeholder.firstChild);
+
+		function updateTime(updatedTimeString) {
+			label.innerHTML = updatedTimeString;
+			placeholder.querySelector('.timestamp').value = updatedTimeString;			
+		}
+
+		function updateColor(updatedTimeString) {
+			daytimeIndicator.setAttribute('style', 'background-color: ' + '#' + String(indicatorColor.colorAt(timestringToInteger(updatedTimeString))));
+		}
+
 		return {
 			'content': placeholder,
-			'label': label
+			'label': label,
+			'updateTime': updateTime,
+			'updateColor': updateColor
 		};
 	}
 
@@ -359,7 +382,7 @@ var spatialsurvey = function(map, doc) {
 		var timestamp = {};
 		var open = typeof openOnCreation === 'undefined' ? false : openOnCreation;
 		var openedContent = timestampOpenedContent(position, timeString);
-		var closedContent = timestampClosedContent(position, timeString)
+		var closedContent = timestampClosedContent(position, timeString);
 		timestamp.opened = new InfoBox({
 			content: openedContent.content,
 			position: position,
@@ -402,9 +425,22 @@ var spatialsurvey = function(map, doc) {
 			open = true;
 		}
 		timestamp.close = function() {
-			timestamp.opened.setMap(null);
-			timestamp.closed.open(map, timestamp.pyramid);
-			open = false;
+			var updatedTime = openedContent.getTime();
+			if (isValidTime(updatedTime)) {
+				timestamp.opened.setMap(null);
+
+				closedContent.updateTime(updatedTime);
+				closedContent.updateColor(updatedTime);	
+
+				timestamp.closed.open(map, timestamp.pyramid);
+				open = false;							
+			} 
+			else {
+				openedContent.clearTime();
+				var oldColor = openedContent.content.querySelector('.timestamp').style.backgroundColor;
+				openedContent.content.querySelector('.timestamp').style.backgroundColor = '#ff4e4e';
+				setTimeout(function() { openedContent.content.querySelector('.timestamp').style.backgroundColor = oldColor }, 1000);
+			}
 		}
 		timestamp.isOpen = function() {
 			return open;
@@ -565,11 +601,21 @@ var spatialsurvey = function(map, doc) {
 				startDrawing(drawingManager, initDrawingManager);				
 			});							
 		}
+		var showProgress = function(currentScreen, max) 
+		{
+			var progressBar = doc.createElement('div');
+			var progressIndicator = doc.createElement('div');
+			progressBar.id = 'progress-bar';
+			progressIndicator.id = 'progress-indicator';
+			progressBar.appendChild(progressIndicator);
+			map.controls[google.maps.ControlPosition.TOP_CENTER].push(progressBar);				
+		}
 
 		return {
 			'init': init,
 			'setPrimaryContent': setPrimaryContent,
-			'getPrimaryContent': getPrimaryContent
+			'getPrimaryContent': getPrimaryContent,
+			'showProgress': showProgress
 		}
 	}());
 
@@ -1172,4 +1218,10 @@ var timestringToInteger = function(timeString) {
 function padInteger(num, length) {
 
     return (num / Math.pow(10, length)).toFixed(length).substr(2);
+}
+
+if(!Array.prototype.last) {
+    Array.prototype.last = function() {
+        return this[this.length - 1];
+    }
 }

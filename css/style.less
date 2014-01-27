@@ -10,6 +10,8 @@ body {
 	height: 100% 
 }
 
+@slab-serif = 'Andada', serif;
+
 @button-height: 29px; 
 @button-margin: 30px;
 #next-page-button, #previous-page-button, #next-instruction {
@@ -46,6 +48,7 @@ body {
 }
 
 .timestamp-opened {
+	font-family: @slab-serif;
 	form {
 		input {
 			width: 50px;
@@ -60,6 +63,7 @@ body {
 
 .timestamp-closed {
 	text-align: center;	
+	font-family: @slab-serif;
 	.timestamp-label {
 		font-size: 10pt;
 	}
@@ -68,6 +72,19 @@ body {
 		width: 60px;
 		// background-color: #ffea00;
 	}
+}
+
+#progress-bar {
+	width: 200px;
+	height: 15px;	
+	margin-top: 20px;
+	text-align: center;
+	padding: 3px;
+	background-color: #ffffff;
+	border-radius: 3px;
+	#progress-indicator {
+		background-color: #4387fd;	
+	}		
 }
 
 #test {
@@ -97,7 +114,7 @@ body {
 	// top: 150px;
 	padding: 2px;
 	box-shadow: 0 0 15px #9a9a9a;
-	font-family: 'Andada', serif;
+	font-family: @slab-serif;
 	h2 { text-align: center; }
 	#instructions-main-content {
 		margin: @instructions-main-margin*0.5 @instructions-main-margin 0 @instructions-main-margin;
