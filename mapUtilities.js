@@ -159,7 +159,6 @@ var spatialsurvey = function(map, doc) {
 		var display = function(callback) {
 			load(function(){
 				getPolyline().setMap(map);
-				console.log(that);
 				mapcalc(map, doc).distributeTimeStamps(getPolyline(), that.getStartTime(), that.getEndTime());
 			}, callback);			
 		};
@@ -315,7 +314,8 @@ var spatialsurvey = function(map, doc) {
 
 		var daytimeIndicator = document.createElement('div');
 		daytimeIndicator.setAttribute('class', 'daytime-indicator');
-		daytimeIndicator.setAttribute('style', 'background-color: ' + '#' + String(indicatorColor.colorAt(timestringToInteger(timeString))));
+		if (timeString !=='')
+			daytimeIndicator.setAttribute('style', 'background-color: ' + '#' + String(indicatorColor.colorAt(timestringToInteger(timeString))));
 
 		placeholder.setAttribute('class', 'timestamp-closed');
 		placeholder.innerHTML = '<form class="timestamp-form">'+
@@ -376,13 +376,27 @@ var spatialsurvey = function(map, doc) {
 	}
 
 // ---------------------------------------------------------------------
-	var addTimestampMarker = function(polyline, position, timeString, openOnCreation)
+	var timestamp = function(polyline, position, timeString, openOnCreation)
 // ---------------------------------------------------------------------	
 	{
 		var timestamp = {};
 		var open = typeof openOnCreation === 'undefined' ? false : openOnCreation;
 		var openedContent = timestampOpenedContent(position, timeString);
 		var closedContent = timestampClosedContent(position, timeString);
+	
+		timestamp.create = function() {
+			if ( timestamp.isOpen() ) {
+				timestamp.opened.open(map, timestamp.pyramid);
+				timestamp.pyramid.setMap(map);
+				open = true;
+			}				
+			else {
+				timestamp.closed.open(map, timestamp.pyramid);
+				timestamp.pyramid.setMap(map);				
+				open = false;					
+			}
+		}
+
 		timestamp.opened = new InfoBox({
 			content: openedContent.content,
 			position: position,
@@ -470,11 +484,6 @@ var spatialsurvey = function(map, doc) {
 			timestamp.opened.setMap(null);
 			timestamp.closed.setMap(null);
 		});	
-
-		if ( timestamp.isOpen() )
-			timestamp.open();
-		else
-			timestamp.close();
 
 		return timestamp;
 	}
@@ -619,6 +628,28 @@ var spatialsurvey = function(map, doc) {
 		}
 	}());
 
+	var tutorial = (function() {
+		function create(mapCenter) {
+			startDrawing = new InfoBox({
+				content: '<div class="tutorial">Click<br />anywhere<br />to start<br />drawing.</div>',
+				position: new google.maps.LatLng(mapCenter.lat() + 0.0015, mapCenter.lng() - 0.003),
+				closeBoxURL: "",
+				enableEventPropogation: true,
+				pane: "mapPane",
+				disableAutoPan: true
+			});
+			startDrawing.open(map);
+
+			google.maps.event.addListenerOnce(map, 'click', function() {
+				setTimeout(function() { startDrawing.setMap(null); }, 1000);
+			});
+		}
+
+		return {
+			'create': create
+		}
+	}());
+
 	String.prototype.capitalize = function() {
 	    return this.charAt(0).toUpperCase() + this.slice(1);
 	}
@@ -627,8 +658,9 @@ var spatialsurvey = function(map, doc) {
 	return {
 		'personPath': personPath, 
 		'showNextButton': showNextButton,
-		'addTimestampMarker': addTimestampMarker,
+		'timestamp': timestamp,
 		'instructions': instructions,
+		'tutorial': tutorial,
 		'isValidTime': isValidTime
 
 	};
@@ -1001,7 +1033,7 @@ var mapcalc = function(map, doc)
 			'oldI': 0,
 			'verticalSpillover': 0
 		};
-		spatialsurvey(map, doc).addTimestampMarker(polyline, closestPointOnPolyline(polyline, thisTimestampInfo.basePoint), startTime, false);	
+		spatialsurvey(map, doc).timestamp(polyline, closestPointOnPolyline(polyline, thisTimestampInfo.basePoint), startTime, false).create();	
 		for (var i = 0; i < numberOfTimestamps; i++) {
 			thisTimestampInfo = getVerticalDistance(thisTimestampInfo);
 	
@@ -1018,9 +1050,9 @@ var mapcalc = function(map, doc)
 
 			
 			if (i == numberOfTimestamps - 1) // last timestamp
-				spatialsurvey(map, doc).addTimestampMarker(polyline, thisTimestampInfo.basePoint, endTime, false);
+				spatialsurvey(map, doc).timestamp(polyline, thisTimestampInfo.basePoint, endTime, false).create();
 			else
-				spatialsurvey(map, doc).addTimestampMarker(polyline, thisTimestampInfo.basePoint, incrementTimestamp(startTime, timeDelta*(i+1)), false);	
+				spatialsurvey(map, doc).timestamp(polyline, thisTimestampInfo.basePoint, incrementTimestamp(startTime, timeDelta*(i+1)), false).create();	
 
 			thisTimestampInfo.i++;
 		}

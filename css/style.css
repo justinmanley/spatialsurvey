@@ -38,6 +38,9 @@ body {
   width: 50px;
   border-radius: 3px;
 }
+.timestamp-opened {
+  font-family: 'Andada', serif;
+}
 .timestamp-opened form input {
   width: 50px;
   background-color: #f2f2f2;
@@ -48,6 +51,7 @@ body {
 }
 .timestamp-closed {
   text-align: center;
+  font-family: 'Andada', serif;
 }
 .timestamp-closed .timestamp-label {
   font-size: 10pt;
@@ -117,4 +121,27 @@ body {
 }
 #error-message {
   background-color: #ff4e4e;
+}
+html.thankyou {
+  background: url('../../images/portal.jpg') no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+#thankyou {
+  font-family: 'Andada', serif;
+  color: #ffffff;
+  font-size: 40px;
+  text-align: center;
+  margin: 0 auto;
+  padding-top: 150px;
+}
+.tutorial {
+  font-family: 'La Belle Aurore', cursive;
+  font-weight: bold;
+  color: #ffffff;
+  font-size: 30pt;
+  line-height: 33px;
+  text-shadow: 2px 2px #000000;
 }

@@ -17,6 +17,8 @@ function initialize() {
 	var data = surveyHelper.personPath();
 	data.display(function() {
 
+		setTimeout(function() { map.panTo(data.getPolyline().getPath().getAt(0)) }, 1000);
+
 		surveyHelper.instructions.showProgress(1, 4);		
 
 		surveyHelper.showNextButton(data, 'save', 'add_time', function() {
@@ -25,13 +27,13 @@ function initialize() {
 			//
 		});
 
-		google.maps.event.addListener(map, 'click', function(event) {
+		google.maps.event.addListener(map, 'click', function(event) {			
 			var userPolyline = data.getPolyline();
 			var tolerance = 0.05*Math.pow(1.1, -map.getZoom());
 			if (google.maps.geometry.poly.isLocationOnEdge(event.latLng, userPolyline, tolerance)) {
 				var position = mapHelper.closestPointOnPolyline(userPolyline, event.latLng);
-				surveyHelper.addTimestampMarker(userPolyline, position, '', true);
-			}
+				surveyHelper.timestamp(userPolyline, position, '', true).create();
+			}			
 		});
 	});
 
