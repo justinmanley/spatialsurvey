@@ -26,23 +26,27 @@ body {
 	font-weight: bold;
 }
 
-#instructions {
+#instructions-sidebar {
 	width: 150px;
+	height: 302px;
 	padding: 10px 15px;
 	background-color: rgba(256, 256, 256, 0.7);
 
 	#start-end-time-question {
 		float: left;
 		margin-left: 10px;		
+		input {
+			width: 50px;
+			border-radius:3px;		
+		}
 	}
 
 	p {
 		font-size: 110%;
 	}
 
-	input {
-		width: 50px;
-		border-radius:3px;		
+	input#day-of-week { 
+		width: 130px;
 	}
 
 }
@@ -163,12 +167,11 @@ html.thankyou {
 	padding-top: 150px;
 }
 
-.tutorial {
-	font-family: 'La Belle Aurore', cursive;
-	font-weight: bold;
-	color: #ffffff;
-	font-size: 30pt;
-	line-height: 33px;
-	text-shadow: 2px 2px #000000;	
+#tutorial-box {
+	font-size: 18pt;
+	font-family: @slab-serif;
+	padding: 15px 20px;
+	margin: 0px auto;	
+	margin-bottom: 30px;
+	background-color: #ffffff;
 }
-

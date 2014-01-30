@@ -219,7 +219,6 @@ var spatialsurvey = function(map, doc) {
 
 		google.maps.event.addDomListenerOnce(nextForm, 'click', function() {
 			if ( !validate() ) {
-				console.log(errorHandler);
 				errorHandler();						
 			}
 		});
@@ -265,7 +264,7 @@ var spatialsurvey = function(map, doc) {
 	{
 		if ( typeof timeString === 'undefined') { var timeString = ''; }		
 		var info = document.createElement('div');
-		info.setAttribute('class', 'timestamp-opened');
+		info.setAttribute('class', 'timestamp-opened timestamp-container');
 
 
 		info.innerHTML = '<form class="timestamp-form" onclick="false">'+
@@ -317,7 +316,7 @@ var spatialsurvey = function(map, doc) {
 		if (timeString !=='')
 			daytimeIndicator.setAttribute('style', 'background-color: ' + '#' + String(indicatorColor.colorAt(timestringToInteger(timeString))));
 
-		placeholder.setAttribute('class', 'timestamp-closed');
+		placeholder.setAttribute('class', 'timestamp-closed timestamp-container');
 		placeholder.innerHTML = '<form class="timestamp-form">'+
 				'<input type="hidden" name="time" class="timestamp" value="'+timeString+'"/>'+				
 				'<input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + position.lat() + '"/>'+
@@ -396,6 +395,36 @@ var spatialsurvey = function(map, doc) {
 				open = false;					
 			}
 		}
+
+		var overlay = new google.maps.OverlayView();
+		overlay.draw = function() {};
+		overlay.setMap(map);
+
+		closedContent.content.addEventListener('mousedown', function() {
+			addEventListener('mousemove', dragTimestamp, true);
+		}, false);
+		addEventListener('mouseup', function() {
+			removeEventListener('mousemove', dragTimestamp, true);			
+		}, false);
+
+		var startPixelY;
+		var startPixelX;
+
+		function dragTimestamp(event) {
+			var proj = overlay.getProjection();
+			var pos = timestamp.closed.getPosition();
+			var p = proj.fromLatLngToContainerPixel(pos);					
+
+			if ( typeof startPixelX !== 'undefined' ) {
+				var newPoint = new google.maps.Point(p.x + (event.x - startPixelX), p.y + (event.y - startPixelY));
+				var newLatLng = mapcalc(map, doc).closestPointOnPolyline(polyline, proj.fromContainerPixelToLatLng(newPoint));
+				timestamp.closed.setPosition(newLatLng);
+				timestamp.pyramid.setPosition(newLatLng);
+			}
+
+			startPixelX = event.x;
+			startPixelY = event.y;
+		}	
 
 		timestamp.opened = new InfoBox({
 			content: openedContent.content,
@@ -509,11 +538,14 @@ var spatialsurvey = function(map, doc) {
 		}
 		var setupSidebarInstructions = function() {
 			var instructions = doc.createElement('div');
-			instructions.id = 'instructions';
+			instructions.id = 'instructions-sidebar';
+
+			instructions.innerHTML = getSidebarContent();
 
 			// initialize the instructions sidebar to be hidden
 			instructions.style.display = 'none';
-			instructions.innerHTML = getSidebarContent();
+			instructions.style.height = '302px';
+
 			map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
 		}
 		var showPrimaryInstructions = function(drawingManager) {
@@ -523,8 +555,8 @@ var spatialsurvey = function(map, doc) {
 
 			instructions_main.style.display = 'block';
 
-			if (doc.getElementById('instructions') != null) { 			
-				doc.getElementById('instructions').style.display = 'none';			
+			if (doc.getElementById('instructions-sidebar') != null) { 			
+				doc.getElementById('instructions-sidebar').style.display = 'none';			
 			}				
 
 			// initialize instructions_main screen
@@ -550,7 +582,7 @@ var spatialsurvey = function(map, doc) {
 			doc.getElementById('instructions-main').style.display = 'none';
 			google.maps.event.clearListeners(doc.getElementById('next-instruction'), 'click');
 
-			doc.getElementById('instructions').style.display = 'block';
+			doc.getElementById('instructions-sidebar').style.display = 'block';
 		}
 		var startDrawing = function(drawingManager, initDrawingManager) {
 			hidePrimaryInstructions();		
@@ -629,20 +661,84 @@ var spatialsurvey = function(map, doc) {
 	}());
 
 	var tutorial = (function() {
-		function create(mapCenter) {
-			startDrawing = new InfoBox({
-				content: '<div class="tutorial">Click<br />anywhere<br />to start<br />drawing.</div>',
-				position: new google.maps.LatLng(mapCenter.lat() + 0.0015, mapCenter.lng() - 0.003),
-				closeBoxURL: "",
-				enableEventPropogation: true,
-				pane: "mapPane",
-				disableAutoPan: true
-			});
-			startDrawing.open(map);
+		function create(drawingManager) {
+			var tutorialBox = doc.createElement('div');
+			tutorialBox.id = 'tutorial-box';
+			tutorialBox.innerHTML = 'Click anywhere to start drawing.';
+			tutorialBox.style.height = 	'55px';
+			tutorialBox.style.width = '250px';
 
-			google.maps.event.addListenerOnce(map, 'click', function() {
-				setTimeout(function() { startDrawing.setMap(null); }, 1000);
+			polylineIsCompleted = false;
+
+			var polyline;
+
+			map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(tutorialBox);	
+
+			setTimeout(function() {
+				refresh(tutorialBox, function() {
+					tutorialBox.innerHTML = 'Click somewhere else to draw a path.  To start, draw a path with three segments.';
+					tutorialBox.style.width = '440px';
+				});
+
+				setTimeout(function() {
+					refresh(tutorialBox, function() {
+						tutorialBox.innerHTML = 'Double-click on the point you just drew to complete the path.'
+						tutorialBox.style.width = '330px';
+					});
+					google.maps.event.addListenerOnce(drawingManager, 'polylinecomplete', function(obj) {
+						mapcalc(map, doc).rightClickButton(polyline);
+						polyline = obj;
+						drawingManager.setOptions({
+							drawingMode: null
+						});	
+						next();
+					});
+					if ( polylineIsCompleted )	{
+						next();
+					}					
+				}, 4000);		
+
+			}, 3000);
+
+			google.maps.event.addListenerOnce(drawingManager, 'polylinecomplete', function(obj) {
+				drawingManager.setOptions({ drawingMode: null });	
+				polyline = obj;
+				mapcalc(map, doc).rightClickButton(polyline);
+				polylineIsCompleted = true;
 			});
+
+			function next() {
+				refresh(tutorialBox, function() {
+					tutorialBox.innerHTML = 'Nice!  Now that you\'ve drawn a path, you can modify it by deleting or dragging vertices.  Give it a try!';
+					tutorialBox.style.width = '560px';							
+				});
+				// play with the polyline
+				polyline.setOptions({ editable: false });
+
+				refresh(tutorialBox, function() {
+					tutorial.innerHTML = 'After you draw a path, we\'ll ask you to tell us when you were in certain places.';
+				});
+				mapcalc(map, doc).distributeTimeStamps(polyline, '9 am', '3 pm');
+
+				refresh(tutorialBox, function() {
+					tutorialBox.innerHTML = 'The times probably won\'t be right, so you can drag them around.';
+				});
+
+				google.maps.event.addListener(map, 'click', function(event) {			
+					var tolerance = 0.05*Math.pow(1.1, -map.getZoom());
+					if (google.maps.geometry.poly.isLocationOnEdge(event.latLng, polyline, tolerance)) {
+						var position = mapcalc(map,doc).closestPointOnPolyline(polyline, event.latLng);
+						timestamp(polyline, position, '', true).create();
+					}			
+				});				
+
+			}
+
+			function refresh(content, action) {
+				map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
+				action();
+				map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(content);	
+			}
 		}
 
 		return {
@@ -768,7 +864,7 @@ var mapcalc = function(map, doc)
 	};
 
 // ----------------------------------------------------------------------
-	var rightClickButton = function(map, doc, polyline)
+	var rightClickButton = function(polyline)
 // ----------------------------------------------------------------------
 	{
 		var deleteButton = addDeleteButton(doc, polyline);

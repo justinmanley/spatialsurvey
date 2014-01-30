@@ -11,14 +11,15 @@ function initialize() {
 		polylineOptions: {
 			editable: true,
 			strokeColor: '#ffff4d'
-		}
+		},
+		map: map
 	});
 	var surveyHelper = spatialsurvey(map, document, drawingManager);
 	var mapHelper = mapcalc(map, document);
 
 	surveyHelper.instructions.showProgress(0, 4);
 
-	surveyHelper.tutorial.create(mapCenter);
+	surveyHelper.tutorial.create(drawingManager);
 
 }
 

@@ -22,21 +22,25 @@ body {
   color: #ffffff;
   font-weight: bold;
 }
-#instructions {
+#instructions-sidebar {
   width: 150px;
+  height: 302px;
   padding: 10px 15px;
   background-color: rgba(256, 256, 256, 0.7);
 }
-#instructions #start-end-time-question {
+#instructions-sidebar #start-end-time-question {
   float: left;
   margin-left: 10px;
 }
-#instructions p {
-  font-size: 110%;
-}
-#instructions input {
+#instructions-sidebar #start-end-time-question input {
   width: 50px;
   border-radius: 3px;
+}
+#instructions-sidebar p {
+  font-size: 110%;
+}
+#instructions-sidebar input#day-of-week {
+  width: 130px;
 }
 .timestamp-opened {
   font-family: 'Andada', serif;
@@ -137,11 +141,11 @@ html.thankyou {
   margin: 0 auto;
   padding-top: 150px;
 }
-.tutorial {
-  font-family: 'La Belle Aurore', cursive;
-  font-weight: bold;
-  color: #ffffff;
-  font-size: 30pt;
-  line-height: 33px;
-  text-shadow: 2px 2px #000000;
+#tutorial-box {
+  font-size: 18pt;
+  font-family: 'Andada', serif;
+  padding: 15px 20px;
+  margin: 0px auto;
+  margin-bottom: 30px;
+  background-color: #ffffff;
 }
