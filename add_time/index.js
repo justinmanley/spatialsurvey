@@ -10,6 +10,8 @@ function initialize() {
 		zoom: 18,
 		mapTypeId: google.maps.MapTypeId.SATELLITE
 	});
+	var drawingManager = new google.maps.drawing.DrawingManager({
+	});	
 
 	// all user data is stored in this object
 	var surveyHelper = spatialsurvey(map, document);
@@ -19,13 +21,27 @@ function initialize() {
 
 		setTimeout(function() { map.panTo(data.getPolyline().getPath().getAt(0)) }, 1000);
 
-		surveyHelper.instructions.showProgress(1, 4);		
+		// surveyHelper.instructions.showProgress(1, 4);		
 
 		surveyHelper.showNextButton(data, 'save', 'add_time', function() {
 			return true;
 		}, function() {
 			//
 		});
+
+		instructionsPrimary = [
+			{ 
+				content: '<h2>What time?</h2>'+
+						'<h3>We\'ve distributed times evenly along your path, from the time that you arrived on campus to when you left.  But that\'s probably not how you move around campus.</h3>'+
+						'<p>You can correct the times by dragging them along your path, or by clicking and editing a time. You can also create a new timestamp by clicking on the path.</p>'+
+						'<p>This will help give us a better idea of the ebb and flow of foot traffic around campus.</p>',
+				buttonText: 'GO'
+			}		
+		]
+
+		surveyHelper.instructions.init(drawingManager, { 
+			content: instructionsPrimary
+		});		
 
 		google.maps.event.addListener(map, 'click', function(event) {			
 			var userPolyline = data.getPolyline();

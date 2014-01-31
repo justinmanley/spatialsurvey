@@ -16,8 +16,6 @@ function initialize() {
 	var surveyHelper = spatialsurvey(map, document, drawingManager);
 	var mapHelper = mapcalc(map, document);
 
-	surveyHelper.instructions.showProgress(0, 4);
-
 	google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) { 
 		data.setPath(polyline.getPath().getArray());
 		drawingManager.setOptions({
@@ -51,19 +49,10 @@ function initialize() {
 
 	var instructionsPrimary = [
 		{ 
-			content: '<h2>Instructions</h2>'+
+			content: '<h2>Your Daily Path</h2>'+
 					'<h3>Draw the path that you took around campus yesterday.</h3>'+
-					'<div class="instructions-main-img"><img src="../images/instructions1.gif" /></div><!-- .instructions-main-img -->',
-			buttonText: 'NEXT'
-		},
-		{
-			content: '<h3>When you\'re done, double-click on the last point to save your path, then click the button at the bottom of the page to advance to the next step.</h3>'+
-					'<div class="instructions-main-img"><img src="../images/instructions2.gif" /></div><!-- .instructions-main-img -->',
-			buttonText: 'GOT IT'
-
-		},
-		{
-			content: '<h3>If you make a mistake, don\'t worry! You\'ll have a chance to edit the path you\'ve drawn.  You can edit the path once it\'s completed by dragging the midpoints of segments or by deleting vertices.</h3>',
+					'<p>If you live in Hyde Park, start drawing when you left home.  Otherwise, start when you arrived on campus.</p>'+
+					'<p>We would like to link the path to a time, so before you move on, make sure to enter the time your path starts and ends.</p>',
 			buttonText: 'START'
 		}
 	];

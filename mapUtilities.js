@@ -394,6 +394,7 @@ var spatialsurvey = function(map, doc) {
 				timestamp.pyramid.setMap(map);				
 				open = false;					
 			}
+			return timestamp;
 		}
 
 		var overlay = new google.maps.OverlayView();
@@ -411,6 +412,8 @@ var spatialsurvey = function(map, doc) {
 		var startPixelX;
 
 		function dragTimestamp(event) {
+			pauseEvent(event);
+
 			var proj = overlay.getProjection();
 			var pos = timestamp.closed.getPosition();
 			var p = proj.fromLatLngToContainerPixel(pos);					
@@ -424,7 +427,15 @@ var spatialsurvey = function(map, doc) {
 
 			startPixelX = event.x;
 			startPixelY = event.y;
-		}	
+		}
+
+		function pauseEvent(e){
+		    if(e.stopPropagation) e.stopPropagation();
+		    if(e.preventDefault) e.preventDefault();
+		    e.cancelBubble=true;
+		    e.returnValue=false;
+		    return false;
+		}		
 
 		timestamp.opened = new InfoBox({
 			content: openedContent.content,
@@ -524,8 +535,57 @@ var spatialsurvey = function(map, doc) {
 	{
 		var data = {};
 		data.content = [];
+		primaryActive = false;
+		sidebarActive = false;
 
-		var setupPrimaryInstructions = function() {
+
+		var init = function(drawingManager, options, action) {
+			if (typeof options !== 'undefined') {
+				if (typeof options.content !== 'undefined') {
+					setPrimaryContent(options.content);
+					primaryActive = true;
+				}
+				if (typeof options.sidebar !== 'undefined') {
+					setSidebarContent(options.sidebar);
+					sidebarActive = true;
+				}
+				if ( action && Object.prototype.toString.call(action) === '[object Function]') {
+					data.action = action;
+				}
+			}
+
+			// initialize main instructions
+			if ( primaryActive ) { setupPrimaryInstructions(); }
+
+			// initialize instructions sidebar
+			if ( sidebarActive ) { setupSidebarInstructions(); }
+
+			if ( primaryActive ) { 
+				showPrimaryInstructions(drawingManager);	
+
+				// event handler to close welcome screen
+				var welcome_close = doc.getElementsByClassName('close-box')[0];
+				google.maps.event.addDomListener(welcome_close, 'click', function() {
+					startDrawing(drawingManager, initDrawingManager);
+				});
+
+				// if user clicks outside of welcome screen, then start drawing
+				var initDrawingManager = google.maps.event.addListener(map, 'click', function() {
+					startDrawing(drawingManager, initDrawingManager);				
+				});								
+			}					
+		}
+		var showProgress = function(currentScreen, max) 
+		{
+			var progressBar = doc.createElement('div');
+			var progressIndicator = doc.createElement('div');
+			progressBar.id = 'progress-bar';
+			progressIndicator.id = 'progress-indicator';
+			progressBar.appendChild(progressIndicator);
+			map.controls[google.maps.ControlPosition.TOP_CENTER].push(progressBar);				
+		}
+
+		function setupPrimaryInstructions() {
 			var extra = doc.getElementById('extra');
 			extra.innerHTML = '<div id="instructions-main">'+
 				'<div class="close-box">'+
@@ -536,7 +596,7 @@ var spatialsurvey = function(map, doc) {
 				'<button id="next-instruction">Next</button>'+				
 			  '</div><!-- #instructions-main -->';
 		}
-		var setupSidebarInstructions = function() {
+		function setupSidebarInstructions() {
 			var instructions = doc.createElement('div');
 			instructions.id = 'instructions-sidebar';
 
@@ -548,7 +608,7 @@ var spatialsurvey = function(map, doc) {
 
 			map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
 		}
-		var showPrimaryInstructions = function(drawingManager) {
+		function showPrimaryInstructions(drawingManager) {
 			data.primaryIsVisible = true;
 			var instructions_main = doc.getElementById('instructions-main');
 			var instructions_main_content = doc.getElementById('instructions-main-content');
@@ -568,88 +628,56 @@ var spatialsurvey = function(map, doc) {
 		    nextButton.innerHTML = typeof content[instructions_main_screen_index].buttonText !== 'undefined' ? content[instructions_main_screen_index].buttonText : 'NEXT';
 
 		    google.maps.event.addDomListener(nextButton, 'click', function() {
-				console.log(instructions_main_screen_index);
 				if (instructions_main_screen_index < content.length - 1) { 
 				    instructions_main_screen_index += 1;
 				    instructions_main_content.innerHTML = content[instructions_main_screen_index].content;
 				    nextButton.innerHTML = typeof content[instructions_main_screen_index].buttonText !== 'undefined' ? content[instructions_main_screen_index].buttonText : 'NEXT';
 				}
-				else { startDrawing(drawingManager); }
+				else { 
+					if ( typeof data.action !== 'undefined' ) { 
+						hidePrimaryInstructions();
+						data.action(); 
+					}
+					else { startDrawing(drawingManager); }
+				}
 			});
 		}
-		var hidePrimaryInstructions = function() {
+		function hidePrimaryInstructions() {
 			data.primaryIsVisible = false;
 			doc.getElementById('instructions-main').style.display = 'none';
 			google.maps.event.clearListeners(doc.getElementById('next-instruction'), 'click');
 
-			doc.getElementById('instructions-sidebar').style.display = 'block';
+			if ( sidebarActive ) { doc.getElementById('instructions-sidebar').style.display = 'block'; }
 		}
-		var startDrawing = function(drawingManager, initDrawingManager) {
+		function startDrawing(drawingManager, initDrawingManager) {
 			hidePrimaryInstructions();		
 			drawingManager.setMap(map);			
 
-			google.maps.event.addDomListener(doc.getElementById('instructions-content'), 'click', function() {
-				// here is where you set the time in the primary instructions thing
-				showPrimaryInstructions(drawingManager);
-			});
+			// google.maps.event.addDomListener(doc.getElementById('instructions-content'), 'click', function() {
+			// 	// here is where you set the time in the primary instructions thing
+			// 	showPrimaryInstructions(drawingManager);
+			// });
 			google.maps.event.removeListener(initDrawingManager);				
 		}
-		var setPrimaryContent = function(array) { data.content = array; }	
-		var getPrimaryContent = function() { return data.content; }
-		var setSidebarContent = function(content) { data.sidebar = content; }
-		var getSidebarContent = function() { return data.sidebar; }
-		var getStartTime = function() {
+
+		function setPrimaryContent(array) { data.content = array; }	
+		function getPrimaryContent() { return data.content; }
+		function setSidebarContent(content) { data.sidebar = content; }
+		function getSidebarContent() { return data.sidebar; }
+
+		function getStartTime() {
 			if (data.primaryIsVisible)
 				var userStartTime = doc.getElementById('primary-start-time');
 			else if (data.primaryIsVisible === false)
 				var userStartTime = doc.getElementById('sidebar-start-time')
 			return userStartTime.value;
 		}
-		var getEndTime = function() {
+		function getEndTime() {
 			if (data.primaryIsVisible)
 				var userEndTime = doc.getElementById('primary-end-time');
 			else if (data.primaryIsVisible === false)
 				var userEndTime = doc.getElementById('sidebar-end-time')
 			return userEndTime.value;
-		}
-
-		var init = function(drawingManager, options) {
-			if (typeof options !== 'undefined') {
-				if (typeof options.content !== 'undefined') {
-					setPrimaryContent(options.content);
-				}
-				if (typeof options.sidebar !== 'undefined') {
-					setSidebarContent(options.sidebar);
-				}
-			}
-
-			// initialize main instructions
-			setupPrimaryInstructions();
-
-			// initialize instructions sidebar
-			setupSidebarInstructions();	
-
-			showPrimaryInstructions(drawingManager);	
-
-			// event handler to close welcome screen
-			var welcome_close = doc.getElementsByClassName('close-box')[0];
-			google.maps.event.addDomListener(welcome_close, 'click', function() {
-				startDrawing(drawingManager, initDrawingManager);
-			});	
-
-			// if user clicks outside of welcome screen, then start drawing
-			var initDrawingManager = google.maps.event.addListener(map, 'click', function() {
-				startDrawing(drawingManager, initDrawingManager);				
-			});							
-		}
-		var showProgress = function(currentScreen, max) 
-		{
-			var progressBar = doc.createElement('div');
-			var progressIndicator = doc.createElement('div');
-			progressBar.id = 'progress-bar';
-			progressIndicator.id = 'progress-indicator';
-			progressBar.appendChild(progressIndicator);
-			map.controls[google.maps.ControlPosition.TOP_CENTER].push(progressBar);				
 		}
 
 		return {
@@ -691,10 +719,10 @@ var spatialsurvey = function(map, doc) {
 						drawingManager.setOptions({
 							drawingMode: null
 						});	
-						next();
+						teachEditPolyline();
 					});
 					if ( polylineIsCompleted )	{
-						next();
+						teachEditPolyline();
 					}					
 				}, 4000);		
 
@@ -707,21 +735,63 @@ var spatialsurvey = function(map, doc) {
 				polylineIsCompleted = true;
 			});
 
-			function next() {
+			function teachEditPolyline() {
 				refresh(tutorialBox, function() {
 					tutorialBox.innerHTML = 'Nice!  Now that you\'ve drawn a path, you can modify it by deleting or dragging vertices.  Give it a try!';
 					tutorialBox.style.width = '560px';							
 				});
-				// play with the polyline
-				polyline.setOptions({ editable: false });
 
-				refresh(tutorialBox, function() {
-					tutorial.innerHTML = 'After you draw a path, we\'ll ask you to tell us when you were in certain places.';
+				editPolyline = 0;
+				google.maps.event.addListener(polyline.getPath(), 'insert_at', function() {
+					editPolyline += 1;
+					console.log(editPolyline);					
+					if ( editPolyline > 2 ) { teachTimestamps(); }
 				});
-				mapcalc(map, doc).distributeTimeStamps(polyline, '9 am', '3 pm');
+				google.maps.event.addListener(polyline.getPath(), 'remove_at', function() {
+					console.log(editPolyline);
+					editPolyline += 1;
+					if ( editPolyline > 2 ) { teachTimestamps(); }					
+				});
+				google.maps.event.addListener(polyline.getPath(), 'set_at', function() {
+					console.log(editPolyline);
+					editPolyline += 1;
+					if ( editPolyline > 2 ) { teachTimestamps(); }					
+				});
+			}
+
+			function teachTimestamps() {
+				polyline.setOptions({ editable: false });
+				var timestamps = mapcalc(map, doc).distributeTimeStamps(polyline, '9 am', '3 pm');
 
 				refresh(tutorialBox, function() {
-					tutorialBox.innerHTML = 'The times probably won\'t be right, so you can drag them around.';
+					tutorialBox.innerHTML = 'Each marker on the path represents a time.';
+					tutorialBox.style.width = '560px';	
+
+					setTimeout(function() { refresh(tutorialBox, function() {
+						tutorialBox.innerHTML = 'You can drag times around, or edit them by clicking on the time.  Give it a try!';
+						tutorialBox.style.width = '560px';
+
+						var timestampLearning = 0;
+						for (i = 0; i < timestamps.length; i++) {
+							google.maps.event.addListener(timestamps[i].pyramid, 'position_changed', function() {
+								timestampLearning += 1;
+								if ( timestampLearning == 3 ) {
+									setTimeout(function() { refresh(tutorialBox, function() {
+
+										tutorialBox.innerHTML = 'Great!  You\'re ready for the survey.';
+										tutorialBox.style.width = '160'
+										setTimeout(function() {
+											map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
+											showNextButton({}, 'start', 'tutorial', function() {
+												return true;
+											}, function() { });
+										}, 2000);
+
+									})}, 1000);
+								}
+							});
+						}
+					})}, 2500);
 				});
 
 				google.maps.event.addListener(map, 'click', function(event) {			
@@ -731,7 +801,6 @@ var spatialsurvey = function(map, doc) {
 						timestamp(polyline, position, '', true).create();
 					}			
 				});				
-
 			}
 
 			function refresh(content, action) {
@@ -1076,6 +1145,8 @@ var mapcalc = function(map, doc)
 		var numberOfTimestamps = Math.ceil(totalTime/timeDelta);
 		var delta = totalLength/numberOfTimestamps;
 
+		var timestampCollection = [];
+
 		var segmentLength = function(i) { 
 			return google.maps.geometry.spherical.computeDistanceBetween(polyline.getPath().getAt(i), polyline.getPath().getAt(i+1));
 		}
@@ -1129,7 +1200,10 @@ var mapcalc = function(map, doc)
 			'oldI': 0,
 			'verticalSpillover': 0
 		};
-		spatialsurvey(map, doc).timestamp(polyline, closestPointOnPolyline(polyline, thisTimestampInfo.basePoint), startTime, false).create();	
+		var timestamp = spatialsurvey(map, doc).timestamp(polyline, closestPointOnPolyline(polyline, thisTimestampInfo.basePoint), startTime, false);	
+		timestamp.create();
+		timestampCollection.push(timestamp);
+
 		for (var i = 0; i < numberOfTimestamps; i++) {
 			thisTimestampInfo = getVerticalDistance(thisTimestampInfo);
 	
@@ -1145,13 +1219,19 @@ var mapcalc = function(map, doc)
 			}
 
 			
-			if (i == numberOfTimestamps - 1) // last timestamp
-				spatialsurvey(map, doc).timestamp(polyline, thisTimestampInfo.basePoint, endTime, false).create();
-			else
-				spatialsurvey(map, doc).timestamp(polyline, thisTimestampInfo.basePoint, incrementTimestamp(startTime, timeDelta*(i+1)), false).create();	
-
+			if (i == numberOfTimestamps - 1) { // last timestamp 
+				timestamp = spatialsurvey(map, doc).timestamp(polyline, thisTimestampInfo.basePoint, endTime, false);
+				timestamp.create();
+				timestampCollection.push(timestamp);
+			}
+			else {
+				timestamp = spatialsurvey(map, doc).timestamp(polyline, thisTimestampInfo.basePoint, incrementTimestamp(startTime, timeDelta*(i+1)), false);
+				timestamp.create();
+				timestampCollection.push(timestamp);
+			}
 			thisTimestampInfo.i++;
 		}
+		return timestampCollection;
 	}
 
 
