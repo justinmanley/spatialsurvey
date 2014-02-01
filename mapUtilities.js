@@ -89,7 +89,7 @@ var spatialsurvey = function(map, doc) {
 			if (typeof data.polyline === 'undefined') {
 				var polyline = new google.maps.Polyline({
 					path: getPath(),
-					strokeColor: '#ffffff',
+					strokeColor: '`',
 					strokeWeight: 3,
 					clickable: false
 				});
@@ -702,38 +702,53 @@ var spatialsurvey = function(map, doc) {
 
 			map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(tutorialBox);	
 
-			setTimeout(function() {
+
+			addEventListener('click', onFirstPoint);	
+
+			function onFirstPoint() {
+				var points = 1;					
 				refresh(tutorialBox, function() {
 					tutorialBox.innerHTML = 'Click somewhere else to draw a path.  To start, draw a path with three segments.';
 					tutorialBox.style.width = '440px';
+				});	
+				addEventListener('click', onThirdPoint);
+				removeEventListener('click', onFirstPoint);
+
+				function onThirdPoint() {				
+					if ( points < 4 )
+						points += 1;
+					else {
+						refresh(tutorialBox, function() {
+							tutorialBox.innerHTML = 'Double-click on the point you just drew to complete the path.'
+							tutorialBox.style.width = '330px';
+						});
+						removeEventListener('click', onThirdPoint);
+						onCompletePolyline();
+					}
+				}			
+
+			}			
+
+			function onCompletePolyline() {
+				google.maps.event.addListenerOnce(drawingManager, 'polylinecomplete', function(obj) {
+					mapcalc(map, doc).rightClickButton(obj);
+					polyline = obj;
+					drawingManager.setOptions({
+						drawingMode: null
+					});	
+					teachEditPolyline();
 				});
+				if ( polylineIsCompleted )	{
+					teachEditPolyline();
+				}						
 
-				setTimeout(function() {
-					refresh(tutorialBox, function() {
-						tutorialBox.innerHTML = 'Double-click on the point you just drew to complete the path.'
-						tutorialBox.style.width = '330px';
-					});
-					google.maps.event.addListenerOnce(drawingManager, 'polylinecomplete', function(obj) {
-						mapcalc(map, doc).rightClickButton(polyline);
-						polyline = obj;
-						drawingManager.setOptions({
-							drawingMode: null
-						});	
-						teachEditPolyline();
-					});
-					if ( polylineIsCompleted )	{
-						teachEditPolyline();
-					}					
-				}, 4000);		
-
-			}, 3000);
-
-			google.maps.event.addListenerOnce(drawingManager, 'polylinecomplete', function(obj) {
-				drawingManager.setOptions({ drawingMode: null });	
-				polyline = obj;
-				mapcalc(map, doc).rightClickButton(polyline);
-				polylineIsCompleted = true;
-			});
+				google.maps.event.addListenerOnce(drawingManager, 'polylinecomplete', function(obj) {
+					drawingManager.setOptions({ drawingMode: null });	
+					polyline = obj;
+					mapcalc(map, doc).rightClickButton(polyline);
+					polylineIsCompleted = true;
+				});
+			}				
 
 			function teachEditPolyline() {
 				refresh(tutorialBox, function() {
