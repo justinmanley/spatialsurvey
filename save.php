@@ -1,13 +1,12 @@
 <html class="thankyou">
 <link href='http://fonts.googleapis.com/css?family=Andada' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" type="text/css" href="../css/style.css">
+<script>
+	setTimeout("location.href = 'http://facilities.uchicago.edu/about/mission/';", 5000)
+</script>
 <?php 
 
 require_once('config.php');
-
-// session_start();
-
-// print_r($_SESSION['path-data']);
 
 $conn = mysqli_connect($dbhost, $dbuser, $dbpassword);
 if ( !$conn ) { die ('Could not connect: ' . mysqli_error($conn)); }

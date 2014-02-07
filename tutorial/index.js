@@ -17,8 +17,6 @@ function initialize() {
 	var surveyHelper = spatialsurvey(map, document, drawingManager);
 	var mapHelper = mapcalc(map, document);
 
-	// surveyHelper.instructions.showProgress(0, 4);
-
 	surveyHelper.instructions.init(drawingManager, {
 		content: [{
 			content:  '<h2>The University of Chicago Pedestrian Movement Survey</h2>'+
@@ -27,6 +25,9 @@ function initialize() {
 			buttonText: 'NEXT'
 		}],
 	}, function() { surveyHelper.tutorial.create(drawingManager) });
+
+	surveyHelper.instructions.showProgress(1, 4, 'Tutorial');
+
 
 }
 

@@ -45,6 +45,8 @@ function initialize() {
 		});
 	});
 
+	surveyHelper.instructions.showProgress(2,4, 'Draw your path.');
+
 	var data = surveyHelper.personPath();
 
 	var instructionsPrimary = [

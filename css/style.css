@@ -65,16 +65,26 @@ body {
   width: 60px;
 }
 #progress-bar {
-  width: 200px;
-  height: 15px;
+  width: 400px;
+  height: 20px;
   margin-top: 20px;
   text-align: center;
   padding: 3px;
   background-color: #ffffff;
-  border-radius: 3px;
 }
 #progress-bar #progress-indicator {
   background-color: #4387fd;
+  height: 20px;
+}
+#progress-bar #progress-text {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  height: 20px;
+  width: 400px;
+  text-align: center;
+  color: #000000;
+  font-size: 10pt;
 }
 #test {
   height: 100%;

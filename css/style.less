@@ -78,17 +78,31 @@ body {
 	}
 }
 
+@progress-bar-width: 400px;
+@progress-bar-height: 20px;
+@progress-bar-padding: 3px;
+
 #progress-bar {
-	width: 200px;
-	height: 15px;	
+	width: @progress-bar-width;
+	height: @progress-bar-height;	
 	margin-top: 20px;
 	text-align: center;
-	padding: 3px;
+	padding: @progress-bar-padding;
 	background-color: #ffffff;
-	border-radius: 3px;
 	#progress-indicator {
-		background-color: #4387fd;	
-	}		
+		background-color: #4387fd;
+		height: @progress-bar-height;	
+	}
+	#progress-text {
+		position: absolute;
+		left: @progress-bar-padding;
+		top: @progress-bar-padding;
+		height: @progress-bar-height;
+		width: @progress-bar-width;
+		text-align: center;
+		color: #000000;
+		font-size: 10pt;
+	}
 }
 
 #test {

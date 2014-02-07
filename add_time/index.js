@@ -30,6 +30,8 @@ function initialize() {
 			//
 		});
 
+		surveyHelper.instructions.showProgress(3,4, 'Add times.');
+
 		instructionsPrimary = [
 			{ 
 				content: '<h2>What time?</h2>'+
