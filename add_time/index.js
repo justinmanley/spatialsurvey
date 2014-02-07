@@ -11,6 +11,7 @@ function initialize() {
 		mapTypeId: google.maps.MapTypeId.SATELLITE
 	});
 	var drawingManager = new google.maps.drawing.DrawingManager({
+		drawingControl: false
 	});	
 
 	// all user data is stored in this object

@@ -375,6 +375,39 @@ var spatialsurvey = function(map, doc) {
 	}
 
 // ---------------------------------------------------------------------
+	var infoBoxManager = (function()
+// ---------------------------------------------------------------------
+	{
+		var groups = {};
+		var init = function(identifier) {
+			groups[identifier] = [];
+		};
+		var register = function(identifier, infobox) {
+			groups[identifier].push(function() {
+				infobox.setMap(null);
+			});
+		};
+		var clear = function(identifier) {
+			if ( !groups.hasOwnProperty(identifier) ) {
+				throw "There is no InfoBox group answering to that identifier.";
+			} 
+			else {
+				for (var i = 0; i < groups[identifier].length; i++) {
+					groups[identifier][i]();
+				}
+				groups[identifier] = [];
+			}
+
+		};
+		return {
+			init: init,
+			clear: clear,
+			register: register
+		};
+
+	}());
+
+// ---------------------------------------------------------------------
 	var timestamp = function(polyline, position, timeString, openOnCreation)
 // ---------------------------------------------------------------------	
 	{
@@ -691,9 +724,8 @@ var spatialsurvey = function(map, doc) {
 	var tutorial = (function() {
 		function create(drawingManager) {
 			var tutorialBox = doc.createElement('div');
-			tutorialBox.id = 'tutorial-box';
+			tutorialBox.id = 'tutorial-fixed-box';
 			tutorialBox.innerHTML = 'Click anywhere to start drawing.';
-			tutorialBox.style.height = 	'55px';
 			tutorialBox.style.width = '250px';
 
 			polylineIsCompleted = false;
@@ -702,31 +734,39 @@ var spatialsurvey = function(map, doc) {
 
 			map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(tutorialBox);	
 
-
 			addEventListener('click', onFirstPoint);	
+
+			infoBoxManager.init('interactive');
 
 			function onFirstPoint() {
 				var points = 1;					
-				refresh(tutorialBox, function() {
+				fixedTutorialBox(tutorialBox, function() {
 					tutorialBox.innerHTML = 'Click somewhere else to draw a path.  To start, draw a path with three segments.';
 					tutorialBox.style.width = '440px';
 				});	
 				addEventListener('click', onThirdPoint);
 				removeEventListener('click', onFirstPoint);
 
-				function onThirdPoint() {				
+				function onThirdPoint(event) {				
 					if ( points < 4 )
 						points += 1;
 					else {
-						refresh(tutorialBox, function() {
-							tutorialBox.innerHTML = 'Double-click on the point you just drew to complete the path.'
-							tutorialBox.style.width = '330px';
-						});
-						removeEventListener('click', onThirdPoint);
-						onCompletePolyline();
+						var overlay = new google.maps.OverlayView();
+						overlay.draw = function() {};
+						overlay.setMap(map);
+						overlay.onAdd = function() {
+							var proj = overlay.getProjection(); 
+
+							var thirdPointPosition = proj.fromContainerPixelToLatLng(new google.maps.Point(event.clientX, event.clientY));
+
+							interactiveTutorialBox('Double-click on the point you just drew to complete the path.', 300, thirdPointPosition);
+
+							removeEventListener('click', onThirdPoint);
+							onCompletePolyline();	
+						};
+
 					}
 				}			
-
 			}			
 
 			function onCompletePolyline() {
@@ -751,7 +791,7 @@ var spatialsurvey = function(map, doc) {
 			}				
 
 			function teachEditPolyline() {
-				refresh(tutorialBox, function() {
+				fixedTutorialBox(tutorialBox, function() {
 					tutorialBox.innerHTML = 'Nice!  Now that you\'ve drawn a path, you can modify it by deleting or dragging vertices.  Give it a try!';
 					tutorialBox.style.width = '560px';							
 				});
@@ -778,11 +818,11 @@ var spatialsurvey = function(map, doc) {
 				polyline.setOptions({ editable: false });
 				var timestamps = mapcalc(map, doc).distributeTimeStamps(polyline, '9 am', '3 pm');
 
-				refresh(tutorialBox, function() {
+				fixedTutorialBox(tutorialBox, function() {
 					tutorialBox.innerHTML = 'Each marker on the path represents a time.';
 					tutorialBox.style.width = '560px';	
 
-					setTimeout(function() { refresh(tutorialBox, function() {
+					setTimeout(function() { fixedTutorialBox(tutorialBox, function() {
 						tutorialBox.innerHTML = 'You can drag times around, or edit them by clicking on the time.  Give it a try!';
 						tutorialBox.style.width = '560px';
 
@@ -791,7 +831,7 @@ var spatialsurvey = function(map, doc) {
 							google.maps.event.addListener(timestamps[i].pyramid, 'position_changed', function() {
 								timestampLearning += 1;
 								if ( timestampLearning == 3 ) {
-									setTimeout(function() { refresh(tutorialBox, function() {
+									setTimeout(function() { fixedTutorialBox(tutorialBox, function() {
 
 										tutorialBox.innerHTML = 'Great!  You\'re ready for the survey.';
 										tutorialBox.style.width = '160'
@@ -818,10 +858,35 @@ var spatialsurvey = function(map, doc) {
 				});				
 			}
 
-			function refresh(content, action) {
+			function fixedTutorialBox(content, action) {
 				map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
+				infoBoxManager.clear('interactive');	
+
 				action();
-				map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(content);	
+				map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(content);
+			}
+
+			function interactiveTutorialBox(text, width, position, clear) {
+				if ( typeof clear === 'undefined' || clear == true )
+					map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
+
+				infoBoxManager.clear('interactive');
+
+				var tutorial = new InfoBox({
+					content: '<div class="tutorial-movable-box">' + text + '</div>',
+					boxStyle: {
+						'background-color': '#ffffff',
+						width: width + 'px',
+						'font-size': '14pt',					
+					},
+					position: position,
+					map: map,
+					closeBoxURL: "",
+					pixelOffset: new google.maps.Size(- width/2, -100)
+				});
+				tutorial.open(map);	
+
+				infoBoxManager.register('interactive', tutorial);			
 			}
 		}
 

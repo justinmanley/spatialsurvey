@@ -167,11 +167,17 @@ html.thankyou {
 	padding-top: 150px;
 }
 
-#tutorial-box {
-	font-size: 18pt;
+#tutorial-fixed-box , .tutorial-movable-box  {
 	font-family: @slab-serif;
 	padding: 15px 20px;
 	margin: 0px auto;	
-	margin-bottom: 30px;
 	background-color: #ffffff;
+	&#tutorial-fixed-box {
+		font-size: 18pt;
+		height: 55px;
+		margin-bottom: 30px;				
+	}
+	&.tutorial-movable-box {
+		height: 45px;
+	}
 }
