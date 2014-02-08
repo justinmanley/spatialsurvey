@@ -14,7 +14,7 @@ body {
 
 @button-height: 29px; 
 @button-margin: 30px;
-#next-page-button, #previous-page-button, #next-instruction {
+#next-page-button, #previous-page-button, #next-instruction, #tutorial-button {
 	background: -webkit-linear-gradient(top,#4387fd,#4683ea);
 	background: linear-gradient(top,#4387fd,#4683ea);
 	background: #357ae8;
@@ -55,9 +55,10 @@ body {
 	font-family: @slab-serif;
 	form {
 		input {
+			margin: 0 auto;
+			padding: 5px;
 			width: 50px;
 			background-color: #f2f2f2;
-			margin: 0 auto;
 		}		
 	}
 	.timestamp-label {
@@ -73,7 +74,7 @@ body {
 	}
 	.daytime-indicator {
 		height: 5px;
-		width: 60px;
+		width: 65px;
 		// background-color: #ffea00;
 	}
 }
@@ -89,6 +90,8 @@ body {
 	text-align: center;
 	padding: @progress-bar-padding;
 	background-color: #ffffff;
+	box-shadow: 0 0 15px #9a9a9a;
+
 	#progress-indicator {
 		background-color: #4387fd;
 		height: @progress-bar-height;	
@@ -189,7 +192,11 @@ html.thankyou {
 	&#tutorial-fixed-box {
 		font-size: 18pt;
 		height: 55px;
-		margin-bottom: 30px;				
+		margin-bottom: 30px;
+		#tutorial-button {
+			width: 60px;
+			margin: 14px 0px 14px 20px;
+		}				
 	}
 	&.tutorial-movable-box {
 		height: 45px;

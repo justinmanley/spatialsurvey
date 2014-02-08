@@ -382,9 +382,14 @@ var spatialsurvey = function(map, doc) {
 		var init = function(identifier) {
 			groups[identifier] = [];
 		};
-		var register = function(identifier, infobox) {
+		var register = function(identifier, infoObject) {
 			groups[identifier].push(function() {
-				infobox.setMap(null);
+				if ( infoObject.hasOwnProperty('setMap') ) // user has passed in an infoBox
+					infoObject.setMap(null); 
+				if ( infoObject.hasOwnProperty('infoBox') ) // user has passed in an infoObject
+					infoObject.infoBox.setMap(null);
+				if ( infoObject.hasOwnProperty('anchor') )
+					infoObject.anchor.setMap(null);
 			});
 		};
 		var clear = function(identifier) {
@@ -397,7 +402,6 @@ var spatialsurvey = function(map, doc) {
 				}
 				groups[identifier] = [];
 			}
-
 		};
 		return {
 			init: init,
@@ -436,8 +440,10 @@ var spatialsurvey = function(map, doc) {
 
 		closedContent.content.addEventListener('mousedown', function() {
 			addEventListener('mousemove', dragTimestamp, true);
+			google.maps.event.clearListeners(closedContent.label, 'click');
 		}, false);
 		addEventListener('mouseup', function() {
+			google.maps.event.addDomListener(closedContent.label, 'click', function() { timestamp.open();   });
 			removeEventListener('mousemove', dragTimestamp, true);			
 		}, false);
 
@@ -477,7 +483,7 @@ var spatialsurvey = function(map, doc) {
 				background: '#ffffff',
 				opacity: 1,
 				padding: '5px',
-				width: '60px',
+				width: '65px',
 				height: '60px',
 				'border-radius': '7px'
 			},
@@ -492,7 +498,7 @@ var spatialsurvey = function(map, doc) {
 				background: '#ffffff',
 				opacity: 1,
 				padding: '5px',
-				width: '60px',
+				width: '65px',
 				height: '20px',
 				'border-radius': '7px'
 			},
@@ -758,10 +764,9 @@ var spatialsurvey = function(map, doc) {
 				addEventListener('click', onThirdPoint);
 				removeEventListener('click', onFirstPoint);
 
-				function onThirdPoint(event) {				
-					if ( points < 4 )
-						points += 1;
-					else {
+				function onThirdPoint(event) {	
+					points += 1;			
+					if ( points > 3 ) {
 						var overlay = new google.maps.OverlayView();
 						overlay.draw = function() {};
 						overlay.setMap(map);
@@ -771,24 +776,25 @@ var spatialsurvey = function(map, doc) {
 							var thirdPointPosition = proj.fromContainerPixelToLatLng(new google.maps.Point(event.clientX, event.clientY));
 
 							interactiveTutorialBox('Double-click on the point you just drew to complete the path.', 300, thirdPointPosition);
-
-							removeEventListener('click', onThirdPoint);
-							onCompletePolyline();	
 						};
-
+					}
+					if ( points == 4 ) {
+						google.maps.event.addListenerOnce(drawingManager, 'polylinecomplete', function(obj) {
+							removeEventListener('click', onThirdPoint);
+							onCompletePolyline(obj);
+						});						
 					}
 				}			
 			}			
 
-			function onCompletePolyline() {
-				google.maps.event.addListenerOnce(drawingManager, 'polylinecomplete', function(obj) {
-					mapcalc(map, doc).rightClickButton(obj);
-					polyline = obj;
-					drawingManager.setOptions({
-						drawingMode: null
-					});	
-					teachEditPolyline();
-				});
+			function onCompletePolyline(obj) {
+				mapcalc(map, doc).rightClickButton(obj);
+				polyline = obj;
+				drawingManager.setOptions({
+					drawingMode: null
+				});	
+				teachEditPolyline();
+
 				if ( polylineIsCompleted )	{
 					teachEditPolyline();
 				}						
@@ -810,16 +816,13 @@ var spatialsurvey = function(map, doc) {
 				editPolyline = 0;
 				google.maps.event.addListener(polyline.getPath(), 'insert_at', function() {
 					editPolyline += 1;
-					console.log(editPolyline);					
 					if ( editPolyline > 2 ) { teachTimestamps(); }
 				});
 				google.maps.event.addListener(polyline.getPath(), 'remove_at', function() {
-					console.log(editPolyline);
 					editPolyline += 1;
 					if ( editPolyline > 2 ) { teachTimestamps(); }					
 				});
 				google.maps.event.addListener(polyline.getPath(), 'set_at', function() {
-					console.log(editPolyline);
 					editPolyline += 1;
 					if ( editPolyline > 2 ) { teachTimestamps(); }					
 				});
@@ -832,32 +835,28 @@ var spatialsurvey = function(map, doc) {
 				fixedTutorialBox(tutorialBox, function() {
 					tutorialBox.innerHTML = 'Each marker on the path represents a time.';
 					tutorialBox.style.width = '560px';	
-
-					setTimeout(function() { fixedTutorialBox(tutorialBox, function() {
+				}, true, function() {
+					fixedTutorialBox(tutorialBox, function() {
 						tutorialBox.innerHTML = 'You can drag times around, or edit them by clicking on the time.  Give it a try!';
 						tutorialBox.style.width = '560px';
 
 						var timestampLearning = 0;
 						for (i = 0; i < timestamps.length; i++) {
-							google.maps.event.addListener(timestamps[i].pyramid, 'position_changed', function() {
+							google.maps.event.addListener(timestamps[i].pyramid, 'dragend', function() {
 								timestampLearning += 1;
 								if ( timestampLearning == 3 ) {
-									setTimeout(function() { fixedTutorialBox(tutorialBox, function() {
-
-										tutorialBox.innerHTML = 'Great!  You\'re ready for the survey.';
-										tutorialBox.style.width = '160'
-										setTimeout(function() {
-											map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
-											showNextButton({}, 'start', 'tutorial', function() {
-												return true;
-											}, function() { });
-										}, 2000);
-
-									})}, 1000);
+									endTutorial();
 								}
 							});
+							addEventListener('mouseup', function() {
+								timestampLearning += 1;
+								if ( timestampLearning == 3 ) {
+									endTutorial();
+									removeEventListener('mouseup', arguments.callee, false);
+								}								
+							});
 						}
-					})}, 2500);
+					});					
 				});
 
 				google.maps.event.addListener(map, 'click', function(event) {			
@@ -869,12 +868,35 @@ var spatialsurvey = function(map, doc) {
 				});				
 			}
 
-			function fixedTutorialBox(content, action) {
+			function endTutorial() {
+				fixedTutorialBox(tutorialBox, function() {
+					tutorialBox.innerHTML = 'Great!  You\'re ready for the survey.';
+					tutorialBox.style.width = '160'
+				}, true, function() {
+					map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
+					showNextButton({}, 'start', 'tutorial', function() {
+						return true;
+					}, function() { });
+				});				
+			}
+
+			function fixedTutorialBox(content, action, hasButton, buttonAction) {
 				map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
 				infoBoxManager.clear('interactive');	
 
 				action();
-				map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(content);
+
+				if ( hasButton === true ) {
+					button = doc.createElement('button');
+					button.id = 'tutorial-button';
+					button.innerHTML = 'OK';
+					content.appendChild(button);
+
+					google.maps.event.addDomListener(button, 'click', function() {
+						buttonAction();
+					});
+				}
+				map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(content);				
 			}
 
 			function interactiveTutorialBox(text, width, position, clear) {
@@ -893,11 +915,23 @@ var spatialsurvey = function(map, doc) {
 					position: position,
 					map: map,
 					closeBoxURL: "",
-					pixelOffset: new google.maps.Size(- width/2, -100)
+					pixelOffset: new google.maps.Size(- width/2, -120)
 				});
-				tutorial.open(map);	
+				var pyramid = new google.maps.Marker({
+					icon: { url: "../images/pyramid.png", anchor: new google.maps.Point(10,50) },
+					shape: { type: "rect", coords: [0,0,20,20] },
+					position: position,
+					draggable: true,
+					map: map		
+				});
 
-				infoBoxManager.register('interactive', tutorial);			
+				tutorial.open(map, pyramid);									
+
+				infoBoxManager.register('interactive', { 'infoBox': tutorial, 'anchor': pyramid });			
+			}
+
+			function interactiveArrow() {
+				//
 			}
 		}
 

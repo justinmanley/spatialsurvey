@@ -11,7 +11,8 @@ body {
 }
 #next-page-button,
 #previous-page-button,
-#next-instruction {
+#next-instruction,
+#tutorial-button {
   background: -webkit-linear-gradient(top, #4387fd, #4683ea);
   background: linear-gradient(top, #4387fd, #4683ea);
   background: #357ae8;
@@ -46,9 +47,10 @@ body {
   font-family: 'Andada', serif;
 }
 .timestamp-opened form input {
+  margin: 0 auto;
+  padding: 5px;
   width: 50px;
   background-color: #f2f2f2;
-  margin: 0 auto;
 }
 .timestamp-opened .timestamp-label {
   font-size: 11pt;
@@ -62,7 +64,7 @@ body {
 }
 .timestamp-closed .daytime-indicator {
   height: 5px;
-  width: 60px;
+  width: 65px;
 }
 #progress-bar {
   width: 400px;
@@ -71,6 +73,7 @@ body {
   text-align: center;
   padding: 3px;
   background-color: #ffffff;
+  box-shadow: 0 0 15px #9a9a9a;
 }
 #progress-bar #progress-indicator {
   background-color: #4387fd;
@@ -163,6 +166,11 @@ html.thankyou {
   font-size: 18pt;
   height: 55px;
   margin-bottom: 30px;
+}
+#tutorial-fixed-box#tutorial-fixed-box #tutorial-button,
+.tutorial-movable-box#tutorial-fixed-box #tutorial-button {
+  width: 60px;
+  margin: 14px 0px 14px 20px;
 }
 #tutorial-fixed-box.tutorial-movable-box,
 .tutorial-movable-box.tutorial-movable-box {
