@@ -775,7 +775,7 @@ var spatialsurvey = function(map, doc) {
 
 							var thirdPointPosition = proj.fromContainerPixelToLatLng(new google.maps.Point(event.clientX, event.clientY));
 
-							interactiveTutorialBox('Double-click on the point you just drew to complete the path.', 300, thirdPointPosition);
+							interactiveTutorialBox('Click again on the point you just drew to complete the path.', 300, thirdPointPosition);
 						};
 					}
 					if ( points == 4 ) {
@@ -844,13 +844,14 @@ var spatialsurvey = function(map, doc) {
 						for (i = 0; i < timestamps.length; i++) {
 							google.maps.event.addListener(timestamps[i].pyramid, 'dragend', function() {
 								timestampLearning += 1;
-								if ( timestampLearning == 3 ) {
+								if ( timestampLearning > 2 ) {
 									endTutorial();
 								}
 							});
 							addEventListener('mouseup', function() {
 								timestampLearning += 1;
-								if ( timestampLearning == 3 ) {
+								if ( timestampLearning > 5 ) {
+									console.log(timestampLearning);
 									endTutorial();
 									removeEventListener('mouseup', arguments.callee, false);
 								}								
