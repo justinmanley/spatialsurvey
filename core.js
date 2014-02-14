@@ -141,7 +141,7 @@ var spatialsurvey = function(map, doc) {
 		var load = function(internalCallback, userCallback) {
 			conn = new XMLHttpRequest();
 			conn.overrideMimeType('application/json');
-			conn.open('GET', '../polyline.php', true);
+			conn.open('GET', '../../dowsing-js/polyline.php', true);
 			conn.onreadystatechange = function() {
 				if (this.readyState !== 4 ) return; 
 				if (this.status !== 200 ) return; 
@@ -183,7 +183,7 @@ var spatialsurvey = function(map, doc) {
 		var nextForm = doc.createElement('form');
 		nextForm.id = type + '-form';
 		nextForm.setAttribute('method', 'post');
-		nextForm.setAttribute('action', '../advance.php');
+		nextForm.setAttribute('action', '../../dowsing-js/advance.php');
 		nextForm.innerHTML = '<input type="hidden" name="' + type + '-name" id="' + type + '-name" value="' + destination + '"/>'+
 								'<input type="hidden" name="current-page-name" id="current-page-name" value="'+currentPageName+'"/>'+
 								'<input type="hidden" name="path-data" id="' + type + '-path-data"/>'+
@@ -328,7 +328,7 @@ var spatialsurvey = function(map, doc) {
 // ---------------------------------------------------------------
 	{
 		return {
-			url: "../marker.png",
+			url: getImageUrl('marker.png'),
 			anchor: new google.maps.Point(10,10)
 		};
 	}
@@ -460,7 +460,7 @@ var spatialsurvey = function(map, doc) {
 				height: '60px',
 				'border-radius': '7px'
 			},
-			closeBoxURL: "../images/close-icon.png",
+			closeBoxURL: getImageUrl('close-icon.png'),
 			pixelOffset: new google.maps.Size(-34,-95),
 			map: map
 		});
@@ -479,7 +479,7 @@ var spatialsurvey = function(map, doc) {
 			pixelOffset: new google.maps.Size(-34,-55)
 		});		
 		timestamp.pyramid = new google.maps.Marker({
-			icon: { url: "../images/pyramid.png", anchor: new google.maps.Point(10,30) },
+			icon: { url: getImageUrl('pyramid.png'), anchor: new google.maps.Point(10,30) },
 			shape: { type: "rect", coords: [0,0,20,20] },
 			position: position,
 			draggable: true,
@@ -612,7 +612,7 @@ var spatialsurvey = function(map, doc) {
 			var extra = doc.getElementById('extra');
 			extra.innerHTML = '<div id="instructions-main">'+
 				'<div class="close-box">'+
-					'<img src="../images/close-icon.png"/>'+
+					'<img src="' + getImageUrl('close-icon.png') + '"/>'+
 				'</div>'+				
 				'<div id="instructions-main-content">'+
 				'</div><!-- #instructions-main-content -->'+
@@ -892,7 +892,7 @@ var spatialsurvey = function(map, doc) {
 					pixelOffset: new google.maps.Size(- width/2, -120)
 				});
 				var pyramid = new google.maps.Marker({
-					icon: { url: "../images/pyramid.png", anchor: new google.maps.Point(10,50) },
+					icon: { url: getImageUrl('pyramid.png'), anchor: new google.maps.Point(10,50) },
 					shape: { type: "rect", coords: [0,0,20,20] },
 					position: position,
 					draggable: true,
@@ -1038,7 +1038,7 @@ var mapcalc = function(map, doc)
 		var deleteButton = addDeleteButton(doc, polyline);
 		var rightClickDiv = new InfoBox({
 			content: deleteButton,
-			closeBoxURL: "../images/close-icon.png",
+			closeBoxURL: getImageUrl('close-icon.png'),
 			visible: false,
 		});
 
@@ -1566,3 +1566,7 @@ function getCSSRule(ruleName, deleteFlag) {               // Return requested st
    }                                                      // end styleSheet ability check
    return false;                                          // we found NOTHING!
 }                                                         // end getCSSRule 
+
+function getImageUrl(filename) {
+	return '../../images/' + filename;
+}
