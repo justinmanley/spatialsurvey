@@ -51,10 +51,12 @@ function initialize() {
 
 	var instructionsPrimary = [
 		{ 
-			content: '<h2>Your Daily Path</h2>'+
-					'<h3>Draw the path that you took around campus yesterday.</h3>'+
-					'<p>If you live in Hyde Park, start drawing when you left home.  Otherwise, start when you arrived on campus.</p>'+
-					'<p>We would like to link the path to a time, so before you move on, make sure to enter the time your path starts and ends.</p>',
+			content: '<h2>What path did you take around campus yesterday?</h2>'+
+					'<hr />'+
+					'<p>The campus boundary is indicated on the map by a black line.</p>'+
+					'<p>Trace the path you took around campus yesterday starting from where you arrived on campus.  When you\'re done drawing, enter the time you arrived on campus and the time you left campus, formatted as X:XXam.</p>'+
+					'<p>Click on the map to start drawing.</p>'
+			,
 			buttonText: 'START'
 		}
 	];

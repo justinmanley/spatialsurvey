@@ -19,9 +19,21 @@ function initialize() {
 
 	surveyHelper.instructions.init(drawingManager, {
 		content: [{
-			content:  '<h2>The University of Chicago Pedestrian Movement Survey</h2>'+
-						'<p>Thanks for helping us to improve campus.  In a minute, we\'re going to ask you a few questions about how you move around campus:<ul><li>What path did you take as you walked or biked around campus yesterday?</li><li>When were you moving around campus yesterday?</li></ul></p>'+
-						'<p>But first, we\'re going to lead you through a quick tutorial of this survey tool.</p>',
+			content:  '<h2>Where Do You Walk?</h2>'+
+						'<hr />'+
+						'<p>Campus is always changing, and it is the job of Facilities Services to make sure that it\'s changing for the better.</p>'+
+						'<p>New buildings, pedestrian zones, paths, and lighting are all part of that change.</p>'+
+						'<p>Understanding how you use campus will help us design these campus improvements so that they are beautiful, comfortable, and useful to you.</p>'
+			,
+			buttonText: 'NEXT'
+		},
+		{
+			content:  '<h2>Where Do You Walk?</h2>'+
+						'<hr />'+
+						'<p>This survey will ask you to describe the path that you took around campus yesterday by tracing it on the map.</p>'+
+						'<hr />'+
+						'<p>First we\'ll lead you through a quick tutorial of the survey tool, then we\'ll ask you to draw the path you took yesterday.  There are three screens in all, and the survey takes about four minutes to complete.</p>'
+			,
 			buttonText: 'NEXT'
 		}],
 	}, function() { surveyHelper.tutorial.create(drawingManager) });
