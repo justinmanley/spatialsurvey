@@ -4,7 +4,6 @@
 	<head>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<link rel="stylesheet" type="text/css" href="../../dowsing-js/css/style.css">
-		<link href='http://fonts.googleapis.com/css?family=Andada' rel='stylesheet' type='text/css'>
 		<script type="text/javascript"
 			src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=drawing,geometry&sensor=false">
 		</script>
