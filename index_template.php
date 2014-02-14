@@ -8,9 +8,7 @@
 		<script type="text/javascript"
 			src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=drawing,geometry&sensor=false">
 		</script>
-		<script type="text/javascript"
-			src="http://google-maps-utility-library-v3.googlecode.com/svn/tags/infobox/1.1.9/src/infobox.js">
-		</script>
+		<script type="text/javascript" src="../../dowsing-js/resources/infobox.js"></script>
 		<script type="text/javascript" src="../../dowsing-js/core.js"></script>
 		<script type="text/javascript" src="../../dowsing-js/colors/rainbowvis.js"></script>		
 		<script type="text/javascript" src="index.js"></script>
