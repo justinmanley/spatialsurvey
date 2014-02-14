@@ -22,8 +22,6 @@ function initialize() {
 
 		setTimeout(function() { map.panTo(data.getPolyline().getPath().getAt(0)) }, 1000);
 
-		// surveyHelper.instructions.showProgress(1, 4);		
-
 		surveyHelper.showNextButton(data, 'save', 'add_time', function() {
 			return true;
 		}, function() {

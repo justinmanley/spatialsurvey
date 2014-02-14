@@ -1,6 +1,5 @@
 <?php 
 
-session_start();
 $data = json_decode($_SESSION['path-data']);
 
 $kml_output = <<<output1

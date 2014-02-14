@@ -114,33 +114,6 @@ var spatialsurvey = function(map, doc) {
 			return timestamps;
 		}		
 
-		var toKML = function() {
-			var kml = '<?xml version="1.0" encoding="UTF-8"?>'+
-				'xmlns="http://www.opengis.net/kml/2.2"'+
-				'<Document>'+
-					'<name>FS Survey Response</name>'+
-						'<description>FS Survey Response</description>'+
-					'<Placemark>'+
-						'<name>Path</name>'+
-						'<description>none</description>'+
-						'<LineString>'+
-							'<altitudeMode>relative</altitudeMode>'+
-							'<coordinates>'
-
-			points = getPath().getArray();
-			for (i = 0; i < points.length; i++) {
-				kml += JSON.stringify(points[i].lat()) + ',' + JSON.stringify(points[i].lng()) + '\n';
-			}
-
-			kml +=			'</coordinates>'+
-						'</LineString>'+
-					'</Placemark>'+
-				'</Document>'
-
-			return kml;
-		};
-		that.toKML = toKML;
-
 		var toString = function() {
 			var stringable = new Object();		
 			stringable.path = data.path.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
