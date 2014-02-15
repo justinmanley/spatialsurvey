@@ -1567,6 +1567,6 @@ function getCSSRule(ruleName, deleteFlag) {               // Return requested st
    return false;                                          // we found NOTHING!
 }                                                         // end getCSSRule 
 
-function getImageUrl(filename) {
-	return '../../images/' + filename;
+function getResourceUrl(filename) {
+	return '../../dowsing-js/resources/' + filename;
 }
