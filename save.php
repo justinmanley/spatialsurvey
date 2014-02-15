@@ -17,9 +17,10 @@ sqlstring;
 
 mysqli_select_db($conn, $dbname);
 
-$retval = mysqli_query($conn, $path_insert);
-if ( !$retval ) { die('Could not enter data: ' . mysqli_error($conn)); }
+$retval = mysqli_query($conn, $sql);
 
-echo '<div id="thankyou">Thank you for your input.<br />Your response will help us improve campus.</div>\n';
+	if ( !$retval ) { die('Could not enter data: ' . mysqli_error($conn)); }
+	else { successful_database_save(); }
+
 mysqli_close($conn);
 ?>
