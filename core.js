@@ -328,7 +328,7 @@ var spatialsurvey = function(map, doc) {
 // ---------------------------------------------------------------
 	{
 		return {
-			url: getImageUrl('marker.png'),
+			url: getResourceUrl('marker.png'),
 			anchor: new google.maps.Point(10,10)
 		};
 	}
@@ -460,7 +460,7 @@ var spatialsurvey = function(map, doc) {
 				height: '60px',
 				'border-radius': '7px'
 			},
-			closeBoxURL: getImageUrl('close-icon.png'),
+			closeBoxURL: getResourceUrl('close-icon.png'),
 			pixelOffset: new google.maps.Size(-34,-95),
 			map: map
 		});
@@ -479,7 +479,7 @@ var spatialsurvey = function(map, doc) {
 			pixelOffset: new google.maps.Size(-34,-55)
 		});		
 		timestamp.pyramid = new google.maps.Marker({
-			icon: { url: getImageUrl('pyramid.png'), anchor: new google.maps.Point(10,30) },
+			icon: { url: getResourceUrl('pyramid.png'), anchor: new google.maps.Point(10,30) },
 			shape: { type: "rect", coords: [0,0,20,20] },
 			position: position,
 			draggable: true,
@@ -612,7 +612,7 @@ var spatialsurvey = function(map, doc) {
 			var extra = doc.getElementById('extra');
 			extra.innerHTML = '<div id="instructions-main">'+
 				'<div class="close-box">'+
-					'<img src="' + getImageUrl('close-icon.png') + '"/>'+
+					'<img src="' + getResourceUrl('close-icon.png') + '"/>'+
 				'</div>'+				
 				'<div id="instructions-main-content">'+
 				'</div><!-- #instructions-main-content -->'+
@@ -892,7 +892,7 @@ var spatialsurvey = function(map, doc) {
 					pixelOffset: new google.maps.Size(- width/2, -120)
 				});
 				var pyramid = new google.maps.Marker({
-					icon: { url: getImageUrl('pyramid.png'), anchor: new google.maps.Point(10,50) },
+					icon: { url: getResourceUrl('pyramid.png'), anchor: new google.maps.Point(10,50) },
 					shape: { type: "rect", coords: [0,0,20,20] },
 					position: position,
 					draggable: true,
@@ -1038,7 +1038,7 @@ var mapcalc = function(map, doc)
 		var deleteButton = addDeleteButton(doc, polyline);
 		var rightClickDiv = new InfoBox({
 			content: deleteButton,
-			closeBoxURL: getImageUrl('close-icon.png'),
+			closeBoxURL: getResourceUrl('close-icon.png'),
 			visible: false,
 		});
 
