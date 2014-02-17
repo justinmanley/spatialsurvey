@@ -89,8 +89,8 @@ var spatialsurvey = function(map, doc) {
 			if (typeof data.polyline === 'undefined') {
 				var polyline = new google.maps.Polyline({
 					path: getPath(),
-					strokeColor: '`',
-					strokeWeight: 3,
+					strokeColor: '#4387fd',
+					strokeWeight: 4,
 					clickable: false
 				});
 				data.polyline = polyline;
@@ -148,7 +148,6 @@ var spatialsurvey = function(map, doc) {
 				debug(this.responseText);
 				data = eval("(" + JSON.parse(this.responseText) + ")");
 				setPath(data.path.map(createLatLng));
-				// debug(toString(), "toString()");
 				internalCallback();
 				userCallback();
 			};
@@ -734,8 +733,8 @@ var spatialsurvey = function(map, doc) {
 					tutorialBox.innerHTML = 'Click somewhere else to draw a path.  To start, draw a path with three segments.';
 					tutorialBox.style.width = '440px';
 				});	
+				removeEventListener('click', onFirstPoint);				
 				addEventListener('click', onThirdPoint);
-				removeEventListener('click', onFirstPoint);
 
 				function onThirdPoint(event) {	
 					points += 1;			
@@ -1240,7 +1239,7 @@ var mapcalc = function(map, doc)
 		var path = polyline.getPath().getArray();
 		var totalLength = google.maps.geometry.spherical.computeLength(path);
 		var totalTime = getTotalTime(startTime, endTime);
-		var timeDelta = 1.5;
+		var timeDelta = 3;
 		var numberOfTimestamps = Math.ceil(totalTime/timeDelta);
 		var delta = totalLength/numberOfTimestamps;
 
