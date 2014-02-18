@@ -539,40 +539,31 @@ var spatialsurvey = function(map, doc) {
 		return timestamp;
 	}
 
-/* SUB-MODULE: spatialsurvey.instructions */
-// -----------------------------------------------------------------------------------
-	var instructions = (function() 
-// -----------------------------------------------------------------------------------
-	{
-		var data = {};
-		data.content = [];
-		primaryActive = false;
-		sidebarActive = false;
+	var instructions = (function() {
 
+		// set defaults
+		var data = { 
+			primary: [], 
+			showPrimaryOnCreate: true, 
+			action: function() { },
+			hideAction: function() { }
+		};
+		var drawingManager;
 
-		var init = function(drawingManager, options, action) {
-			if (typeof options !== 'undefined') {
-				if (typeof options.content !== 'undefined') {
-					setPrimaryContent(options.content);
-					primaryActive = true;
-				}
-				if (typeof options.sidebar !== 'undefined') {
-					setSidebarContent(options.sidebar);
-					sidebarActive = true;
-				}
-				if ( action && Object.prototype.toString.call(action) === '[object Function]') {
-					data.action = action;
+		var create = function(manager, options) {
+			drawingManager = manager;
+
+			// initialize data object
+			for ( property in options) {
+				if ( options.hasOwnProperty(property) ) {
+					data[property] = options[property];
 				}
 			}
 
-			// initialize main instructions
-			if ( primaryActive ) { setupPrimaryInstructions(); }
+			initPrimary();
 
-			// initialize instructions sidebar
-			if ( sidebarActive ) { setupSidebarInstructions(); }
-
-			if ( primaryActive ) { 
-				showPrimaryInstructions(drawingManager);	
+			if ( data.showPrimaryOnCreate ) {
+				showPrimary();
 
 				// event handler to close welcome screen
 				var welcome_close = doc.getElementsByClassName('close-box')[0];
@@ -582,32 +573,55 @@ var spatialsurvey = function(map, doc) {
 
 				// if user clicks outside of welcome screen, then start drawing
 				var initDrawingManager = google.maps.event.addListener(map, 'click', function() {
-					startDrawing(drawingManager, initDrawingManager);				
-				});								
-			}					
-		}
-		var showProgress = function(currentScreen, max, description) 
-		{
-			var progressBar = doc.createElement('div');
-			var progressIndicator = doc.createElement('div');
-			var progressText = doc.createElement('div');
-			progressBar.id = 'progress-bar';
-			progressIndicator.id = 'progress-indicator';
-			progressText.id = 'progress-text';
+					drawingManager.setMap(map);
+					google.maps.event.removeListener(initDrawingManager);										
+				});					
+			}
+			else 
+				data.action();
+		};
 
-			var widthFormat = /^([0-9]*)px$/;
-			var progressBarWidth = parseInt(widthFormat.exec(getCSSRule('#progress-bar').style.width)[1]);
+		var showPrimary = function() {
+			// if user defines hideAction, this allows primary and action to toggle back and forth
+			data.hideAction();
 
-			progressIndicator.style.width = (currentScreen/max)*progressBarWidth + 'px';
+			var primary = doc.getElementById('instructions-main');
+			var primary_content = doc.getElementById('instructions-main-content');
 
-			progressText.innerHTML = currentScreen + ' : ' + description;
+			primary.style.display = 'block';
 
-			progressBar.appendChild(progressIndicator);
-			progressBar.appendChild(progressText);
-			map.controls[google.maps.ControlPosition.TOP_CENTER].push(progressBar);				
-		}
+			// initialize instructions_main screen
+		    var primary_screen_index = 0;
+		    var content = data.content;
+		    var nextButton = doc.getElementById('next-instruction');
 
-		function setupPrimaryInstructions() {
+		    primary_content.innerHTML = content[primary_screen_index].content;
+		    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
+
+		    google.maps.event.addDomListener(nextButton, 'click', function(event) {
+				if (primary_screen_index < content.length - 1) { 
+				    primary_screen_index += 1;
+				    primary_content.innerHTML = content[primary_screen_index].content;
+				    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
+				}
+				else {
+					drawingManager.setMap(map);		
+
+					// needs to be wrapped in a function, otherwise it will stop the current event listener				
+					(function() { event.stopPropagation(); } ());
+					hidePrimary(); 	
+				}
+			});			
+		};
+
+		var hidePrimary = function() {
+			data.action();
+
+			doc.getElementById('instructions-main').style.display = 'none';
+			google.maps.event.clearListeners(doc.getElementById('next-instruction'), 'click');
+		};
+
+		function initPrimary() {
 			var extra = doc.getElementById('extra');
 			extra.innerHTML = '<div id="instructions-main">'+
 				'<div class="close-box">'+
@@ -618,97 +632,84 @@ var spatialsurvey = function(map, doc) {
 				'<button id="next-instruction">Next</button>'+				
 			  '</div><!-- #instructions-main -->';
 		}
-		function setupSidebarInstructions() {
+
+		return {
+			'create': create,
+			'showPrimary': showPrimary,
+			'hidePrimary': hidePrimary,
+			'showProgress': showProgress
+		};	
+	}());
+
+	var sidebar = (function() {
+		// set defaults
+		data = {
+			content: [],
+			sidebarOpenOnCreate: true
+		};
+
+		var create = function(options) {
+			// initialize data object
+			for ( property in options) {
+				if ( options.hasOwnProperty(property) ) {
+					data[property] = options[property];
+				}
+			}
+
+			initSidebar();
+
+			var show = function() {
+				doc.getElementById('instructions-sidebar').style.display = 'block';				
+			};
+
+			var hide = function() {
+				if (doc.getElementById('instructions-sidebar') != null) { 			
+					doc.getElementById('instructions-sidebar').style.display = 'none';			
+				}
+			};
+
+			return {
+				'show': show,
+				'hide': hide
+			};		
+		};
+
+		function initSidebar() {
 			var instructions = doc.createElement('div');
 			instructions.id = 'instructions-sidebar';
 
-			instructions.innerHTML = getSidebarContent();
+			instructions.innerHTML = data.content;
 
 			// initialize the instructions sidebar to be hidden
 			instructions.style.display = 'none';
 			instructions.style.height = '302px';
 
-			map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);
-		}
-		function showPrimaryInstructions(drawingManager) {
-			data.primaryIsVisible = true;
-			var instructions_main = doc.getElementById('instructions-main');
-			var instructions_main_content = doc.getElementById('instructions-main-content');
-
-			instructions_main.style.display = 'block';
-
-			if (doc.getElementById('instructions-sidebar') != null) { 			
-				doc.getElementById('instructions-sidebar').style.display = 'none';			
-			}				
-
-			// initialize instructions_main screen
-		    var instructions_main_screen_index = 0;
-		    var content = getPrimaryContent();
-		    var nextButton = doc.getElementById('next-instruction');
-
-		    instructions_main_content.innerHTML = content[instructions_main_screen_index].content;
-		    nextButton.innerHTML = typeof content[instructions_main_screen_index].buttonText !== 'undefined' ? content[instructions_main_screen_index].buttonText : 'NEXT';
-
-		    google.maps.event.addDomListener(nextButton, 'click', function() {
-				if (instructions_main_screen_index < content.length - 1) { 
-				    instructions_main_screen_index += 1;
-				    instructions_main_content.innerHTML = content[instructions_main_screen_index].content;
-				    nextButton.innerHTML = typeof content[instructions_main_screen_index].buttonText !== 'undefined' ? content[instructions_main_screen_index].buttonText : 'NEXT';
-				}
-				else { 
-					if ( typeof data.action !== 'undefined' ) { 
-						hidePrimaryInstructions();
-						data.action(); 
-					}
-					else { startDrawing(drawingManager); }
-				}
-			});
-		}
-		function hidePrimaryInstructions() {
-			data.primaryIsVisible = false;
-			doc.getElementById('instructions-main').style.display = 'none';
-			google.maps.event.clearListeners(doc.getElementById('next-instruction'), 'click');
-
-			if ( sidebarActive ) { doc.getElementById('instructions-sidebar').style.display = 'block'; }
-		}
-		function startDrawing(drawingManager, initDrawingManager) {
-			hidePrimaryInstructions();		
-			drawingManager.setMap(map);			
-
-			// google.maps.event.addDomListener(doc.getElementById('instructions-content'), 'click', function() {
-			// 	// here is where you set the time in the primary instructions thing
-			// 	showPrimaryInstructions(drawingManager);
-			// });
-			google.maps.event.removeListener(initDrawingManager);				
+			map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);	
 		}
 
-		function setPrimaryContent(array) { data.content = array; }	
-		function getPrimaryContent() { return data.content; }
-		function setSidebarContent(content) { data.sidebar = content; }
-		function getSidebarContent() { return data.sidebar; }
-
-		function getStartTime() {
-			if (data.primaryIsVisible)
-				var userStartTime = doc.getElementById('primary-start-time');
-			else if (data.primaryIsVisible === false)
-				var userStartTime = doc.getElementById('sidebar-start-time')
-			return userStartTime.value;
-		}
-		function getEndTime() {
-			if (data.primaryIsVisible)
-				var userEndTime = doc.getElementById('primary-end-time');
-			else if (data.primaryIsVisible === false)
-				var userEndTime = doc.getElementById('sidebar-end-time')
-			return userEndTime.value;
-		}
-
-		return {
-			'init': init,
-			'setPrimaryContent': setPrimaryContent,
-			'getPrimaryContent': getPrimaryContent,
-			'showProgress': showProgress
-		}
+		return { 'create': create };
 	}());
+
+	var showProgress = function(currentScreen, max, description) 
+	{
+		var progressBar = doc.createElement('div');
+		var progressIndicator = doc.createElement('div');
+		var progressText = doc.createElement('div');
+		progressBar.id = 'progress-bar';
+		progressIndicator.id = 'progress-indicator';
+		progressText.id = 'progress-text';
+
+		var widthFormat = /^([0-9]*)px$/;
+		var progressBarWidth = parseInt(widthFormat.exec(getCSSRule('#progress-bar').style.width)[1]);
+
+		progressIndicator.style.width = (currentScreen/max)*progressBarWidth + 'px';
+
+		progressText.innerHTML = currentScreen + ' : ' + description;
+
+		progressBar.appendChild(progressIndicator);
+		progressBar.appendChild(progressText);
+		map.controls[google.maps.ControlPosition.TOP_CENTER].push(progressBar);				
+	}
 
 	var tutorial = (function() {
 		function create(drawingManager) {
@@ -923,6 +924,8 @@ var spatialsurvey = function(map, doc) {
 		'showNextButton': showNextButton,
 		'timestamp': timestamp,
 		'instructions': instructions,
+		'sidebar': sidebar,
+		'showProgress': showProgress,	
 		'tutorial': tutorial,
 		'isValidTime': isValidTime
 
