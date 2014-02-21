@@ -700,7 +700,7 @@ var spatialsurvey = function(map, doc) {
 		progressText.id = 'progress-text';
 
 		var widthFormat = /^([0-9]*)px$/;
-		var progressBarWidth = parseInt(widthFormat.exec(getCSSRule('#progress-bar').style.width)[1]);
+		var progressBarWidth = 400;
 
 		progressIndicator.style.width = (currentScreen/max)*progressBarWidth + 'px';
 
