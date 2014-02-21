@@ -10,6 +10,10 @@ body {
 #map-canvas {
   height: 100%;
 }
+@font-face {
+  font-family: 'Andada';
+  src: url(../resources/andada/Andada-Regular.woff);
+}
 #next-page-button,
 #previous-page-button,
 #next-instruction,

@@ -3,7 +3,10 @@ session_start();
 
 require_once('../../config.php');
 
-$conn = mysqli_connect($dbhost, $dbuser, $dbpassword);
+if ( !$dbport )
+	$conn = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbname);
+else 
+	$conn = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbname, $dbport);
 if ( !$conn ) { die ('Could not connect: ' . mysqli_error($conn)); }
 
 $user_id = $_SERVER['persistent-id'];
