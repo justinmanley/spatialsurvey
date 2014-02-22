@@ -25,24 +25,29 @@ body {
   font-weight: bold;
 }
 #instructions-sidebar {
-  width: 150px;
-  height: 302px;
+  width: 180px;
+  height: 340px;
   padding: 10px 15px;
-  background-color: rgba(256, 256, 256, 0.7);
+  background-color: #ffffff;
+  margin-right: 30px;
+  font-family: 'Andada' serif;
 }
 #instructions-sidebar #start-end-time-question {
   float: left;
   margin-left: 10px;
+  margin-bottom: 20px;
 }
 #instructions-sidebar #start-end-time-question input {
-  width: 50px;
+  width: 65px;
   border-radius: 3px;
+  background-color: #d3d3d3;
 }
-#instructions-sidebar p {
-  font-size: 110%;
+#instructions-sidebar p,
+#instructions-sidebar label {
+  font-size: 140%;
 }
 #instructions-sidebar input#day-of-week {
-  width: 130px;
+  width: 160px;
 }
 .timestamp-opened {
   font-family: 'Andada', serif;

@@ -648,6 +648,9 @@ var spatialsurvey = function(map, doc) {
 			sidebarOpenOnCreate: true
 		};
 
+		var sidebar = doc.createElement('div');
+		sidebar.id = 'instructions-sidebar';
+
 		var create = function(options) {
 			// initialize data object
 			for ( property in options) {
@@ -656,16 +659,16 @@ var spatialsurvey = function(map, doc) {
 				}
 			}
 
-			initSidebar();
-
 			var show = function() {
-				doc.getElementById('instructions-sidebar').style.display = 'block';				
+				sidebar.style.display = 'block';	
+				sidebar.innerHTML = data.content;	
+
+				map.controls[google.maps.ControlPosition.RIGHT_CENTER].clear();
+				map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sidebar);						
 			};
 
 			var hide = function() {
-				if (doc.getElementById('instructions-sidebar') != null) { 			
-					doc.getElementById('instructions-sidebar').style.display = 'none';			
-				}
+				sidebar.style.display = 'none';			
 			};
 
 			return {
@@ -673,19 +676,6 @@ var spatialsurvey = function(map, doc) {
 				'hide': hide
 			};		
 		};
-
-		function initSidebar() {
-			var instructions = doc.createElement('div');
-			instructions.id = 'instructions-sidebar';
-
-			instructions.innerHTML = data.content;
-
-			// initialize the instructions sidebar to be hidden
-			instructions.style.display = 'none';
-			instructions.style.height = '302px';
-
-			map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(instructions);	
-		}
 
 		return { 'create': create };
 	}());
@@ -938,8 +928,6 @@ var spatialsurvey = function(map, doc) {
 							var browserCurxorY = event.detail.clientY;
 							var browserPoint = new google.maps.Point(browserCursorX, browserCurxorY);
 							standardTutorialData.position = proj.fromDivPixelToLatLng(browserPoint);
-
-							error.report('What, what, what are you doing?');
 
 							dispatchLessonComplete();
 							doc.removeEventListener('clicknodrag', onThirdPoint);							
