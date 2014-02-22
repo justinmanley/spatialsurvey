@@ -713,7 +713,13 @@ var spatialsurvey = function(map, doc) {
 
 	var tutorial = (function() {
 		var drawingManager;
-		var tutorialData = {};
+
+		// for sharing data between different lessons in the standard tutorial
+		var standardTutorialData = {};
+
+		// for the end-user of the framework to share data 
+		// between different lessons in his/her custom tutorial
+		var userTutorialData = {};
 
 		// initialize the tutorialBox DOM element
 		var tutorialBox = doc.createElement('div');
@@ -726,6 +732,11 @@ var spatialsurvey = function(map, doc) {
 
 		tutorialBox.appendChild(tutorialText);
 		tutorialBox.appendChild(button);
+
+		var overlay = new google.maps.OverlayView();
+		overlay.draw = function() { };
+		overlay.setMap(map);
+		console.log(overlay);
 
 		var create = function(manager, lessons) {
 			drawingManager = manager;
@@ -777,28 +788,28 @@ var spatialsurvey = function(map, doc) {
 			map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(tutorialBox);				
 		}
 
-		function interactiveTutorialBox(options) {
+		function interactiveTutorialBox(options, getPosition) {
 			if ( typeof clear === 'undefined' || clear == true )
 				map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
 
 			infoBoxManager.clear('interactive');
 
 			var tutorial = new InfoBox({
-				content: '<div class="tutorial-movable-box">' + text + '</div>',
+				content: '<div class="tutorial-movable-box">' + options.content + '</div>',
 				boxStyle: {
 					'background-color': '#ffffff',
-					width: width + 'px',
+					'width': options.width + 'px',
 					'font-size': '14pt',					
 				},
-				position: position,
+				position: options.getPosition(),
 				map: map,
 				closeBoxURL: "",
-				pixelOffset: new google.maps.Size(- width/2, -120)
+				pixelOffset: options.pixelOffset
 			});
 			var pyramid = new google.maps.Marker({
 				icon: { url: getResourceUrl('pyramid.png'), anchor: new google.maps.Point(10,50) },
 				shape: { type: "rect", coords: [0,0,20,20] },
-				position: position,
+				position: options.getPosition(),
 				draggable: true,
 				map: map		
 			});
@@ -837,13 +848,13 @@ var spatialsurvey = function(map, doc) {
 				hasMoved = true;
 			}
 					
-			function onUp() {
+			function onUp(event) {
 				removeEventListener('mousemove', onMove);
 				removeEventListener('mouseup', onUp);
 
 				if ( hasMoved === false ) {
 					var clickNoDrag = new CustomEvent("clicknodrag", {
-						detail: {}
+						detail: event
 					});
 					doc.dispatchEvent(clickNoDrag);
 				}
@@ -851,15 +862,15 @@ var spatialsurvey = function(map, doc) {
 		}
 
 		function storeData(dataName, data) {
-			tutorialData[dataName] = data;
+			userTutorialData[dataName] = data;
 		}
 
 		function retrieveData(dataName) {
-			return tutorialData[dataName];
+			return userTutorialData[dataName];
 		}
 
 		function forgetData(dataName) {
-			delete tutorialData[dataName];
+			delete userTutorialData[dataName];
 		}
 
 		function nextLesson(lessons, lessonIndex) {
@@ -922,8 +933,14 @@ var spatialsurvey = function(map, doc) {
 				fixed: true,
 				advance: function() { 
 					var points = 0;
-					function onThirdPoint() {
+					var proj = overlay.getProjection();
+					function onThirdPoint(event) {
 						if ( points == 2 ) {
+							var browserCursorX = event.detail.clientX;
+							var browserCurxorY = event.detail.clientY;
+							var browserPoint = new google.maps.Point(browserCursorX, browserCurxorY);
+							standardTutorialData.position = proj.fromDivPixelToLatLng(browserPoint);
+
 							dispatchLessonComplete();
 							doc.removeEventListener('clicknodrag', onThirdPoint);							
 						} 
@@ -938,7 +955,7 @@ var spatialsurvey = function(map, doc) {
 					content: 'Click again on the point you just drew to complete the path.',
 					hasButton: false,
 					buttonText: 'NEXT',
-					width: 440,
+					width: 440
 				},
 				action: function() {	},
 				fixed: true,
@@ -946,7 +963,7 @@ var spatialsurvey = function(map, doc) {
 					var onCompletePolyline = google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
 						drawingManager.setOptions({ drawingMode: null });
 						mapcalc(map, doc).rightClickButton(polyline);
-						storeData('polyline', polyline);
+						standardTutorialData.polyline = polyline;
 
 						dispatchLessonComplete();
 						google.maps.event.removeListener(onCompletePolyline);						
@@ -963,31 +980,36 @@ var spatialsurvey = function(map, doc) {
 				action: function() {	},
 				fixed: true,
 				advance: function() { 
-					var polyline = retrieveData('polyline');
-
+					var polyline = standardTutorialData.polyline;
 					editPolyline = 0;
+
+					// var circle = new google.maps.Marker({
+					// 	position: polyline.getPath().getAt(1),
+					// 	icon: getResourceUrl("circle1-white.png"),
+					// 	map: map
+					// });
 
 					function onEditPolyline() {
 						editPolyline += 1;
 						if ( editPolyline > 2 ) { 
 							dispatchLessonComplete();
-							google.maps.event.clearListeners(polyline.getPath(), 'insert_at');
-							google.maps.event.clearListeners(polyline.getPath(), 'remove_at');
-							google.maps.event.clearListeners(polyline.getPath(), 'set_at');
+							google.maps.event.removeListener(insertListener);
+							google.maps.event.clearListeners(removeListener);
+							google.maps.event.clearListeners(setListener);
 						}
 					}
 
-					google.maps.event.addListener(polyline.getPath(), 'insert_at', onEditPolyline);
-					google.maps.event.addListener(polyline.getPath(), 'remove_at', onEditPolyline);
-					google.maps.event.addListener(polyline.getPath(), 'set_at', onEditPolyline);
+					var insertListener = google.maps.event.addListener(polyline.getPath(), 'insert_at', onEditPolyline);
+					var removeListener = google.maps.event.addListener(polyline.getPath(), 'remove_at', onEditPolyline);
+					var setListener = google.maps.event.addListener(polyline.getPath(), 'set_at', onEditPolyline);
 				}
 			},
 			{
 				instruction: {
-					content: 'Each marker on the path represents a time.',
+					content: 'Click \'OK\' when you\'re ready to move on.  We\'ll freeze the path you\'ve drawn so you can focus on the times along the path.',
 					hasButton: true,
 					buttonText: 'OK',
-					width: 560,
+					width: 660,
 				},
 				fixed: true,
 			},
@@ -1001,7 +1023,7 @@ var spatialsurvey = function(map, doc) {
 				action: function() {	},
 				fixed: true,
 				advance: function() {
-					var polyline = retrieveData('polyline');
+					var polyline = standardTutorialData.polyline;
 
 					polyline.setOptions({ editable: false });
 					var timestamps = mapcalc(map, doc).distributeTimeStamps(polyline, '9 am', '3 pm');				 
@@ -1034,7 +1056,7 @@ var spatialsurvey = function(map, doc) {
 			{
 				instruction: {
 					content: 'Great!  You\'re ready for the survey.',
-					width: 460,
+					width: 380,
 					hasButton: true,
 					buttonText: 'NEXT'				
 				},
