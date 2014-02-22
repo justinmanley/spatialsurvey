@@ -164,16 +164,27 @@ html.thankyou {
   padding-top: 150px;
 }
 #tutorial-fixed-box,
-.tutorial-movable-box {
+.tutorial-movable-box,
+#error-box {
   font-family: 'Andada', serif;
   padding: 15px 20px;
   margin: 0px auto;
   background-color: #ffffff;
 }
+#tutorial-fixed-box#error-box,
+.tutorial-movable-box#error-box,
+#error-box#error-box {
+  font-size: 18pt;
+  height: 55px;
+  margin-bottom: 30px;
+  color: #ff0000;
+}
 #tutorial-fixed-box#tutorial-fixed-box,
 .tutorial-movable-box#tutorial-fixed-box,
+#error-box#tutorial-fixed-box,
 #tutorial-fixed-box #tutorial-fixed-text,
-.tutorial-movable-box #tutorial-fixed-text {
+.tutorial-movable-box #tutorial-fixed-text,
+#error-box #tutorial-fixed-text {
   font-size: 18pt;
   height: 55px;
   margin-bottom: 30px;
@@ -182,13 +193,16 @@ html.thankyou {
 }
 #tutorial-fixed-box#tutorial-fixed-box #tutorial-button,
 .tutorial-movable-box#tutorial-fixed-box #tutorial-button,
+#error-box#tutorial-fixed-box #tutorial-button,
 #tutorial-fixed-box #tutorial-fixed-text #tutorial-button,
-.tutorial-movable-box #tutorial-fixed-text #tutorial-button {
+.tutorial-movable-box #tutorial-fixed-text #tutorial-button,
+#error-box #tutorial-fixed-text #tutorial-button {
   width: 60px;
   margin: 14px 0px 14px 20px;
   float: left;
 }
 #tutorial-fixed-box.tutorial-movable-box,
-.tutorial-movable-box.tutorial-movable-box {
+.tutorial-movable-box.tutorial-movable-box,
+#error-box.tutorial-movable-box {
   height: 45px;
 }

@@ -736,7 +736,6 @@ var spatialsurvey = function(map, doc) {
 		var overlay = new google.maps.OverlayView();
 		overlay.draw = function() { };
 		overlay.setMap(map);
-		console.log(overlay);
 
 		var create = function(manager, lessons) {
 			drawingManager = manager;
@@ -884,7 +883,6 @@ var spatialsurvey = function(map, doc) {
 					clearFixed: true,
 					position: map.getCenter()
 				},
-				action: function() { },
 				advance: function() { },
 				fixed: true,
 			};
@@ -898,9 +896,11 @@ var spatialsurvey = function(map, doc) {
 			if ( thisLesson.fixed )
 				fixedTutorialBox(thisLesson.instruction);
 			else 
-				interactiveTutorialBox(thisLesson.instruction);
+				interactiveTutorialBox(thisLesson.instruction);				
 
-			thisLesson.action();
+			if ( error.isPending() )
+				error.show();
+
 			thisLesson.advance();
 		}
 
@@ -912,7 +912,6 @@ var spatialsurvey = function(map, doc) {
 					buttonText: 'NEXT',
 					width: 250
 				},
-				action: function() {	},
 				fixed: true,
 				advance: function() { 
 					function onFirstPoint() {
@@ -929,7 +928,6 @@ var spatialsurvey = function(map, doc) {
 					buttonText: 'NEXT',
 					width: 440
 				},
-				action: function() {	},
 				fixed: true,
 				advance: function() { 
 					var points = 0;
@@ -940,6 +938,8 @@ var spatialsurvey = function(map, doc) {
 							var browserCurxorY = event.detail.clientY;
 							var browserPoint = new google.maps.Point(browserCursorX, browserCurxorY);
 							standardTutorialData.position = proj.fromDivPixelToLatLng(browserPoint);
+
+							error.report('What, what, what are you doing?');
 
 							dispatchLessonComplete();
 							doc.removeEventListener('clicknodrag', onThirdPoint);							
@@ -957,17 +957,16 @@ var spatialsurvey = function(map, doc) {
 					buttonText: 'NEXT',
 					width: 440
 				},
-				action: function() {	},
 				fixed: true,
 				advance: function() { 
 					var onCompletePolyline = google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
 						drawingManager.setOptions({ drawingMode: null });
 						mapcalc(map, doc).rightClickButton(polyline);
-						standardTutorialData.polyline = polyline;
+						standardTutorialData.polyline = polyline;						
 
 						dispatchLessonComplete();
 						google.maps.event.removeListener(onCompletePolyline);						
-					});					
+					});				
 				}
 			},
 			{
@@ -977,7 +976,6 @@ var spatialsurvey = function(map, doc) {
 					buttonText: 'NEXT',
 					width: 560,
 				},
-				action: function() {	},
 				fixed: true,
 				advance: function() { 
 					var polyline = standardTutorialData.polyline;
@@ -1020,7 +1018,6 @@ var spatialsurvey = function(map, doc) {
 					buttonText: 'NEXT',
 					width: 560,
 				},
-				action: function() {	},
 				fixed: true,
 				advance: function() {
 					var polyline = standardTutorialData.polyline;
@@ -1070,6 +1067,47 @@ var spatialsurvey = function(map, doc) {
 		}
 	}());
 
+	var error = (function() {
+		var internal = {
+			'isError': false,
+			'message': ''
+		};
+
+		var errorBox = doc.createElement('div');
+		errorBox.id = 'error-box';
+
+		var isPending = function() {
+			return internal.isError;
+		}
+
+		var report = function(message) {
+			internal.isError = true;
+			internal.message = message;
+		};
+
+		var show = function() {
+			var currentContent = map.controls[google.maps.ControlPosition.BOTTOM_CENTER].pop();
+			map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
+			errorBox.innerHTML = internal.message;
+			map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(errorBox);
+
+			setTimeout(function() { 
+				map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();				
+				map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(currentContent);
+			}, 5000);					
+
+			// reset error indicator
+			internal.isError = false;
+			internal.message = '';
+		}
+
+		return {
+			'report': report,
+			'isPending': isPending,
+			'show': show
+		};
+	}());
+
 	String.prototype.capitalize = function() {
 	    return this.charAt(0).toUpperCase() + this.slice(1);
 	}
@@ -1083,6 +1121,7 @@ var spatialsurvey = function(map, doc) {
 		'sidebar': sidebar,
 		'showProgress': showProgress,	
 		'tutorial': tutorial,
+		'error': error,
 		'isValidTime': isValidTime
 
 	};

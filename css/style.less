@@ -192,11 +192,17 @@ html.thankyou {
 	padding-top: 150px;
 }
 
-#tutorial-fixed-box , .tutorial-movable-box  {
+#tutorial-fixed-box , .tutorial-movable-box, #error-box {
 	font-family: @slab-serif;
 	padding: 15px 20px;
 	margin: 0px auto;	
 	background-color: #ffffff;
+	&#error-box {
+		font-size: 18pt;
+		height: 55px;
+		margin-bottom: 30px;
+		color: #ff0000;
+	}
 	&#tutorial-fixed-box, #tutorial-fixed-text {
 		font-size: 18pt;
 		height: 55px;
