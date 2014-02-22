@@ -171,15 +171,22 @@ html.thankyou {
   background-color: #ffffff;
 }
 #tutorial-fixed-box#tutorial-fixed-box,
-.tutorial-movable-box#tutorial-fixed-box {
+.tutorial-movable-box#tutorial-fixed-box,
+#tutorial-fixed-box #tutorial-fixed-text,
+.tutorial-movable-box #tutorial-fixed-text {
   font-size: 18pt;
   height: 55px;
   margin-bottom: 30px;
+  margin-left: 0;
+  float: left;
 }
 #tutorial-fixed-box#tutorial-fixed-box #tutorial-button,
-.tutorial-movable-box#tutorial-fixed-box #tutorial-button {
+.tutorial-movable-box#tutorial-fixed-box #tutorial-button,
+#tutorial-fixed-box #tutorial-fixed-text #tutorial-button,
+.tutorial-movable-box #tutorial-fixed-text #tutorial-button {
   width: 60px;
   margin: 14px 0px 14px 20px;
+  float: left;
 }
 #tutorial-fixed-box.tutorial-movable-box,
 .tutorial-movable-box.tutorial-movable-box {

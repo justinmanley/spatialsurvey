@@ -717,7 +717,15 @@ var spatialsurvey = function(map, doc) {
 
 		// initialize the tutorialBox DOM element
 		var tutorialBox = doc.createElement('div');
+		var tutorialText = doc.createElement('div');
+		var button = doc.createElement('button');
+
 		tutorialBox.id = 'tutorial-fixed-box';		
+		tutorialText.id = 'tutorial-fixed-text';
+		button.id = 'tutorial-button';
+
+		tutorialBox.appendChild(tutorialText);
+		tutorialBox.appendChild(button);
 
 		var create = function(manager, lessons) {
 			drawingManager = manager;
@@ -750,15 +758,17 @@ var spatialsurvey = function(map, doc) {
 		function fixedTutorialBox(options) {
 			map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
 			infoBoxManager.clear('interactive');	
+			button.style.display = 'none';
 
-			tutorialBox.innerHTML = options.content;
 			tutorialBox.style.width = options.width + 'px';
+			tutorialText.innerHTML = options.content;
+			tutorialText.style.width = options.width + 'px';
 
 			if ( options.hasButton === true ) {
-				button = doc.createElement('button');
-				button.id = 'tutorial-button';
+				// need to provide more room if there is a button
+				tutorialBox.style.width = (options.width + 80) + 'px';
+				button.style.display = 'block';
 				button.innerHTML = options.buttonText;
-				tutorialBox.appendChild(button);
 
 				google.maps.event.addDomListener(button, 'click', function() {
 					dispatchLessonComplete();
@@ -819,25 +829,19 @@ var spatialsurvey = function(map, doc) {
 			var hasMoved = false;
 			addEventListener('mousedown', function(){
 				hasMoved = false;
-				console.log('down');
 				addEventListener('mousemove', onMove, false);
 				addEventListener('mouseup', onUp, false);				
 			}, false);	
 
 			function onMove() {
-				console.log('moved');
 				hasMoved = true;
 			}
 					
 			function onUp() {
-				console.log('up');
-				console.log(hasMoved);
-
 				removeEventListener('mousemove', onMove);
 				removeEventListener('mouseup', onUp);
 
 				if ( hasMoved === false ) {
-					console.log("new event!");
 					var clickNoDrag = new CustomEvent("clicknodrag", {
 						detail: {}
 					});
@@ -889,7 +893,7 @@ var spatialsurvey = function(map, doc) {
 			thisLesson.advance();
 		}
 
-		var standardLessons = [
+		var standardCurriculum = [
 			{
 				instruction: {
 					content: 'Click anywhere to start drawing.',
@@ -1039,7 +1043,7 @@ var spatialsurvey = function(map, doc) {
 		];		
 
 		return {
-			'standardLessons': standardLessons,
+			'standardCurriculum': standardCurriculum,
 			'create': create
 		}
 	}());
