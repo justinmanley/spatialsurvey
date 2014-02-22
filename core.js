@@ -713,11 +713,20 @@ var spatialsurvey = function(map, doc) {
 
 	var tutorial = (function() {
 		var drawingManager;
+
+		// used for sharing data between different lessons of standardTutorial
+		var standardTutorialData = {};
+
+		// for end-users of the framework extending standardTutorial or building their own tutorial
 		var tutorialData = {};
+
 
 		// initialize the tutorialBox DOM element
 		var tutorialBox = doc.createElement('div');
+		var tutorialText = doc.createElement('div');		
 		tutorialBox.id = 'tutorial-fixed-box';		
+		tutorialText.id = 'tutorial-fixed-text';
+		tutorialBox.appendChild(tutorialText);		
 
 		var create = function(manager, lessons) {
 			drawingManager = manager;
@@ -751,13 +760,18 @@ var spatialsurvey = function(map, doc) {
 			map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
 			infoBoxManager.clear('interactive');	
 
-			tutorialBox.innerHTML = options.content;
 			tutorialBox.style.width = options.width + 'px';
+			tutorialText.innerHTML = options.content;
+			tutorialText.style.width = options.width + 'px';
 
 			if ( options.hasButton === true ) {
+				// need to provide more room if there is a button
+				tutorialBox.style.width = (options.width + 80) + 'px';
+
 				button = doc.createElement('button');
 				button.id = 'tutorial-button';
 				button.innerHTML = options.buttonText;
+
 				tutorialBox.appendChild(button);
 
 				google.maps.event.addDomListener(button, 'click', function() {
@@ -819,25 +833,19 @@ var spatialsurvey = function(map, doc) {
 			var hasMoved = false;
 			addEventListener('mousedown', function(){
 				hasMoved = false;
-				console.log('down');
 				addEventListener('mousemove', onMove, false);
 				addEventListener('mouseup', onUp, false);				
 			}, false);	
 
 			function onMove() {
-				console.log('moved');
 				hasMoved = true;
 			}
 					
 			function onUp() {
-				console.log('up');
-				console.log(hasMoved);
-
 				removeEventListener('mousemove', onMove);
 				removeEventListener('mouseup', onUp);
 
 				if ( hasMoved === false ) {
-					console.log("new event!");
 					var clickNoDrag = new CustomEvent("clicknodrag", {
 						detail: {}
 					});
@@ -889,7 +897,7 @@ var spatialsurvey = function(map, doc) {
 			thisLesson.advance();
 		}
 
-		var standardLessons = [
+		var standardCurriculum = [
 			{
 				instruction: {
 					content: 'Click anywhere to start drawing.',
@@ -942,7 +950,9 @@ var spatialsurvey = function(map, doc) {
 					var onCompletePolyline = google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
 						drawingManager.setOptions({ drawingMode: null });
 						mapcalc(map, doc).rightClickButton(polyline);
-						storeData('polyline', polyline);
+
+						// store polyline so it can be retrieved for another lesson
+						standardTutorialData.polyline = polyline;
 
 						dispatchLessonComplete();
 						google.maps.event.removeListener(onCompletePolyline);						
@@ -959,7 +969,7 @@ var spatialsurvey = function(map, doc) {
 				action: function() {	},
 				fixed: true,
 				advance: function() { 
-					var polyline = retrieveData('polyline');
+					var polyline = standardTutorialData.polyline;
 
 					editPolyline = 0;
 
@@ -980,10 +990,10 @@ var spatialsurvey = function(map, doc) {
 			},
 			{
 				instruction: {
-					content: 'Each marker on the path represents a time.',
+					content: 'Click \'OK\' when you\'re ready to move on.  We\'ll freeze the path you\'ve drawn so you can focus on the times along the path.',
 					hasButton: true,
 					buttonText: 'OK',
-					width: 560,
+					width: 660,
 				},
 				fixed: true,
 			},
@@ -997,10 +1007,10 @@ var spatialsurvey = function(map, doc) {
 				action: function() {	},
 				fixed: true,
 				advance: function() {
-					var polyline = retrieveData('polyline');
+					var polyline = standardTutorialData.polyline;
 
 					polyline.setOptions({ editable: false });
-					var timestamps = mapcalc(map, doc).distributeTimeStamps(polyline, '9 am', '3 pm');				 
+					var timestamps = mapcalc(map, doc).distributeTimeStamps(polyline, '12:30 pm', '1:00 pm');				 
 
 					var timestampLearning = 0;
 					for (i = 0; i < timestamps.length; i++) {
@@ -1030,7 +1040,7 @@ var spatialsurvey = function(map, doc) {
 			{
 				instruction: {
 					content: 'Great!  You\'re ready for the survey.',
-					width: 460,
+					width: 380,
 					hasButton: true,
 					buttonText: 'NEXT'				
 				},
@@ -1039,7 +1049,7 @@ var spatialsurvey = function(map, doc) {
 		];		
 
 		return {
-			'standardLessons': standardLessons,
+			'standardCurriculum': standardCurriculum,
 			'create': create
 		}
 	}());
