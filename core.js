@@ -815,15 +815,18 @@ var spatialsurvey = function(map, doc) {
 		}		
 
 		var dispatchLessonComplete = (function() {
-			var indexCounter = 0;
-			return function() {
+			var lessonCounter = 0;
+			return function(i) {
+				if ( typeof i !== 'undefined' )
+					lessonCounter = i;
+
 				var lessonComplete = new CustomEvent("lessoncomplete", {
 					detail: {
-						'lessonIndex': indexCounter
+						'lessonIndex': lessonCounter
 					}
 				});
 				doc.dispatchEvent(lessonComplete);
-				indexCounter++;
+				lessonCounter++;
 			}
 		}());
 
@@ -904,24 +907,11 @@ var spatialsurvey = function(map, doc) {
 				fixed: true,
 				advance: function() { 
 					function onFirstPoint() {
-						dispatchLessonComplete();
+						console.log('first point');
+						dispatchLessonComplete(0);
 						doc.removeEventListener('clicknodrag', onFirstPoint);
 					}
 					doc.addEventListener('clicknodrag', onFirstPoint);
-
-					google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
-						var numberOfVertices = polyline.getPath().getArray().length;
-						var verticesString = numberOfVertices == 1 ? 'vertex' : 'vertices';
-						if ( numberOfVertices < 3 ) {
-							drawingManager.setDrawingMode(null);							
-							var errorMessage = 'You created a line with only ' + numberOfVertices + ' ' + verticesString + ', probably because you clicked twice on the same point.<br />To draw a line, single-click along your desired path to place vertices on the map.';
-							error.report(errorMessage, function() { 
-								polyline.setMap(null);
-								drawingManager.setOptions({ drawingMode: google.maps.drawing.OverlayType.POLYLINE});
-								nextLesson(standardCurriculum, 0);
-							});		
-						}					
-					});
 				}
 			},
 			{
@@ -933,31 +923,39 @@ var spatialsurvey = function(map, doc) {
 				},
 				fixed: true,
 				advance: function() { 
-					var points = 0;
+					var points = 1;
 					var proj = overlay.getProjection();
 					function onThirdPoint(event) {
-						if ( points == 2 ) {
+						if ( points == 3 ) {
 							var browserCursorX = event.detail.clientX;
 							var browserCurxorY = event.detail.clientY;
 							var browserPoint = new google.maps.Point(browserCursorX, browserCurxorY);
 							standardTutorialData.position = proj.fromDivPixelToLatLng(browserPoint);
 
+							console.log('at least three points in polyline');
 							dispatchLessonComplete();
 							doc.removeEventListener('clicknodrag', onThirdPoint);	
-							google.maps.event.removeListener(earlyPolylineComplete);						
 						} 
 						else 
 							points++;
 					}
 					doc.addEventListener('clicknodrag', onThirdPoint);
 
-					var earlyPolylineComplete = google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
-						if ( points < 2 ) {
-							drawingManager.setOptions({ drawingMode: null });
-							dispatchLessonComplete();
-							google.maps.event.removeListener(earlyPolylineComplete);
-						}
-					});			
+					var prematurePolylineComplete = google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
+						var numberOfVertices = polyline.getPath().getArray().length;
+						var verticesString = numberOfVertices == 1 ? 'vertex' : 'vertices';
+						if ( numberOfVertices < 3 ) {
+							doc.removeEventListener('clicknodrag', onThirdPoint);								
+							google.maps.event.removeListener(prematurePolylineComplete);
+
+							var errorMessage = 'You created a line with only ' + numberOfVertices + ' ' + verticesString + ', probably because you clicked twice on the same point.<br />To draw a line, single-click along your desired path to place vertices on the map.';
+							error.report(errorMessage, function() { 
+								polyline.setMap(null);
+								drawingManager.setOptions({ drawingMode: google.maps.drawing.OverlayType.POLYLINE});
+								nextLesson(standardCurriculum, 0);
+							});		
+						}					
+					});		
 				}
 			},
 			{
@@ -974,6 +972,7 @@ var spatialsurvey = function(map, doc) {
 						mapcalc(map, doc).rightClickButton(polyline);
 						standardTutorialData.polyline = polyline;						
 
+						console.log('path is completed')
 						dispatchLessonComplete();
 						google.maps.event.removeListener(onCompletePolyline);						
 					});				
