@@ -704,30 +704,16 @@ var spatialsurvey = function(map, doc) {
 	var tutorial = (function() {
 		var drawingManager;
 
-<<<<<<< HEAD
-		// used for sharing data between different lessons of standardTutorial
-		var standardTutorialData = {};
-
-		// for end-users of the framework extending standardTutorial or building their own tutorial
-		var tutorialData = {};
-=======
 		// for sharing data between different lessons in the standard tutorial
 		var standardTutorialData = {};
 
 		// for the end-user of the framework to share data 
 		// between different lessons in his/her custom tutorial
 		var userTutorialData = {};
->>>>>>> master
 
 
 		// initialize the tutorialBox DOM element
 		var tutorialBox = doc.createElement('div');
-<<<<<<< HEAD
-		var tutorialText = doc.createElement('div');		
-		tutorialBox.id = 'tutorial-fixed-box';		
-		tutorialText.id = 'tutorial-fixed-text';
-		tutorialBox.appendChild(tutorialText);		
-=======
 		var tutorialText = doc.createElement('div');
 		var button = doc.createElement('button');
 
@@ -741,9 +727,6 @@ var spatialsurvey = function(map, doc) {
 		var overlay = new google.maps.OverlayView();
 		overlay.draw = function() { };
 		overlay.setMap(map);
-
-		var mapCanvas = doc.getElementById('map-canvas');
->>>>>>> master
 
 		var create = function(manager, lessons) {
 			drawingManager = manager;
@@ -785,17 +768,9 @@ var spatialsurvey = function(map, doc) {
 			if ( options.hasButton === true ) {
 				// need to provide more room if there is a button
 				tutorialBox.style.width = (options.width + 80) + 'px';
-<<<<<<< HEAD
 
-				button = doc.createElement('button');
-				button.id = 'tutorial-button';
-				button.innerHTML = options.buttonText;
-
-				tutorialBox.appendChild(button);
-=======
 				button.style.display = 'block';
 				button.innerHTML = options.buttonText;
->>>>>>> master
 
 				google.maps.event.addDomListener(button, 'click', function() {
 					dispatchLessonComplete();
@@ -864,11 +839,7 @@ var spatialsurvey = function(map, doc) {
 				hasMoved = true;
 			}
 					
-<<<<<<< HEAD
-			function onUp() {
-=======
 			function onUp(event) {
->>>>>>> master
 				removeEventListener('mousemove', onMove);
 				removeEventListener('mouseup', onUp);
 
@@ -1020,10 +991,7 @@ var spatialsurvey = function(map, doc) {
 				fixed: true,
 				advance: function() { 
 					var polyline = standardTutorialData.polyline;
-<<<<<<< HEAD
 
-=======
->>>>>>> master
 					editPolyline = 0;
 
 					function onEditPolyline() {
@@ -1043,8 +1011,6 @@ var spatialsurvey = function(map, doc) {
 			},
 			{
 				instruction: {
-<<<<<<< HEAD
-=======
 					content: 'You can add new vertices to the line by dragging the dot in the middle of each segment.  Try it.',
 					hasButton: false,
 					buttonText: 'NEXT',
@@ -1105,7 +1071,6 @@ var spatialsurvey = function(map, doc) {
 			},			
 			{
 				instruction: {
->>>>>>> master
 					content: 'Click \'OK\' when you\'re ready to move on.  We\'ll freeze the path you\'ve drawn so you can focus on the times along the path.',
 					hasButton: true,
 					buttonText: 'OK',
