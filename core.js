@@ -727,13 +727,11 @@ var spatialsurvey = function(map, doc) {
 		overlay.draw = function() { };
 		overlay.setMap(map);
 
+		var mapCanvas = doc.getElementById('map-canvas');
+
 		var create = function(manager, lessons) {
 			drawingManager = manager;
-
 			var LESSON_START = 0;
-
-			polylineIsCompleted = false;
-			var polyline;
 
 			infoBoxManager.init('interactive');
 			initClickNoDrag();
@@ -749,6 +747,10 @@ var spatialsurvey = function(map, doc) {
 						return true;
 					}, function() { });
 				}
+			});
+
+			doc.addEventListener('mapUserError', function(event) {
+				error.show(event.detail.message, function() { event.detail.action(); });
 			});
 
 			nextLesson(lessons, LESSON_START);
@@ -888,9 +890,6 @@ var spatialsurvey = function(map, doc) {
 			else 
 				interactiveTutorialBox(thisLesson.instruction);				
 
-			if ( error.isPending() )
-				error.show();
-
 			thisLesson.advance();
 		}
 
@@ -905,10 +904,24 @@ var spatialsurvey = function(map, doc) {
 				fixed: true,
 				advance: function() { 
 					function onFirstPoint() {
-						dispatchLessonComplete(0);
+						dispatchLessonComplete();
 						doc.removeEventListener('clicknodrag', onFirstPoint);
 					}
 					doc.addEventListener('clicknodrag', onFirstPoint);
+
+					google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
+						var numberOfVertices = polyline.getPath().getArray().length;
+						var verticesString = numberOfVertices == 1 ? 'vertex' : 'vertices';
+						if ( numberOfVertices < 3 ) {
+							drawingManager.setDrawingMode(null);							
+							var errorMessage = 'You created a line with only ' + numberOfVertices + ' ' + verticesString + ', probably because you clicked twice on the same point.<br />To draw a line, single-click along your desired path to place vertices on the map.';
+							error.report(errorMessage, function() { 
+								polyline.setMap(null);
+								drawingManager.setOptions({ drawingMode: google.maps.drawing.OverlayType.POLYLINE});
+								nextLesson(standardCurriculum, 0);
+							});		
+						}					
+					});
 				}
 			},
 			{
@@ -930,20 +943,29 @@ var spatialsurvey = function(map, doc) {
 							standardTutorialData.position = proj.fromDivPixelToLatLng(browserPoint);
 
 							dispatchLessonComplete();
-							doc.removeEventListener('clicknodrag', onThirdPoint);							
+							doc.removeEventListener('clicknodrag', onThirdPoint);	
+							google.maps.event.removeListener(earlyPolylineComplete);						
 						} 
 						else 
 							points++;
 					}
-					doc.addEventListener('clicknodrag', onThirdPoint);				
+					doc.addEventListener('clicknodrag', onThirdPoint);
+
+					var earlyPolylineComplete = google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
+						if ( points < 2 ) {
+							drawingManager.setOptions({ drawingMode: null });
+							dispatchLessonComplete();
+							google.maps.event.removeListener(earlyPolylineComplete);
+						}
+					});			
 				}
 			},
 			{
 				instruction: {
-					content: 'Click again on the point you just drew to complete the path.',
+					content: 'To complete the path, click twice on the same point.',
 					hasButton: false,
 					buttonText: 'NEXT',
-					width: 440
+					width: 370
 				},
 				fixed: true,
 				advance: function() { 
@@ -959,7 +981,7 @@ var spatialsurvey = function(map, doc) {
 			},
 			{
 				instruction: {
-					content: 'Nice!  Now that you\'ve drawn a path, you can modify it by deleting or dragging vertices.  Give it a try!',
+					content: 'Nice!  Now that you\'ve drawn a path, you can modify it by dragging vertices.  Give it a try!',
 					hasButton: false,
 					buttonText: 'NEXT',
 					width: 560,
@@ -969,27 +991,81 @@ var spatialsurvey = function(map, doc) {
 					var polyline = standardTutorialData.polyline;
 					editPolyline = 0;
 
-					// var circle = new google.maps.Marker({
-					// 	position: polyline.getPath().getAt(1),
-					// 	icon: getResourceUrl("circle1-white.png"),
-					// 	map: map
-					// });
-
 					function onEditPolyline() {
 						editPolyline += 1;
-						if ( editPolyline > 2 ) { 
+						if ( editPolyline == 1 ) { 
 							dispatchLessonComplete();
 							google.maps.event.removeListener(insertListener);
-							google.maps.event.clearListeners(removeListener);
-							google.maps.event.clearListeners(setListener);
+							google.maps.event.removeListener(deleteListener);
+							google.maps.event.removeListener(setListener);
 						}
 					}
 
 					var insertListener = google.maps.event.addListener(polyline.getPath(), 'insert_at', onEditPolyline);
-					var removeListener = google.maps.event.addListener(polyline.getPath(), 'remove_at', onEditPolyline);
+					var deleteListener = google.maps.event.addListener(polyline.getPath(), 'remove_at', onEditPolyline);
 					var setListener = google.maps.event.addListener(polyline.getPath(), 'set_at', onEditPolyline);
 				}
 			},
+			{
+				instruction: {
+					content: 'You can add new vertices to the line by dragging the dot in the middle of each segment.  Try it.',
+					hasButton: false,
+					buttonText: 'NEXT',
+					width: 560,
+				},
+				fixed: true,
+				advance: function() {
+					var polyline = standardTutorialData.polyline;
+
+					var secondVertex = polyline.getPath().getAt(1);
+					var thirdVertex = polyline.getPath().getAt(2);
+
+					var midpointLatitude = secondVertex.lat() + (1/2)*(thirdVertex.lat() - secondVertex.lat());
+					var midpointLongitude = secondVertex.lng() + (1/2)*(thirdVertex.lng() - secondVertex.lng());
+
+					// var circle = new google.maps.Marker({
+					// 	position: new google.maps.LatLng(midpointLatitude, midpointLongitude),
+					// 	icon: { 
+					// 		url: getResourceUrl("circle2-white.png"), 
+					// 		anchor: new google.maps.Point(60,40)
+					// 	},
+					// 	map: map
+					// });
+					var arrow = new google.maps.Marker({
+						position: new google.maps.LatLng(midpointLatitude, midpointLongitude),
+						icon: { 
+							url: getResourceUrl("arrow-diagonal-down-small-white.png"), 
+							anchor: new google.maps.Point(75,80)
+						},
+						map: map						
+					});
+
+					function onInsertPoint() {
+						dispatchLessonComplete();
+						arrow.setMap(null);
+						google.maps.event.removeListener(insertListener);
+					}
+					var insertListener = google.maps.event.addListener(polyline.getPath(), 'insert_at', onInsertPoint);
+				}				
+			},
+			{
+				instruction: {
+					content: 'You can delete vertices by right-clicking on a vertex.  Try deleting a point.',
+					hasButton: false,
+					buttonText: 'NEXT',
+					width: 560,
+				},
+				fixed: true,
+				advance: function() {
+					var polyline = standardTutorialData.polyline;
+
+					function onDeletePoint() {
+						dispatchLessonComplete();
+						google.maps.event.removeListener(deleteListener);
+					}
+					var deleteListener = google.maps.event.addListener(polyline.getPath(), 'remove_at', onDeletePoint);
+				}				
+			},			
 			{
 				instruction: {
 					content: 'Click \'OK\' when you\'re ready to move on.  We\'ll freeze the path you\'ve drawn so you can focus on the times along the path.',
@@ -1056,42 +1132,47 @@ var spatialsurvey = function(map, doc) {
 	}());
 
 	var error = (function() {
-		var internal = {
-			'isError': false,
-			'message': ''
-		};
-
 		var errorBox = doc.createElement('div');
+		var errorText = doc.createElement('div');
+		var errorAcknowledgeButton = doc.createElement('button');
 		errorBox.id = 'error-box';
+		errorText.id = 'error-text';
+		errorAcknowledgeButton.id = 'error-acknowledge-button';
+		errorAcknowledgeButton.innerHTML = 'OK';
+		errorBox.appendChild(errorText);
+		errorBox.appendChild(errorAcknowledgeButton);
 
-		var isPending = function() {
-			return internal.isError;
+		var report = function(message, action) {
+			if ( typeof action === 'undefined')
+				var action = function() { };
+
+			var mapUserError = new CustomEvent('mapUserError', {
+				detail: {
+					'message': message,
+					'action': action
+				}
+			});
+
+			doc.dispatchEvent(mapUserError);
 		}
 
-		var report = function(message) {
-			internal.isError = true;
-			internal.message = message;
-		};
-
-		var show = function() {
+		var show = function(message, action) {
 			var currentContent = map.controls[google.maps.ControlPosition.BOTTOM_CENTER].pop();
 			map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
-			errorBox.innerHTML = internal.message;
-			map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(errorBox);
+			errorText.innerHTML = message;
+			map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(errorBox);	
 
-			setTimeout(function() { 
+			var errorAcknowledged = google.maps.event.addDomListener(errorAcknowledgeButton, 'click', function() {
+				google.maps.event.removeListener(errorAcknowledged);
 				map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();				
 				map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(currentContent);
-			}, 5000);					
-
-			// reset error indicator
-			internal.isError = false;
-			internal.message = '';
+				
+				action();
+			});						
 		}
 
 		return {
 			'report': report,
-			'isPending': isPending,
 			'show': show
 		};
 	}());

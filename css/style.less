@@ -15,7 +15,7 @@ body {
 
 @button-height: 29px; 
 @button-margin: 30px;
-#next-page-button, #previous-page-button, #next-instruction, #tutorial-button {
+#next-page-button, #previous-page-button, #next-instruction, #tutorial-button, #error-acknowledge-button {
 	background: -webkit-linear-gradient(top,#4387fd,#4683ea);
 	background: linear-gradient(top,#4387fd,#4683ea);
 	background: #357ae8;
@@ -201,25 +201,24 @@ html.thankyou {
 	padding: 15px 20px;
 	margin: 0px auto;	
 	background-color: #ffffff;
-	&#error-box {
-		font-size: 18pt;
-		height: 55px;
-		margin-bottom: 30px;
-		color: #ff0000;
-	}
-	&#tutorial-fixed-box, #tutorial-fixed-text {
-		font-size: 18pt;
-		height: 55px;
-		margin-bottom: 30px;
-		margin-left: 0;
-		float: left;		
-		#tutorial-button {
-			width: 60px;
-			margin: 14px 0px 14px 20px;
-			float: left;
-		}				
+	&#tutorial-fixed-box, &#error-box {
+		min-height: 55px;	
+		margin-bottom: 30px;	
 	}
 	&.tutorial-movable-box {
 		height: 45px;
-	}
+	}	
+	#tutorial-fixed-text, #error-text {
+		font-size: 18pt;
+		margin-left: 0;
+		float: left;	
+		&#error-text {
+			color: #ff0000;
+		}				
+	}		
+}
+#tutorial-button, #error-acknowledge-button {
+	width: 60px;
+	margin: 14px 0px 14px 20px;
+	float: left;
 }

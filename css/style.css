@@ -13,7 +13,8 @@ body {
 #next-page-button,
 #previous-page-button,
 #next-instruction,
-#tutorial-button {
+#tutorial-button,
+#error-acknowledge-button {
   background: -webkit-linear-gradient(top, #4387fd, #4683ea);
   background: linear-gradient(top, #4387fd, #4683ea);
   background: #357ae8;
@@ -176,38 +177,41 @@ html.thankyou {
   margin: 0px auto;
   background-color: #ffffff;
 }
-#tutorial-fixed-box#error-box,
-.tutorial-movable-box#error-box,
-#error-box#error-box {
-  font-size: 18pt;
-  height: 55px;
-  margin-bottom: 30px;
-  color: #ff0000;
-}
 #tutorial-fixed-box#tutorial-fixed-box,
 .tutorial-movable-box#tutorial-fixed-box,
 #error-box#tutorial-fixed-box,
-#tutorial-fixed-box #tutorial-fixed-text,
-.tutorial-movable-box #tutorial-fixed-text,
-#error-box #tutorial-fixed-text {
-  font-size: 18pt;
-  height: 55px;
+#tutorial-fixed-box#error-box,
+.tutorial-movable-box#error-box,
+#error-box#error-box {
+  min-height: 55px;
   margin-bottom: 30px;
-  margin-left: 0;
-  float: left;
-}
-#tutorial-fixed-box#tutorial-fixed-box #tutorial-button,
-.tutorial-movable-box#tutorial-fixed-box #tutorial-button,
-#error-box#tutorial-fixed-box #tutorial-button,
-#tutorial-fixed-box #tutorial-fixed-text #tutorial-button,
-.tutorial-movable-box #tutorial-fixed-text #tutorial-button,
-#error-box #tutorial-fixed-text #tutorial-button {
-  width: 60px;
-  margin: 14px 0px 14px 20px;
-  float: left;
 }
 #tutorial-fixed-box.tutorial-movable-box,
 .tutorial-movable-box.tutorial-movable-box,
 #error-box.tutorial-movable-box {
   height: 45px;
+}
+#tutorial-fixed-box #tutorial-fixed-text,
+.tutorial-movable-box #tutorial-fixed-text,
+#error-box #tutorial-fixed-text,
+#tutorial-fixed-box #error-text,
+.tutorial-movable-box #error-text,
+#error-box #error-text {
+  font-size: 18pt;
+  margin-left: 0;
+  float: left;
+}
+#tutorial-fixed-box #tutorial-fixed-text#error-text,
+.tutorial-movable-box #tutorial-fixed-text#error-text,
+#error-box #tutorial-fixed-text#error-text,
+#tutorial-fixed-box #error-text#error-text,
+.tutorial-movable-box #error-text#error-text,
+#error-box #error-text#error-text {
+  color: #ff0000;
+}
+#tutorial-button,
+#error-acknowledge-button {
+  width: 60px;
+  margin: 14px 0px 14px 20px;
+  float: left;
 }
