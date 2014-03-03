@@ -15,45 +15,64 @@ body {
 
 @button-height: 29px; 
 @button-margin: 30px;
-#next-page-button, #previous-page-button, #next-instruction, #tutorial-button, #error-acknowledge-button {
-	background: -webkit-linear-gradient(top,#4387fd,#4683ea);
-	background: linear-gradient(top,#4387fd,#4683ea);
-	background: #357ae8;
+@button-background: #357ae8;
+@button-blue-first: #4387fd;
+@button-blue-second: #4683ea;
+.dowsing-button {
+	background: -webkit-linear-gradient(top, @button-blue-first, @button-blue-second);
+	background: linear-gradient(top, @button-blue-first, @button-blue-second);
+	background: @button-background;
 	border: 0px;
 	height: @button-height;
 	width: 80px;
 	margin: @button-margin 10px;
 	color: #ffffff;
 	font-weight: bold;
+	&.dowsing-button-grey {
+		@bgf: luma(@button-blue-first);
+		@bgs: luma(@button-blue-second);
+		@bb: luma(@button-background);
+		@button-grey-first: lighten(rgb(@bgf, @bgf, @bgf), 20%);
+		@button-grey-second: lighten(rgb(@bgs, @bgs, @bgs), 20%);
+		@button-grey-background: lighten(rgb(@bb, @bb, @bb), 20%);
+		background: -webkit-linear-gradient(top, @button-grey-first, @button-grey-second);
+		background: linear-gradient(top, @button-grey-first, @button-grey-second);
+		background: @button-grey-background;		
+	}	
 }
 
 #instructions-sidebar {
 	width: 180px;
-	height: 340px;
 	padding: 10px 15px;
 	background-color: #ffffff;
 	margin-right: 30px;
 	font-family: 'Andada' serif;
-
 	#start-end-time-question {
 		float: left;
 		margin-left: 10px;	
 		margin-bottom: 20px;	
 		input {
 			width: 65px;
+			padding: 5px 5px;
 			border-radius:3px;
 			background-color: #d3d3d3;		
 		}
 	}
-
 	p, label {
 		font-size: 140%;
 	}
-
 	input#day-of-week { 
 		width: 160px;
 	}
-
+	.sidebar-button {
+		width: 150px;
+		margin: 0 auto;	
+		.dowsing-button {
+			width: 150px;
+			position: static;
+			margin: 5px 0;			
+		}			
+	}
 }
 
 .timestamp-opened {
@@ -64,7 +83,13 @@ body {
 			padding: 5px;
 			width: 50px;
 			background-color: #f2f2f2;
-		}		
+			float: left;
+		}	
+		fieldset {
+			border-width: 0;
+			width: 130px;
+			padding: 0;
+		}	
 	}
 	.timestamp-label {
 		font-size: 11pt;

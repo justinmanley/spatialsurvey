@@ -106,11 +106,15 @@ for ($i = 0; $i < sizeof($data->timestamps); $i++) {
 
   $lat = $data->timestamps[$i]->position->lat;
   $lng = $data->timestamps[$i]->position->lng;
-  $time = $data->timestamps[$i]->time;
+  $startTime = $data->timestamps[$i]->startTime;
+  if ( array_key_exists('endTime', $data->timestamps[$i]) )
+    $timeString = $startTime . ', ' . $data->timestamps[$i]->endTime;
+  else
+    $timeString = $startTime;
 
   $timestamps .= <<<timestamp
   <Placemark id="ID_$timestamp_id">
-    <name>$time</name>
+    <name>$timeString</name>
     <Snippet></Snippet>
     <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
 

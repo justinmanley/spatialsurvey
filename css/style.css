@@ -10,11 +10,7 @@ body {
 #map-canvas {
   height: 100%;
 }
-#next-page-button,
-#previous-page-button,
-#next-instruction,
-#tutorial-button,
-#error-acknowledge-button {
+.dowsing-button {
   background: -webkit-linear-gradient(top, #4387fd, #4683ea);
   background: linear-gradient(top, #4387fd, #4683ea);
   background: #357ae8;
@@ -25,9 +21,13 @@ body {
   color: #ffffff;
   font-weight: bold;
 }
+.dowsing-button.dowsing-button-grey {
+  background: -webkit-linear-gradient(top, #b6b6b6, #b0b0b0);
+  background: linear-gradient(top, #b6b6b6, #b0b0b0);
+  background: #a6a6a6;
+}
 #instructions-sidebar {
   width: 180px;
-  height: 340px;
   padding: 10px 15px;
   background-color: #ffffff;
   margin-right: 30px;
@@ -40,6 +40,7 @@ body {
 }
 #instructions-sidebar #start-end-time-question input {
   width: 65px;
+  padding: 5px 5px;
   border-radius: 3px;
   background-color: #d3d3d3;
 }
@@ -50,6 +51,15 @@ body {
 #instructions-sidebar input#day-of-week {
   width: 160px;
 }
+#instructions-sidebar .sidebar-button {
+  width: 150px;
+  margin: 0 auto;
+}
+#instructions-sidebar .sidebar-button .dowsing-button {
+  width: 150px;
+  position: static;
+  margin: 5px 0;
+}
 .timestamp-opened {
   font-family: 'Andada', serif;
 }
@@ -58,6 +68,12 @@ body {
   padding: 5px;
   width: 50px;
   background-color: #f2f2f2;
+  float: left;
+}
+.timestamp-opened form fieldset {
+  border-width: 0;
+  width: 130px;
+  padding: 0;
 }
 .timestamp-opened .timestamp-label {
   font-size: 11pt;

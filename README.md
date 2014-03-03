@@ -5,12 +5,4 @@ Spatialsurvey is a survey platform for geographic/spatial queries built using th
 
 Spatialsurvey is extremely lightweight with few dependencies other than the Google Maps Javascript API itself (it doesn't even depend on jQuery).
 
-Spatialsurvey exports two modules, spatialsurvey, and mapcalc.
-
-mapcalc
--------------
-mapcalc.closestPointOnPolyline(polyline, point)
-
-mapcalc.distributeTimeStamps(polyline, startTime, endTime)
-
-mapcalc.placeMarker(point)
+Full documentation coming soon.
