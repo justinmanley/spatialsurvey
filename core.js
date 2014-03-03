@@ -2,33 +2,6 @@ var spatialsurvey = function(map, doc) {
 
 	var map = map;
 
-	// ---------------------------------------------------------------
-	var timeAndPlace = function(data)
-	// ---------------------------------------------------------------
-	//		data = 
-	// 		{
-	//			time     : number from 0 - 23
-	// 			position : google.maps.LatLng object 
-	// 		}
-	{
-		var that = {};
-
-		var getTime = function() { return data.time; };
-		that.getTime = getTime;
-
-		var getPosition = function() { return data.position; };
-		that.getPosition = getPosition; 
-
-		return that;
-	}
-
-	// ----------------------------------------------------------------
-	var TransitType = function() 
-	// ----------------------------------------------------------------
-	{
-		//
-	}
-
 	// ----------------------------------------------------------------
 	var personPath = function(data) 
 	// ----------------------------------------------------------------
@@ -101,15 +74,14 @@ var spatialsurvey = function(map, doc) {
 
 		var getTimestamps = function() {
 			var timestampWindows = doc.getElementsByClassName('timestamp-form');
-			debug(timestampWindows, 'timestampWindows');
 			var timestamps = [];
 			for(var i = 0; i < timestampWindows.length; i++) {
-
-				var time = timestampWindows[i].getElementsByClassName('timestamp')[0].value;
+				var startTime = timestampWindows[i].querySelector('input[name=start-time]').value;
+				var endTime = timestampWindows[i].querySelector('input[name=end-time]').value;
 				var lat = timestampWindows[i].getElementsByClassName('timestamp-position-lat')[0].value;
 				var lng = timestampWindows[i].getElementsByClassName('timestamp-position-lng')[0].value;
 
-				timestamps.push({ 'time': time, 'position': { 'lat': lat, 'lng': lng }});
+				timestamps.push({ 'startTime': startTime, 'endTime': endTime, 'position': { 'lat': lat, 'lng': lng }});
 			}
 			return timestamps;
 		}		
@@ -131,8 +103,24 @@ var spatialsurvey = function(map, doc) {
 
 		var display = function(callback) {
 			load(function(){
-				getPolyline().setMap(map);
-				mapcalc(map, doc).distributeTimeStamps(getPolyline(), that.getStartTime(), that.getEndTime());
+				var polyline = getPolyline();
+				polyline.setMap(map);
+
+				timestamp({
+					polyline: polyline,
+					position: polyline.getPath().getAt(0),
+					startTime: that.getStartTime(),
+					type: 'single',
+					openOnCreate: false
+				}).create();
+
+				timestamp({
+					polyline: polyline,
+					position: polyline.getPath().getArray().last(),
+					startTime: that.getEndTime(),
+					type: 'single',
+					openOnCreate: false
+				}).create();				
 			}, callback);			
 		};
 		that.display = display;
@@ -186,7 +174,7 @@ var spatialsurvey = function(map, doc) {
 		nextForm.innerHTML = '<input type="hidden" name="' + type + '-name" id="' + type + '-name" value="' + destination + '"/>'+
 								'<input type="hidden" name="current-page-name" id="current-page-name" value="'+currentPageName+'"/>'+
 								'<input type="hidden" name="path-data" id="' + type + '-path-data"/>'+
-								'<button type="button" id="' + type + '-button">NEXT</button>';
+								'<button type="button" class="dowsing-button" id="' + type + '-button">NEXT</button>';
 		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextForm);	
 
 		google.maps.event.addDomListenerOnce(nextForm, 'click', function() {
@@ -231,28 +219,32 @@ var spatialsurvey = function(map, doc) {
 	}
 
 	// -------------------------------------------------------------
-	var timestampOpenedContent = function(position, timeString) 
+	var timestampOpenedContent = function(options) 
 	// -------------------------------------------------------------
 	{
-		if ( typeof timeString === 'undefined') { var timeString = ''; }		
+		if ( typeof options.startTime === 'undefined') { options.startTime = ''; };		
+		if ( typeof options.endTime === 'undefined') { options.endTime = ''; };		
 		var info = document.createElement('div');
 		info.setAttribute('class', 'timestamp-opened timestamp-container');
 
 
 		info.innerHTML = '<form class="timestamp-form" onclick="false">'+
+				'<label class="timestamp-label" for="time">Time</label>'+
 				'<br />'+
-				'<input type="text" name="time" class="timestamp" value="'+timeString+'"/>'+
-				'<input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + position.lat() + '"/>'+
-				'<input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + position.lng() + '"/>'+
+				'<fieldset class="timestamp-data">'+
+					'<input type="text" name="start-time" class="timestamp" value="'+options.startTime+'"/>'+
+					'<input type="text" name="end-time" class="timestamp" value="'+options.endTime+'"/>'+
+					'<input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + options.position.lat() + '"/>'+
+					'<input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + options.position.lng() + '"/>'+
+				'</fieldset>'+
 			'</form>';
-		var infoLabel = document.createElement('label');
-		infoLabel.setAttribute('class', 'timestamp-label');
-		infoLabel.setAttribute('for', 'time');
-		infoLabel.innerHTML = 'Time';
-		info.insertBefore(infoLabel, info.firstChild);	
 
-		function getTime() {
-			return info.querySelector('.timestamp').value;
+		function getStartTime() {
+			return info.querySelector('.timestamp[name=start-time]').value;
+		}
+
+		function getEndTime() {
+			return info.querySelector('.timestamp[name=end-time]').value;
 		}
 
 		function clearTime() {
@@ -261,56 +253,43 @@ var spatialsurvey = function(map, doc) {
 
 		return {
 			'content': info,
-			'label': infoLabel,
-			'getTime': getTime,
+			'getStartTime': getStartTime,
+			'getEndTime': getEndTime,
 			'clearTime': clearTime
 		};
 	}
 
 	// --------------------------------------------------------------
-	var timestampClosedContent = function(position, timeString) 
+	var timestampClosedContent = function(options) 
 	// --------------------------------------------------------------
 	{
-		if ( typeof timeString === 'undefined') { var timeString = ''; }
-		var placeholder = document.createElement('div');
+		if ( typeof options.startTime === 'undefined') { options.startTime = ''; }
+		if ( typeof options.endTime === 'undefined') { options.endTime = ''; }
 
-		var label = document.createElement('div');
-		label.setAttribute('class', 'timestamp-label');
-		label.innerHTML = timeString;
-
-		var indicatorColor = new MultiColorGradient();
-		indicatorColor.setNumberRange([5.5, 9, 13, 15, 21]);
-		indicatorColor.setGradient(['#000080', '#ffea00', '#fff04d', '#ffea00', '#000080']);
-		indicatorColor.generateGradient();
-
-		var daytimeIndicator = document.createElement('div');
-		daytimeIndicator.setAttribute('class', 'daytime-indicator');
-		if (timeString !=='')
-			daytimeIndicator.setAttribute('style', 'background-color: ' + '#' + String(indicatorColor.colorAt(timestringToInteger(timeString))));
+		var placeholder = doc.createElement('div');
+		var separator = options.type === 'double' ? ' - ' : '';
 
 		placeholder.setAttribute('class', 'timestamp-closed timestamp-container');
 		placeholder.innerHTML = '<form class="timestamp-form">'+
-				'<input type="hidden" name="time" class="timestamp" value="'+timeString+'"/>'+				
-				'<input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + position.lat() + '"/>'+
-				'<input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + position.lng() + '"/>'+
+				'<label for="start-time" class="timestamp-label">'+options.startTime+'</label>'+
+				separator+
+				'<input type="hidden" name="start-time" class="timestamp" value="'+options.startTime+'"/>'+	
+				'<label for="end-time" class="timestamp-label">'+options.endTime+'</label>'+							
+				'<input type="hidden" name="end-time" class="timestamp" value="'+options.endTime+'"/>'+				
+				'<input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + options.position.lat() + '"/>'+
+				'<input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + options.position.lng() + '"/>'+
 			'</form>';
-		placeholder.insertBefore(label, placeholder.firstChild);
-		placeholder.insertBefore(daytimeIndicator, placeholder.firstChild);
 
-		function updateTime(updatedTimeString) {
-			label.innerHTML = updatedTimeString;
-			placeholder.querySelector('.timestamp').value = updatedTimeString;			
-		}
-
-		function updateColor(updatedTimeString) {
-			daytimeIndicator.setAttribute('style', 'background-color: ' + '#' + String(indicatorColor.colorAt(timestringToInteger(updatedTimeString))));
+		function updateTimes(updatedStartTime, updatedEndTime) {
+			placeholder.querySelector('input[name=start-time]').value = updatedStartTime;
+			placeholder.querySelector('input[name=end-time]').value = updatedEndTime;
+			placeholder.querySelector('label[for=start-time]').innerHTML = updatedStartTime;
+			placeholder.querySelector('label[for=end-time]').innerHTML = updatedEndTime;			
 		}
 
 		return {
 			'content': placeholder,
-			'label': label,
-			'updateTime': updateTime,
-			'updateColor': updateColor
+			'updateTimes': updateTimes
 		};
 	}
 
@@ -384,43 +363,154 @@ var spatialsurvey = function(map, doc) {
 	}());
 
 // ---------------------------------------------------------------------
-	var timestamp = function(polyline, position, timeString, openOnCreation)
+	var timestamp = function(options)
 // ---------------------------------------------------------------------	
 	{
-		var timestamp = {};
-		var open = typeof openOnCreation === 'undefined' ? false : openOnCreation;
-		var openedContent = timestampOpenedContent(position, timeString);
-		var closedContent = timestampClosedContent(position, timeString);
+		var data = {
+			polyline: new google.maps.Polyline({}),
+			position: new google.maps.LatLng({}),
+			startTime: '',
+			endTime: '',
+			type: 'double',
+			openOnCreate: true
+		}
+
+		for ( property in options ) {
+			if ( options.hasOwnProperty(property) ) {
+				data[property] = options[property];
+			}
+		}
+
+		var timestamp = {};		
+		var openedContent = timestampOpenedContent(data);
+		var closedContent = timestampClosedContent(data);		
 	
 		timestamp.create = function() {
-			if ( timestamp.isOpen() ) {
+			if ( data.openOnCreate ) {
 				timestamp.opened.open(map, timestamp.pyramid);
-				timestamp.pyramid.setMap(map);
 				open = true;
 			}				
 			else {
 				timestamp.closed.open(map, timestamp.pyramid);
-				timestamp.pyramid.setMap(map);				
 				open = false;					
 			}
+			timestamp.pyramid.setMap(map);
 			return timestamp;
 		}
 
-		var overlay = new google.maps.OverlayView();
-		overlay.draw = function() {};
-		overlay.setMap(map);
+		timestamp.opened = new InfoBox({
+			content: openedContent.content,
+			position: data.position,
+			boxStyle: {
+				background: '#ffffff',
+				opacity: 1,
+				padding: '5px',
+				width: '130px',
+				height: '60px',
+				'border-radius': '7px'
+			},
+			closeBoxURL: getResourceUrl('close-icon.png'),
+			pixelOffset: new google.maps.Size(-68,-95),
+			map: map
+		});
+		timestamp.closed = new InfoBox({
+			content: closedContent.content,
+			position: data.position,
+			boxStyle: {
+				background: '#ffffff',
+				opacity: 1,
+				padding: '5px',
+				width: '105px',
+				height: '20px',
+				'border-radius': '7px'
+			},
+			closeBoxURL: "",
+			pixelOffset: new google.maps.Size(-55,-55)
+		});		
+		timestamp.pyramid = new google.maps.Marker({
+			icon: { url: getResourceUrl('pyramid.png'), anchor: new google.maps.Point(10,30) },
+			shape: { type: "rect", coords: [0,0,20,20] },
+			position: data.position,
+			map: map		
+		});
+		timestamp.open = function() {
+			timestamp.opened.open(map, timestamp.pyramid);
+			timestamp.pyramid.setMap(map);
+			open = true;
+		}
+		timestamp.close = function() {
+			var startTime = openedContent.getStartTime();
+			var endTime = openedContent.getEndTime();
+			if ( isValidTime(startTime) && ( isValidTime(endTime) || data.type === 'single' ) ) {
+				timestamp.opened.setMap(null);
 
-		closedContent.content.addEventListener('mousedown', function() {
-			addEventListener('mousemove', dragTimestamp, true);
-			google.maps.event.clearListeners(closedContent.label, 'click');
-		}, false);
-		addEventListener('mouseup', function() {
-			google.maps.event.addDomListener(closedContent.label, 'click', function() { timestamp.open();   });
-			removeEventListener('mousemove', dragTimestamp, true);			
-		}, false);
+				closedContent.updateTimes(startTime, endTime);
+				// closedContent.updateColor(startTime, endTime);	
 
-		var startPixelY;
-		var startPixelX;
+				timestamp.closed.open(map, timestamp.pyramid);
+				open = false;							
+			} 
+			else {
+				openedContent.clearTime();
+				var inputs = openedContent.content.getElementsByClassName('timestamp');
+				var oldColor = inputs[0].style.backgroundColor;
+				for (i = 0; i < inputs.length; i++) {
+					(function(thisInput) {
+						inputs[i].style.backgroundColor = '#ff4e4e';
+						setTimeout(function() { inputs[thisInput].style.backgroundColor = oldColor }, 1000);
+					}(i));
+				}
+			}
+		}
+		timestamp.isOpen = function() {
+			return open;
+		}
+		timestamp.savePosition = function(position) {
+			timestamp.opened.getContent().getElementsByClassName('timestamp-position-lat')[0].value = position.lat();
+			timestamp.opened.getContent().getElementsByClassName('timestamp-position-lng')[0].value = position.lng();
+
+			timestamp.closed.getContent().getElementsByClassName('timestamp-position-lat')[0].value = position.lat();
+			timestamp.closed.getContent().getElementsByClassName('timestamp-position-lng')[0].value = position.lng();	
+		}
+
+		if ( data.type == 'double' ) {
+			timestamp.pyramid.setDraggable(true);
+			google.maps.event.addListener(timestamp.pyramid, 'drag', function(event) {
+				var dragPosition = mapcalc(map, doc).closestPointOnPolyline(data.polyline, timestamp.pyramid.getPosition());
+				timestamp.pyramid.setPosition(dragPosition);		
+			});		
+			google.maps.event.addListener(timestamp.pyramid, 'dragend', function(event) {
+				timestamp.closed.setPosition(event.latLng);
+				timestamp.savePosition(event.latLng);
+			});			
+
+			google.maps.event.addListener(timestamp.opened, 'closeclick', function() {
+				timestamp.pyramid.setMap(null);
+				timestamp.opened.setMap(null);
+				timestamp.closed.setMap(null);
+			});	
+
+			var overlay = new google.maps.OverlayView();
+			overlay.draw = function() {};
+			overlay.setMap(map);
+
+			var closedForm = closedContent.content.getElementsByClassName('timestamp-form')[0];
+			google.maps.event.addDomListener(closedForm, 'mousedown', function() {
+				var onTimestampDrag = google.maps.event.addDomListener(doc, 'mousemove', function(event) {
+					dragTimestamp(event);
+				});
+				google.maps.event.addDomListener(doc, 'mouseup', function() {
+					google.maps.event.removeListener(onTimestampDrag);
+				});			
+			});
+
+			var openedLabel = openedContent.content.querySelectorAll('label[for=time]')[0];
+			google.maps.event.addDomListener(openedLabel, 'click', function() { timestamp.close();  });
+			google.maps.event.addDomListener(closedForm, 'click', function() { timestamp.open();   });			
+
+			var startPixelY;
+			var startPixelX;							
+		}
 
 		function dragTimestamp(event) {
 			pauseEvent(event);
@@ -431,7 +521,7 @@ var spatialsurvey = function(map, doc) {
 
 			if ( typeof startPixelX !== 'undefined' ) {
 				var newPoint = new google.maps.Point(p.x + (event.x - startPixelX), p.y + (event.y - startPixelY));
-				var newLatLng = mapcalc(map, doc).closestPointOnPolyline(polyline, proj.fromContainerPixelToLatLng(newPoint));
+				var newLatLng = mapcalc(map, doc).closestPointOnPolyline(data.polyline, proj.fromContainerPixelToLatLng(newPoint));
 				timestamp.closed.setPosition(newLatLng);
 				timestamp.pyramid.setPosition(newLatLng);
 			}
@@ -446,95 +536,8 @@ var spatialsurvey = function(map, doc) {
 		    e.cancelBubble=true;
 		    e.returnValue=false;
 		    return false;
-		}		
+		}			
 
-		timestamp.opened = new InfoBox({
-			content: openedContent.content,
-			position: position,
-			boxStyle: {
-				background: '#ffffff',
-				opacity: 1,
-				padding: '5px',
-				width: '65px',
-				height: '60px',
-				'border-radius': '7px'
-			},
-			closeBoxURL: getResourceUrl('close-icon.png'),
-			pixelOffset: new google.maps.Size(-34,-95),
-			map: map
-		});
-		timestamp.closed = new InfoBox({
-			content: closedContent.content,
-			position: position,
-			boxStyle: {
-				background: '#ffffff',
-				opacity: 1,
-				padding: '5px',
-				width: '65px',
-				height: '20px',
-				'border-radius': '7px'
-			},
-			closeBoxURL: "",
-			pixelOffset: new google.maps.Size(-34,-55)
-		});		
-		timestamp.pyramid = new google.maps.Marker({
-			icon: { url: getResourceUrl('pyramid.png'), anchor: new google.maps.Point(10,30) },
-			shape: { type: "rect", coords: [0,0,20,20] },
-			position: position,
-			draggable: true,
-			map: map		
-		});
-		timestamp.open = function() {
-			timestamp.opened.open(map, timestamp.pyramid);
-			timestamp.pyramid.setMap(map);
-			open = true;
-		}
-		timestamp.close = function() {
-			var updatedTime = openedContent.getTime();
-			if (isValidTime(updatedTime)) {
-				timestamp.opened.setMap(null);
-
-				closedContent.updateTime(updatedTime);
-				closedContent.updateColor(updatedTime);	
-
-				timestamp.closed.open(map, timestamp.pyramid);
-				open = false;							
-			} 
-			else {
-				openedContent.clearTime();
-				var oldColor = openedContent.content.querySelector('.timestamp').style.backgroundColor;
-				openedContent.content.querySelector('.timestamp').style.backgroundColor = '#ff4e4e';
-				setTimeout(function() { openedContent.content.querySelector('.timestamp').style.backgroundColor = oldColor }, 1000);
-			}
-		}
-		timestamp.isOpen = function() {
-			return open;
-		}
-		timestamp.savePosition = function(position) {
-			timestamp.opened.getContent().getElementsByClassName('timestamp-position-lat')[0].value = position.lat();
-			timestamp.opened.getContent().getElementsByClassName('timestamp-position-lng')[0].value = position.lng();
-
-			timestamp.closed.getContent().getElementsByClassName('timestamp-position-lat')[0].value = position.lat();
-			timestamp.closed.getContent().getElementsByClassName('timestamp-position-lng')[0].value = position.lng();	
-		}
-
-		google.maps.event.addListener(timestamp.pyramid, 'drag', function(event) {
-			var dragPosition = mapcalc(map, doc).closestPointOnPolyline(polyline, timestamp.pyramid.getPosition());
-			timestamp.pyramid.setPosition(dragPosition);		
-		});		
-		google.maps.event.addListener(timestamp.pyramid, 'dragend', function(event) {
-			timestamp.closed.setPosition(event.latLng);
-			timestamp.savePosition(event.latLng);
-		});			
-
-		google.maps.event.addDomListener(openedContent.label, 'click', function() { timestamp.close();  });
-		google.maps.event.addDomListener(closedContent.label, 'click', function() { timestamp.open();   });
-
-		google.maps.event.addListener(timestamp.opened, 'closeclick', function() {
-			timestamp.pyramid.setMap(null);
-			timestamp.opened.setMap(null);
-			timestamp.closed.setMap(null);
-		});	
 
 		return timestamp;
 	}
@@ -629,7 +632,7 @@ var spatialsurvey = function(map, doc) {
 				'</div>'+				
 				'<div id="instructions-main-content">'+
 				'</div><!-- #instructions-main-content -->'+
-				'<button id="next-instruction">Next</button>'+				
+				'<button class="dowsing-button" id="next-instruction">Next</button>'+				
 			  '</div><!-- #instructions-main -->';
 		}
 
@@ -644,12 +647,19 @@ var spatialsurvey = function(map, doc) {
 	var sidebar = (function() {
 		// set defaults
 		data = {
-			content: [],
-			sidebarOpenOnCreate: true
+			content: '',
+			height: 395,
+			sidebarOpenOnCreate: true,
+			sidebarId: 'instructions-sidebar',
+			help: {
+				content: '', 
+				teaser: '',
+				contentId: 'help-content',
+				teaserId: 'help-teaser'
+			}
 		};
 
 		var sidebar = doc.createElement('div');
-		sidebar.id = 'instructions-sidebar';
 
 		var create = function(options) {
 			// initialize data object
@@ -658,10 +668,24 @@ var spatialsurvey = function(map, doc) {
 					data[property] = options[property];
 				}
 			}
+			sidebar.id = data.sidebarId;
+			sidebar.innerHTML = data.content;
+			sidebar.style.height = data.height;		
+
+			var help = doc.createElement('div');
+			var helpContent = doc.createElement('div');
+			var helpTeaser = doc.createElement('p');
+			help.id = 'help-panel';
+			helpContent.id = data.help.contentId;
+			helpTeaser.id = data.help.teaserId;
+			helpContent.innerHTML = data.help.content;
+			helpTeaser.innerHTML = data.help.teaser;
+
+			sidebar.appendChild(helpTeaser);
+			sidebar.appendChild(helpContent);
 
 			var show = function() {
 				sidebar.style.display = 'block';	
-				sidebar.innerHTML = data.content;	
 
 				map.controls[google.maps.ControlPosition.RIGHT_CENTER].clear();
 				map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sidebar);						
@@ -671,13 +695,33 @@ var spatialsurvey = function(map, doc) {
 				sidebar.style.display = 'none';			
 			};
 
+			var toggleHelp = function() {
+				var sidebar = doc.getElementById(data.sidebarId);
+				var openListener = google.maps.event.addDomListener(helpTeaser, 'click', function() {
+					helpContent.style.display = 'block';		
+					map.controls[google.maps.ControlPosition.RIGHT_CENTER].clear();
+					map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sidebar);
+					google.maps.event.removeListener(openListener);
+					var closeListener = google.maps.event.addDomListener(helpTeaser, 'click', function() {
+						helpContent.style.display = 'none';
+						google.maps.event.removeListener(closeListener);
+						map.controls[google.maps.ControlPosition.RIGHT_CENTER].clear();
+						map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sidebar);				
+						toggleHelp();
+					});
+				});					
+			};			
+
 			return {
 				'show': show,
-				'hide': hide
+				'hide': hide,
+				'toggleHelp': toggleHelp
 			};		
-		};
+		};	
 
-		return { 'create': create };
+		return { 
+			'create': create,
+		};
 	}());
 
 	var showProgress = function(currentScreen, max, description) 
@@ -720,6 +764,7 @@ var spatialsurvey = function(map, doc) {
 		tutorialBox.id = 'tutorial-fixed-box';		
 		tutorialText.id = 'tutorial-fixed-text';
 		button.id = 'tutorial-button';
+		button.setAttribute('class', 'dowsing-button');
 
 		tutorialBox.appendChild(tutorialText);
 		tutorialBox.appendChild(button);
@@ -730,17 +775,15 @@ var spatialsurvey = function(map, doc) {
 
 		var create = function(manager, lessons) {
 			drawingManager = manager;
-			var LESSON_START = 0;
+			var TUTORIAL_START = 0;
 
 			infoBoxManager.init('interactive');
 			initClickNoDrag();
 
 			doc.addEventListener("lessoncomplete", function(event) {
-				console.log("lessoncomplete");
-				console.log(event.detail.lessonIndex);
 				if ( event.detail.lessonIndex + 1 < lessons.length )
 					nextLesson(lessons, event.detail.lessonIndex + 1);
-				else if ( event.detail.lessonIndex == lessons.length ) {
+				else if ( event.detail.lessonIndex == lessons.length - 1 ) {
 					map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
 					showNextButton({}, 'start', 'tutorial', function() {
 						return true;
@@ -752,7 +795,7 @@ var spatialsurvey = function(map, doc) {
 				error.show(event.detail.message, function() { event.detail.action(); });
 			});
 
-			nextLesson(lessons, LESSON_START);
+			nextLesson(lessons, TUTORIAL_START);
 
 		}
 
@@ -878,7 +921,7 @@ var spatialsurvey = function(map, doc) {
 					clearFixed: true,
 					position: map.getCenter()
 				},
-				advance: function() { },
+				advance: function() { }, 
 				fixed: true,
 			};
 
@@ -899,7 +942,7 @@ var spatialsurvey = function(map, doc) {
 		var standardCurriculum = [
 			{
 				instruction: {
-					content: 'Click anywhere to start drawing.',
+					content: 'Click anywhere on the map to start drawing.',
 					hasButton: false,
 					buttonText: 'NEXT',
 					width: 250
@@ -907,7 +950,6 @@ var spatialsurvey = function(map, doc) {
 				fixed: true,
 				advance: function() { 
 					function onFirstPoint() {
-						console.log('first point');
 						dispatchLessonComplete(0);
 						doc.removeEventListener('clicknodrag', onFirstPoint);
 					}
@@ -1025,14 +1067,6 @@ var spatialsurvey = function(map, doc) {
 					var midpointLatitude = secondVertex.lat() + (1/2)*(thirdVertex.lat() - secondVertex.lat());
 					var midpointLongitude = secondVertex.lng() + (1/2)*(thirdVertex.lng() - secondVertex.lng());
 
-					// var circle = new google.maps.Marker({
-					// 	position: new google.maps.LatLng(midpointLatitude, midpointLongitude),
-					// 	icon: { 
-					// 		url: getResourceUrl("circle2-white.png"), 
-					// 		anchor: new google.maps.Point(60,40)
-					// 	},
-					// 	map: map
-					// });
 					var arrow = new google.maps.Marker({
 						position: new google.maps.LatLng(midpointLatitude, midpointLongitude),
 						icon: { 
@@ -1067,55 +1101,7 @@ var spatialsurvey = function(map, doc) {
 					}
 					var deleteListener = google.maps.event.addListener(polyline.getPath(), 'remove_at', onDeletePoint);
 				}				
-			},			
-			{
-				instruction: {
-					content: 'Click \'OK\' when you\'re ready to move on.  We\'ll freeze the path you\'ve drawn so you can focus on the times along the path.',
-					hasButton: true,
-					buttonText: 'OK',
-					width: 660,
-				},
-				fixed: true,
 			},
-			{
-				instruction: {
-					content: 'You can drag times around, or edit them by clicking on the time.  Give it a try!',
-					hasButton: false,
-					buttonText: 'NEXT',
-					width: 560,
-				},
-				fixed: true,
-				advance: function() {
-					var polyline = standardTutorialData.polyline;
-
-					polyline.setOptions({ editable: false });
-					var timestamps = mapcalc(map, doc).distributeTimeStamps(polyline, '12:30 pm', '1:00 pm');				 
-
-					var timestampLearning = 0;
-					for (i = 0; i < timestamps.length; i++) {
-						// var onTimestampDrag = google.maps.event.addListener(timestamps[i].pyramid, 'dragend', function() {
-						// 	timestampLearning += 1;
-						// 	if ( timestampLearning > 2 ) {
-						// 		dispatchLessonComplete();
-								
-						// 	}
-						// });
-						addEventListener('mouseup', function() {
-							timestampLearning += 1;
-							if ( timestampLearning > 5 ) {
-								console.log(timestampLearning);
-								dispatchLessonComplete();
-								removeEventListener('mouseup', arguments.callee, false);
-							}								
-						});
-					}
-					// function clearTimestampListeners() {
-					// 	for (i = 0; i < timestamps.length; i++) {
-					// 		google.maps.event.removeListener();							
-					// 	}
-					// }
-				}
-			},														
 			{
 				instruction: {
 					content: 'Great!  You\'re ready for the survey.',
@@ -1125,7 +1111,7 @@ var spatialsurvey = function(map, doc) {
 				},
 				fixed: true
 			}								
-		];		
+		];
 
 		return {
 			'standardCurriculum': standardCurriculum,
@@ -1140,6 +1126,7 @@ var spatialsurvey = function(map, doc) {
 		errorBox.id = 'error-box';
 		errorText.id = 'error-text';
 		errorAcknowledgeButton.id = 'error-acknowledge-button';
+		errorAcknowledgeButton.setAttribute('class', 'dowsing-button');
 		errorAcknowledgeButton.innerHTML = 'OK';
 		errorBox.appendChild(errorText);
 		errorBox.appendChild(errorAcknowledgeButton);
@@ -1567,7 +1554,12 @@ var mapcalc = function(map, doc)
 			'oldI': 0,
 			'verticalSpillover': 0
 		};
-		var timestamp = spatialsurvey(map, doc).timestamp(polyline, closestPointOnPolyline(polyline, thisTimestampInfo.basePoint), startTime, false);	
+		var timestamp = spatialsurvey(map, doc).timestamp({
+			polyline: polyline, 
+			position: closestPointOnPolyline(polyline, thisTimestampInfo.basePoint), 
+			startTime: startTime,
+			endTime: endTime			
+		});	
 		timestamp.create();
 		timestampCollection.push(timestamp);
 
