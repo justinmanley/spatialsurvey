@@ -2,8 +2,11 @@ var spatialsurvey = function(map, doc) {
 
 	var map = map;
 
+	// verbose should be true only in a development environment
+	var verbose = true;	
+
 	// ----------------------------------------------------------------
-	var personPath = function(data) 
+	var pathData = function(data) 
 	// ----------------------------------------------------------------
 	/*		
 		data = 
@@ -15,53 +18,31 @@ var spatialsurvey = function(map, doc) {
 				transit-type   : 
 				day			   : Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday 
 		
-				next-page-name : NOT USED in personPath
+				next-page-name : NOT USED in pathData
 			}                                         
 	*/
 	{
 		// var doc = doc;
 		var data = data || {};
-		var that = {};
 
-		// verbose should be true only in a development environment
-		var verbose = true;
-		var dataStringProperties = ['timestamps'];
-
-		var debug = function(object, description) {
-			if (verbose) {
-				if (typeof description !== 'undefined')
-					console.log(description);			
-				console.log(object);			
-			}
-		}
-
-		var setAttr = function(property, value) { data[property] = value; }
-		var getAttr = function(property) { return data[property]; };
-
-		// create getters, setters, and add property to the toString method
-		var addProperty = function(property) {
-			that['set' + property.capitalize()] = function(value) { setAttr(property, value); };
-			that['get' + property.capitalize()] = function() { return getAttr(property); };
-
-			dataStringProperties.push(property);
-		}
+		var dataStringProperties = ['timestamps', 'endTime', 'startTime'];
 
 		// takes an array of LatLng coordinates: i.e. input should be the result of polyline.getPath().getArray()
-		var setPath = function(path) { data.path = path };
-		that.setPath = setPath;
+		var setPolylineCoordinates = function(path) { data.path = path };
 
 		// returns an array of LatLng coordinates
-		var getPath = function() { return data.path || new Array(); };
-		that.getPath = getPath;
+		var getPolylineCoordinates = function() { return data.path || new Array(); };
 
-		addProperty('startTime');
-		addProperty('endTime');
-		addProperty('timestamps');
+		var getStartTime = function() { return data.startTime; };
+		var getEndTime = function() { return data.endTime; };
+
+		var setStartTime = function(startTime) { data.startTime = startTime; };
+		var setEndTime = function(endTime) { data.endTime = endTime; };
 
 		var getPolyline = function() {
 			if (typeof data.polyline === 'undefined') {
 				var polyline = new google.maps.Polyline({
-					path: getPath(),
+					path: getPolylineCoordinates(),
 					strokeColor: '#4387fd',
 					strokeWeight: 4,
 					clickable: false
@@ -70,7 +51,6 @@ var spatialsurvey = function(map, doc) {
 			}
 			return data.polyline;
 		}
-		that.getPolyline = getPolyline;
 
 		var getTimestamps = function() {
 			var timestampWindows = doc.getElementsByClassName('timestamp-form');
@@ -99,34 +79,9 @@ var spatialsurvey = function(map, doc) {
 			}
 			return JSON.stringify(stringable); 
 		};
-		that.toString = toString;
-
-		var display = function(callback) {
-			load(function(){
-				var polyline = getPolyline();
-				polyline.setMap(map);
-
-				timestamp({
-					polyline: polyline,
-					position: polyline.getPath().getAt(0),
-					startTime: that.getStartTime(),
-					type: 'single',
-					openOnCreate: false
-				}).create();
-
-				timestamp({
-					polyline: polyline,
-					position: polyline.getPath().getArray().last(),
-					startTime: that.getEndTime(),
-					type: 'single',
-					openOnCreate: false
-				}).create();				
-			}, callback);			
-		};
-		that.display = display;
 
 		// load data from previous screens
-		var load = function(internalCallback, userCallback) {
+		var load = function(onNoData, onDataReceipt) {
 			conn = new XMLHttpRequest();
 			conn.overrideMimeType('application/json');
 			conn.open('GET', '../../dowsing-js/polyline.php', true);
@@ -135,15 +90,47 @@ var spatialsurvey = function(map, doc) {
 				if (this.status !== 200 ) return; 
 				debug(this.responseText);
 				data = eval("(" + JSON.parse(this.responseText) + ")");
-				setPath(data.path.map(createLatLng));
-				internalCallback();
-				userCallback();
+				debug(data);
+				if ( !isEmptyObject(data) ) {
+					setPolylineCoordinates(data.path.map(createLatLng));
+					onDataReceipt();				
+				}
+				else
+					onNoData();
 			};
 			conn.send();
+
+			function isEmptyObject(obj) {
+				var key;
+				for (key in obj) {
+					if (obj.hasOwnProperty(key))
+						return false;
+				}
+				return true;
+			}
 		}
 
-		return that;
+		return {
+			'load': load,
+			'toString': toString,
+			'getPolyline': getPolyline,
+			'getStartTime': getStartTime,
+			'getEndTime': getEndTime,
+			'getTimestamps': getTimestamps,
+			'getPolylineCoordinates': getPolylineCoordinates,
+			'setPolylineCoordinates': setPolylineCoordinates,
+			'setStartTime': setStartTime,
+			'setEndTime': setEndTime
+		};
 	}
+
+	function debug(object, description) {
+		if (verbose) {
+			if (typeof description !== 'undefined')
+				console.log(description);			
+			console.log(object);			
+		}
+	}	
 
 	var createLatLng = function(coord) {
 		return new google.maps.LatLng(coord.lat, coord.lng);
@@ -1169,7 +1156,7 @@ var spatialsurvey = function(map, doc) {
 
 	// public methods and constructors for module spatialsurvey
 	return {
-		'personPath': personPath, 
+		'pathData': pathData, 
 		'showNextButton': showNextButton,
 		'timestamp': timestamp,
 		'instructions': instructions,
