@@ -89,7 +89,10 @@ var spatialsurvey = function(map, doc) {
 				if (this.readyState !== 4 ) return; 
 				if (this.status !== 200 ) return; 
 				debug(this.responseText);
-				data = eval("(" + JSON.parse(this.responseText) + ")");
+				if ( this.responseText === "{}" )
+					data = new Object();
+				else
+					data = eval("(" + JSON.parse(this.responseText) + ")");
 				debug(data);
 				if ( !isEmptyObject(data) ) {
 					setPolylineCoordinates(data.path.map(createLatLng));
