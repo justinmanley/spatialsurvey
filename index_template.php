@@ -9,6 +9,7 @@
 			src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=drawing,geometry&sensor=false">
 		</script>
 		<script type="text/javascript" src="../../dowsing-js/resources/infobox.js"></script>
+		<script type="text/javascript" src="../../dowsing-js/resources/prefixfree.min.js"></script>
 		<script type="text/javascript" src="../../dowsing-js/core.js"></script>
 		<script type="text/javascript" src="../../dowsing-js/colors/rainbowvis.js"></script>		
 		<script type="text/javascript" src="index.js"></script>
