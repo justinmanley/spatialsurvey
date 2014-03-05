@@ -3,7 +3,7 @@ var spatialsurvey = function(map, doc) {
 	var map = map;
 
 	// verbose should be true only in a development environment
-	var verbose = true;	
+	var verbose = false;	
 
 	// ----------------------------------------------------------------
 	var pathData = function(data) 
