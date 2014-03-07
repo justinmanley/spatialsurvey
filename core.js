@@ -39,7 +39,7 @@ var spatialsurvey = function(map, doc) {
 		var setStartTime = function(startTime) { data.startTime = startTime; };
 		var setEndTime = function(endTime) { data.endTime = endTime; };
 
-		var setEmptyResponse = function() { data.response = false; }
+		var setHasResponse = function(bool) { data.response = bool; }
 
 		var getPolyline = function() {
 			if (typeof data.polyline === 'undefined') {
@@ -130,7 +130,7 @@ var spatialsurvey = function(map, doc) {
 			'setPolylineCoordinates': setPolylineCoordinates,
 			'setStartTime': setStartTime,
 			'setEndTime': setEndTime,
-			'setEmptyResponse': setEmptyResponse
+			'setHasResponse': setHasResponse
 		};
 	}
 
