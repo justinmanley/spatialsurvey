@@ -23,7 +23,7 @@ var spatialsurvey = function(map, doc) {
 	*/
 	{
 		// var doc = doc;
-		var data = data || {};
+		var data = data || { response: true };
 
 		var dataStringProperties = ['timestamps', 'endTime', 'startTime'];
 
@@ -38,6 +38,8 @@ var spatialsurvey = function(map, doc) {
 
 		var setStartTime = function(startTime) { data.startTime = startTime; };
 		var setEndTime = function(endTime) { data.endTime = endTime; };
+
+		var setEmptyResponse = function() { data.response = false; }
 
 		var getPolyline = function() {
 			if (typeof data.polyline === 'undefined') {
@@ -67,16 +69,20 @@ var spatialsurvey = function(map, doc) {
 		}		
 
 		var toString = function() {
-			var stringable = new Object();		
-			stringable.path = data.path.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
+			var stringable = new Object();	
 
-			data.timestamps = getTimestamps();
-			debug(getTimestamps(), 'timestamps');
+			// user has provided the empty response
+			if ( data.response ) {
+				stringable.path = data.path.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
 
-			for (i = 0; i < dataStringProperties.length; i++) {
-				var name = dataStringProperties[i];
-				if (data.hasOwnProperty(name)) { stringable[name] = data[name]; };	
-			}
+				data.timestamps = getTimestamps();
+				debug(getTimestamps(), 'timestamps');
+
+				for (i = 0; i < dataStringProperties.length; i++) {
+					var name = dataStringProperties[i];
+					if (data.hasOwnProperty(name)) { stringable[name] = data[name]; };	
+				}
+			}	
 			return JSON.stringify(stringable); 
 		};
 
@@ -123,7 +129,8 @@ var spatialsurvey = function(map, doc) {
 			'getPolylineCoordinates': getPolylineCoordinates,
 			'setPolylineCoordinates': setPolylineCoordinates,
 			'setStartTime': setStartTime,
-			'setEndTime': setEndTime
+			'setEndTime': setEndTime,
+			'setEmptyResponse': setEmptyResponse
 		};
 	}
 
@@ -154,7 +161,7 @@ var spatialsurvey = function(map, doc) {
 	/* Add elements to the page */
 
 // -------------------------------------------------------------------------------------
-	var showButton = function(data, destination, type, currentPageName, validate, errorHandler) 
+	var showButton = function(data, destination, type, currentPageName, validate) 
 // -------------------------------------------------------------------------------------
 	{
 		var nextForm = doc.createElement('form');
@@ -166,12 +173,6 @@ var spatialsurvey = function(map, doc) {
 								'<input type="hidden" name="path-data" id="' + type + '-path-data"/>'+
 								'<button type="button" class="dowsing-button" id="' + type + '-button">NEXT</button>';
 		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextForm);	
-
-		google.maps.event.addDomListenerOnce(nextForm, 'click', function() {
-			if ( !validate() ) {
-				errorHandler();						
-			}
-		});
 
 		google.maps.event.addDomListener(nextForm, 'click', function() {
 			if ( validate() ) { 
@@ -195,17 +196,17 @@ var spatialsurvey = function(map, doc) {
 	}
 
 	// -------------------------------------------------------------
-	var showNextButton = function(data, destination, currentPageName, validate, errorHandler) 
+	var showNextButton = function(data, destination, currentPageName, validate) 
 	// -------------------------------------------------------------
 	{
-		showButton(data, destination, 'next-page', currentPageName, validate, errorHandler);
+		showButton(data, destination, 'next-page', currentPageName, validate);
 	}
 
 	// -------------------------------------------------------------
-	var showPreviousButton = function(data, destination, currentPageName, validate, errorHandler) 
+	var showPreviousButton = function(data, destination, currentPageName, validate) 
 	// -------------------------------------------------------------
 	{
-		showButton(data, destination, 'previous-page', currentPageName, validate, errorHandler);
+		showButton(data, destination, 'previous-page', currentPageName, validate);
 	}
 
 	// -------------------------------------------------------------
@@ -700,12 +701,20 @@ var spatialsurvey = function(map, doc) {
 						toggleHelp();
 					});
 				});					
-			};			
+			};	
+
+			var refresh = function(action) {
+				action();
+				var thisSidebar = doc.getElementById('instructions-sidebar');
+				map.controls[google.maps.ControlPosition.RIGHT_CENTER].clear();
+				map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(thisSidebar);						
+			};	
 
 			return {
 				'show': show,
 				'hide': hide,
-				'toggleHelp': toggleHelp
+				'toggleHelp': toggleHelp,
+				'refresh': refresh
 			};		
 		};	
 
