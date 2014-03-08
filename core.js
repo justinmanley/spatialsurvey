@@ -6,133 +6,138 @@ var spatialsurvey = function(map, doc) {
 	var verbose = true;	
 
 	// ----------------------------------------------------------------
-	var pathData = function(data) 
+	var pathData = (function() 
 	// ----------------------------------------------------------------
-	/*		
-		data = 
-			{
-				path 	 	   : Array of LatLng coordinates
-				timestamps     : Array of TimeAt objects
-				start-time	   : timeAndPlace objects
-				end-time	   : timeAndPlace object
-				transit-type   : 
-				day			   : Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday 
-		
-				next-page-name : NOT USED in pathData
-			}                                         
-	*/
 	{
-		// var doc = doc;
-		var data = data || { response: true };
+		/*		
+			data = 
+				{
+					path 	 	   : Array of LatLng coordinates
+					timestamps     : Array of TimeAt objects
+					start-time	   : timeAndPlace objects
+					end-time	   : timeAndPlace object
+					transit-type   : 
+					day			   : Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday 
+			
+					next-page-name : NOT USED in pathData
+				}                                         
+		*/		
+		var create = function(data) {
+			// var doc = doc;
+			var data = data || { response: true };
 
-		var dataStringProperties = ['timestamps', 'endTime', 'startTime'];
+			var dataStringProperties = ['timestamps', 'endTime', 'startTime'];
 
-		// takes an array of LatLng coordinates: i.e. input should be the result of polyline.getPath().getArray()
-		var setPolylineCoordinates = function(path) { data.path = path };
+			// takes an array of LatLng coordinates: i.e. input should be the result of polyline.getPath().getArray()
+			var setPolylineCoordinates = function(path) { data.path = path };
 
-		// returns an array of LatLng coordinates
-		var getPolylineCoordinates = function() { return data.path || new Array(); };
+			// returns an array of LatLng coordinates
+			var getPolylineCoordinates = function() { return data.path || new Array(); };
 
-		var getStartTime = function() { return data.startTime; };
-		var getEndTime = function() { return data.endTime; };
+			var getStartTime = function() { return data.startTime; };
+			var getEndTime = function() { return data.endTime; };
 
-		var setStartTime = function(startTime) { data.startTime = startTime; };
-		var setEndTime = function(endTime) { data.endTime = endTime; };
+			var setStartTime = function(startTime) { data.startTime = startTime; };
+			var setEndTime = function(endTime) { data.endTime = endTime; };
 
-		var setHasResponse = function(bool) { data.response = bool; }
+			var setHasResponse = function(bool) { data.response = bool; }
 
-		var getPolyline = function() {
-			if (typeof data.polyline === 'undefined') {
-				var polyline = new google.maps.Polyline({
-					path: getPolylineCoordinates(),
-					strokeColor: '#4387fd',
-					strokeWeight: 4,
-					clickable: false
-				});
-				data.polyline = polyline;
-			}
-			return data.polyline;
-		}
-
-		var getTimestamps = function() {
-			var timestampWindows = doc.getElementsByClassName('timestamp-form');
-			var timestamps = [];
-			for(var i = 0; i < timestampWindows.length; i++) {
-				var startTime = timestampWindows[i].querySelector('input[name=start-time]').value;
-				var endTime = timestampWindows[i].querySelector('input[name=end-time]').value;
-				var lat = timestampWindows[i].getElementsByClassName('timestamp-position-lat')[0].value;
-				var lng = timestampWindows[i].getElementsByClassName('timestamp-position-lng')[0].value;
-
-				timestamps.push({ 'startTime': startTime, 'endTime': endTime, 'position': { 'lat': lat, 'lng': lng }});
-			}
-			return timestamps;
-		}		
-
-		var toString = function() {
-			var stringable = new Object();	
-
-			// user has provided the empty response
-			if ( data.response ) {
-				stringable.path = data.path.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
-
-				data.timestamps = getTimestamps();
-				debug(getTimestamps(), 'timestamps');
-
-				for (i = 0; i < dataStringProperties.length; i++) {
-					var name = dataStringProperties[i];
-					if (data.hasOwnProperty(name)) { stringable[name] = data[name]; };	
+			var getPolyline = function() {
+				if (typeof data.polyline === 'undefined') {
+					var polyline = new google.maps.Polyline({
+						path: getPolylineCoordinates(),
+						strokeColor: '#4387fd',
+						strokeWeight: 4,
+						clickable: false
+					});
+					data.polyline = polyline;
 				}
-			}	
-			return JSON.stringify(stringable); 
-		};
+				return data.polyline;
+			}
 
-		// load data from previous screens
-		var load = function(onNoData, onDataReceipt) {
-			conn = new XMLHttpRequest();
-			conn.overrideMimeType('application/json');
-			conn.open('GET', '../../dowsing-js/polyline.php', true);
-			conn.onreadystatechange = function() {
-				if (this.readyState !== 4 ) return; 
-				if (this.status !== 200 ) return; 
-				debug(this.responseText);
-				if ( this.responseText === "{}" )
-					data = new Object();
-				else
-					data = eval("(" + JSON.parse(this.responseText) + ")");
-				debug(data);
-				if ( !isEmptyObject(data) ) {
-					setPolylineCoordinates(data.path.map(createLatLng));
-					onDataReceipt();				
+			var getTimestamps = function() {
+				var timestampWindows = doc.getElementsByClassName('timestamp-form');
+				var timestamps = [];
+				for(var i = 0; i < timestampWindows.length; i++) {
+					var startTime = timestampWindows[i].querySelector('input[name=start-time]').value;
+					var endTime = timestampWindows[i].querySelector('input[name=end-time]').value;
+					var lat = timestampWindows[i].getElementsByClassName('timestamp-position-lat')[0].value;
+					var lng = timestampWindows[i].getElementsByClassName('timestamp-position-lng')[0].value;
+
+					timestamps.push({ 'startTime': startTime, 'endTime': endTime, 'position': { 'lat': lat, 'lng': lng }});
 				}
-				else
-					onNoData();
+				return timestamps;
+			}		
+
+			var toString = function() {
+				var stringable = new Object();	
+
+				// user has provided the empty response
+				if ( data.response ) {
+					stringable.path = data.path.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
+
+					data.timestamps = getTimestamps();
+					debug(getTimestamps(), 'timestamps');
+
+					for (i = 0; i < dataStringProperties.length; i++) {
+						var name = dataStringProperties[i];
+						if (data.hasOwnProperty(name)) { stringable[name] = data[name]; };	
+					}
+				}	
+				return JSON.stringify(stringable); 
 			};
-			conn.send();
 
-			function isEmptyObject(obj) {
-				var key;
-				for (key in obj) {
-					if (obj.hasOwnProperty(key))
-						return false;
+			// load data from previous screens
+			var load = function(onNoData, onDataReceipt) {
+				conn = new XMLHttpRequest();
+				conn.overrideMimeType('application/json');
+				conn.open('GET', '../../dowsing-js/polyline.php', true);
+				conn.onreadystatechange = function() {
+					if (this.readyState !== 4 ) return; 
+					if (this.status !== 200 ) return; 
+					debug(this.responseText);
+					if ( this.responseText === "{}" )
+						data = new Object();
+					else
+						data = eval("(" + JSON.parse(this.responseText) + ")");
+					debug(data);
+					if ( !isEmptyObject(data) ) {
+						setPolylineCoordinates(data.path.map(createLatLng));
+						onDataReceipt();				
+					}
+					else
+						onNoData();
+				};
+				conn.send();
+
+				function isEmptyObject(obj) {
+					var key;
+					for (key in obj) {
+						if (obj.hasOwnProperty(key))
+							return false;
+					}
+					return true;
 				}
-				return true;
 			}
-		}
 
-		return {
-			'load': load,
-			'toString': toString,
-			'getPolyline': getPolyline,
-			'getStartTime': getStartTime,
-			'getEndTime': getEndTime,
-			'getTimestamps': getTimestamps,
-			'getPolylineCoordinates': getPolylineCoordinates,
-			'setPolylineCoordinates': setPolylineCoordinates,
-			'setStartTime': setStartTime,
-			'setEndTime': setEndTime,
-			'setHasResponse': setHasResponse
+			return {
+				'load': load,
+				'toString': toString,
+				'getPolyline': getPolyline,
+				'getStartTime': getStartTime,
+				'getEndTime': getEndTime,
+				'getTimestamps': getTimestamps,
+				'getPolylineCoordinates': getPolylineCoordinates,
+				'setPolylineCoordinates': setPolylineCoordinates,
+				'setStartTime': setStartTime,
+				'setEndTime': setEndTime,
+				'setHasResponse': setHasResponse
+			};
 		};
-	}
+		return { 
+			'create': create
+		};
+	}());
 
 	function debug(object, description) {
 		if (verbose) {
@@ -210,7 +215,7 @@ var spatialsurvey = function(map, doc) {
 	}
 
 	// -------------------------------------------------------------
-	var timestampOpenedContent = function(options) 
+	function timestampOpenedContent(options) 
 	// -------------------------------------------------------------
 	{
 		if ( typeof options.startTime === 'undefined') { options.startTime = ''; };		
@@ -251,7 +256,7 @@ var spatialsurvey = function(map, doc) {
 	}
 
 	// --------------------------------------------------------------
-	var timestampClosedContent = function(options) 
+	function timestampClosedContent(options) 
 	// --------------------------------------------------------------
 	{
 		if ( typeof options.startTime === 'undefined') { options.startTime = ''; }
@@ -285,7 +290,7 @@ var spatialsurvey = function(map, doc) {
 	}
 
 // ----------------------------------------------------------------------
-	var isValidTime = function(timeString) 
+	function isValidTime(timeString) 
 // ----------------------------------------------------------------------
 	{
 		var regex = /^(\d|[1][0-2])(:([0-5]\d))?\s?(AM|PM)$/i;
@@ -293,7 +298,7 @@ var spatialsurvey = function(map, doc) {
 	}
 
 // ---------------------------------------------------------------
-	var getIcon = function()
+	function getIcon()
 // ---------------------------------------------------------------
 	{
 		return {
@@ -303,7 +308,7 @@ var spatialsurvey = function(map, doc) {
 	}
 
 // ---------------------------------------------------------------------
-	var getCloseButton = function(content)
+	function getCloseButton(content)
 // ---------------------------------------------------------------------	
 	{
 		var imgs = Array.prototype.slice.apply(content.parentNode.getElementsByTagName('img'));
@@ -346,9 +351,9 @@ var spatialsurvey = function(map, doc) {
 			}
 		};
 		return {
-			init: init,
-			clear: clear,
-			register: register
+			'init': init,
+			'clear': clear,
+			'register': register
 		};
 
 	}());
@@ -534,18 +539,14 @@ var spatialsurvey = function(map, doc) {
 	}
 
 	var instructions = (function() {
-
-		// set defaults
-		var data = { 
-			primary: [], 
-			showPrimaryOnCreate: true, 
-			action: function() { },
-			hideAction: function() { }
-		};
-		var drawingManager;
-
-		var create = function(manager, options) {
-			drawingManager = manager;
+		var create = function(drawingManager, options) {
+			// set defaults
+			var data = { 
+				primary: [], 
+				showPrimaryOnCreate: true, 
+				action: function() { },
+				hideAction: function() { }
+			};
 
 			// initialize data object
 			for ( property in options) {
@@ -573,65 +574,67 @@ var spatialsurvey = function(map, doc) {
 			}
 			else 
 				data.action();
+
+			function showPrimary() {
+				// if user defines hideAction, this allows primary and action to toggle back and forth
+				data.hideAction();
+
+				var primary = doc.getElementById('instructions-main');
+				var primary_content = doc.getElementById('instructions-main-content');
+
+				primary.style.display = 'block';
+
+				// initialize instructions_main screen
+			    var primary_screen_index = 0;
+			    var content = data.content;
+			    var nextButton = doc.getElementById('next-instruction');
+
+			    primary_content.innerHTML = content[primary_screen_index].content;
+			    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
+
+			    google.maps.event.addDomListener(nextButton, 'click', function(event) {
+					if (primary_screen_index < content.length - 1) { 
+					    primary_screen_index += 1;
+					    primary_content.innerHTML = content[primary_screen_index].content;
+					    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
+					}
+					else {
+						drawingManager.setMap(map);		
+
+						// needs to be wrapped in a function, otherwise it will stop the current event listener				
+						(function() { event.stopPropagation(); } ());
+						hidePrimary(); 	
+					}
+				});			
+			};
+
+			function hidePrimary() {
+				doc.getElementById('instructions-main').style.display = 'none';
+				google.maps.event.clearListeners(doc.getElementById('next-instruction'), 'click');
+
+				data.action();
+			};
+
+			function initPrimary() {
+				var extra = doc.getElementById('extra');
+				extra.innerHTML = '<div id="instructions-main">'+
+					'<div class="close-box">'+
+						'<img src="' + getResourceUrl('close-icon.png') + '"/>'+
+					'</div>'+				
+					'<div id="instructions-main-content">'+
+					'</div><!-- #instructions-main-content -->'+
+					'<button class="dowsing-button" id="next-instruction">Next</button>'+				
+				  '</div><!-- #instructions-main -->';
+			}	
+
+			return {
+				'showPrimary': showPrimary,
+				'hidePrimary': hidePrimary,
+			};
 		};
-
-		var showPrimary = function() {
-			// if user defines hideAction, this allows primary and action to toggle back and forth
-			data.hideAction();
-
-			var primary = doc.getElementById('instructions-main');
-			var primary_content = doc.getElementById('instructions-main-content');
-
-			primary.style.display = 'block';
-
-			// initialize instructions_main screen
-		    var primary_screen_index = 0;
-		    var content = data.content;
-		    var nextButton = doc.getElementById('next-instruction');
-
-		    primary_content.innerHTML = content[primary_screen_index].content;
-		    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
-
-		    google.maps.event.addDomListener(nextButton, 'click', function(event) {
-				if (primary_screen_index < content.length - 1) { 
-				    primary_screen_index += 1;
-				    primary_content.innerHTML = content[primary_screen_index].content;
-				    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
-				}
-				else {
-					drawingManager.setMap(map);		
-
-					// needs to be wrapped in a function, otherwise it will stop the current event listener				
-					(function() { event.stopPropagation(); } ());
-					hidePrimary(); 	
-				}
-			});			
-		};
-
-		var hidePrimary = function() {
-			doc.getElementById('instructions-main').style.display = 'none';
-			google.maps.event.clearListeners(doc.getElementById('next-instruction'), 'click');
-
-			data.action();
-		};
-
-		function initPrimary() {
-			var extra = doc.getElementById('extra');
-			extra.innerHTML = '<div id="instructions-main">'+
-				'<div class="close-box">'+
-					'<img src="' + getResourceUrl('close-icon.png') + '"/>'+
-				'</div>'+				
-				'<div id="instructions-main-content">'+
-				'</div><!-- #instructions-main-content -->'+
-				'<button class="dowsing-button" id="next-instruction">Next</button>'+				
-			  '</div><!-- #instructions-main -->';
-		}
 
 		return {
-			'create': create,
-			'showPrimary': showPrimary,
-			'hidePrimary': hidePrimary,
-			'showProgress': showProgress
+			'create': create
 		};	
 	}());
 
