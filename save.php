@@ -8,8 +8,13 @@ if ( !$conn ) { die ('Could not connect: ' . mysqli_error($conn)); }
 
 $user_id = $_SERVER['persistent-id'];
 $jsondata = mysqli_escape_string($conn, $_SESSION['path-data']);
-$kmlstring = require_once('kml_template.php');
-$kml = mysqli_escape_string($conn, $kmlstring);
+
+if ( $_SESSION['path-data'] == "{}")
+	$kml = "NOT ON CAMPUS";
+else {
+	$kmlstring = require_once('kml_template.php');
+	$kml = mysqli_escape_string($conn, $kmlstring);	
+}
 
 $sql = <<<sqlstring
 INSERT INTO paths ( id, user_id, kml_string, json_string, time_submitted ) VALUES ( DEFAULT, "$user_id", "$kml", "$jsondata", NOW() )

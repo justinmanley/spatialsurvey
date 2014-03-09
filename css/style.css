@@ -15,8 +15,7 @@ body {
   src: url(../resources/andada/Andada-Regular.woff);
 }
 .dowsing-button {
-  background: -webkit-linear-gradient(top, #4387fd, #4683ea);
-  background: linear-gradient(top, #4387fd, #4683ea);
+  background: linear-gradient(#4387fd, #4683ea);
   background: #357ae8;
   border: 0px;
   height: 29px;
@@ -26,8 +25,7 @@ body {
   font-weight: bold;
 }
 .dowsing-button.dowsing-button-grey {
-  background: -webkit-linear-gradient(top, #b6b6b6, #b0b0b0);
-  background: linear-gradient(top, #b6b6b6, #b0b0b0);
+  background: linear-gradient(#b6b6b6, #b0b0b0);
   background: #a6a6a6;
 }
 #instructions-sidebar {
@@ -35,18 +33,7 @@ body {
   padding: 10px 15px;
   background-color: #ffffff;
   margin-right: 30px;
-  font-family: 'Andada' serif;
-}
-#instructions-sidebar #start-end-time-question {
-  float: left;
-  margin-left: 10px;
-  margin-bottom: 20px;
-}
-#instructions-sidebar #start-end-time-question input {
-  width: 65px;
-  padding: 5px 5px;
-  border-radius: 3px;
-  background-color: #d3d3d3;
+  font-family: 'Andada', serif;
 }
 #instructions-sidebar p,
 #instructions-sidebar label {
@@ -161,8 +148,7 @@ body {
 #instructions-main #next-instruction {
   display: block;
   margin: 30px auto;
-  background: linear-gradient(top, #8d8d8d, #bdbdbd);
-  background: -webkit-linear-gradient(top, #4387fd, #4683ea);
+  background: linear-gradient(#8d8d8d, #bdbdbd);
   background: #4387fd;
 }
 .close-box {
@@ -171,14 +157,11 @@ body {
   color: #9a9a9a;
   margin: 5px;
 }
-#error-message {
+.error-message {
   background-color: #ff4e4e;
 }
 html.thankyou {
   background: url('../../images/portal2.jpg') no-repeat center center fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
   background-size: cover;
 }
 #thankyou {

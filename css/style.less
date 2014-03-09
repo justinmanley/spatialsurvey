@@ -24,8 +24,7 @@ body {
 @button-blue-first: #4387fd;
 @button-blue-second: #4683ea;
 .dowsing-button {
-	background: -webkit-linear-gradient(top, @button-blue-first, @button-blue-second);
-	background: linear-gradient(top, @button-blue-first, @button-blue-second);
+	background: linear-gradient(@button-blue-first, @button-blue-second);
 	background: @button-background;
 	border: 0px;
 	height: @button-height;
@@ -40,8 +39,7 @@ body {
 		@button-grey-first: lighten(rgb(@bgf, @bgf, @bgf), 20%);
 		@button-grey-second: lighten(rgb(@bgs, @bgs, @bgs), 20%);
 		@button-grey-background: lighten(rgb(@bb, @bb, @bb), 20%);
-		background: -webkit-linear-gradient(top, @button-grey-first, @button-grey-second);
-		background: linear-gradient(top, @button-grey-first, @button-grey-second);
+		background: linear-gradient(@button-grey-first, @button-grey-second);
 		background: @button-grey-background;		
 	}	
 }
@@ -51,18 +49,7 @@ body {
 	padding: 10px 15px;
 	background-color: #ffffff;
 	margin-right: 30px;
-	font-family: 'Andada' serif;
-	#start-end-time-question {
-		float: left;
-		margin-left: 10px;	
-		margin-bottom: 20px;	
-		input {
-			width: 65px;
-			padding: 5px 5px;
-			border-radius:3px;
-			background-color: #d3d3d3;		
-		}
-	}
+	font-family: @slab-serif;
 	p, label {
 		font-size: 140%;
 	}
@@ -192,8 +179,7 @@ body {
 	#next-instruction {
 		display: block;
 		margin: @button-margin auto;
-		background: linear-gradient(top,#8d8d8d,#bdbdbd);
-		background: -webkit-linear-gradient(top,#4387fd,#4683ea);
+		background: linear-gradient(#8d8d8d,#bdbdbd);
 		background: #4387fd;
 	}
 }
@@ -205,15 +191,12 @@ body {
 	margin: 5px;
 }
 
-#error-message {
+.error-message {
 	background-color: #ff4e4e;
 }
 
 html.thankyou { 
   background: url('../../images/portal2.jpg') no-repeat center center fixed; 
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
   background-size: cover;
 }	
 

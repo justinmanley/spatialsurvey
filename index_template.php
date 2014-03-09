@@ -2,9 +2,10 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta charset="UTF-8"/>
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-		<link rel="stylesheet" type="text/css" href="../../dowsing-js/css/style.css">
-		<link rel="stylesheet" type="text/css" href="../../css/style.css">
+		<link rel="stylesheet" type="text/css" href="../../dowsing-js/css/style.css"/>
+		<link rel="stylesheet" type="text/css" href="../../css/style.css"/>
 		<script type="text/javascript"
 			src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=drawing,geometry&sensor=false">
 		</script>
