@@ -19,8 +19,7 @@ body {
 @button-blue-first: #4387fd;
 @button-blue-second: #4683ea;
 .dowsing-button {
-	background: -webkit-linear-gradient(top, @button-blue-first, @button-blue-second);
-	background: linear-gradient(top, @button-blue-first, @button-blue-second);
+	background: linear-gradient(@button-blue-first, @button-blue-second);
 	background: @button-background;
 	border: 0px;
 	height: @button-height;
@@ -35,8 +34,7 @@ body {
 		@button-grey-first: lighten(rgb(@bgf, @bgf, @bgf), 20%);
 		@button-grey-second: lighten(rgb(@bgs, @bgs, @bgs), 20%);
 		@button-grey-background: lighten(rgb(@bb, @bb, @bb), 20%);
-		background: -webkit-linear-gradient(top, @button-grey-first, @button-grey-second);
-		background: linear-gradient(top, @button-grey-first, @button-grey-second);
+		background: linear-gradient(@button-grey-first, @button-grey-second);
 		background: @button-grey-background;		
 	}	
 }
@@ -176,8 +174,7 @@ body {
 	#next-instruction {
 		display: block;
 		margin: @button-margin auto;
-		background: linear-gradient(top,#8d8d8d,#bdbdbd);
-		background: -webkit-linear-gradient(top,#4387fd,#4683ea);
+		background: linear-gradient(#8d8d8d,#bdbdbd);
 		background: #4387fd;
 	}
 }

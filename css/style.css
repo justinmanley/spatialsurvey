@@ -11,8 +11,7 @@ body {
   height: 100%;
 }
 .dowsing-button {
-  background: -webkit-linear-gradient(top, #4387fd, #4683ea);
-  background: linear-gradient(top, #4387fd, #4683ea);
+  background: linear-gradient(#4387fd, #4683ea);
   background: #357ae8;
   border: 0px;
   height: 29px;
@@ -22,8 +21,7 @@ body {
   font-weight: bold;
 }
 .dowsing-button.dowsing-button-grey {
-  background: -webkit-linear-gradient(top, #b6b6b6, #b0b0b0);
-  background: linear-gradient(top, #b6b6b6, #b0b0b0);
+  background: linear-gradient(#b6b6b6, #b0b0b0);
   background: #a6a6a6;
 }
 #instructions-sidebar {
@@ -146,8 +144,7 @@ body {
 #instructions-main #next-instruction {
   display: block;
   margin: 30px auto;
-  background: linear-gradient(top, #8d8d8d, #bdbdbd);
-  background: -webkit-linear-gradient(top, #4387fd, #4683ea);
+  background: linear-gradient(#8d8d8d, #bdbdbd);
   background: #4387fd;
 }
 .close-box {
