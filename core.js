@@ -183,7 +183,7 @@ var spatialsurvey = function(map, doc) {
 			if ( validate() ) { 
 				var pathData = doc.getElementById(type + '-path-data');
 				pathData.setAttribute('value', data.toString());
-				// nextForm.submit(); 
+				nextForm.submit(); 
 			} 
 			else {
 				var startTimeForm = doc.getElementById('sidebar-start-time');
