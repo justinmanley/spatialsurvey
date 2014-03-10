@@ -3,7 +3,7 @@ var spatialsurvey = function(map, doc) {
 	var map = map;
 
 	// verbose should be true only in a development environment
-	var verbose = true;	
+	var verbose = false;	
 
 	// ----------------------------------------------------------------
 	var pathData = (function() 
@@ -977,7 +977,7 @@ var spatialsurvey = function(map, doc) {
 							var browserPoint = new google.maps.Point(browserCursorX, browserCurxorY);
 							standardTutorialData.position = proj.fromDivPixelToLatLng(browserPoint);
 
-							console.log('at least three points in polyline');
+							debug('at least three points in polyline');
 							dispatchLessonComplete();
 							doc.removeEventListener('clicknodrag', onThirdPoint);	
 						} 
