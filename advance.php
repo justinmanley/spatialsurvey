@@ -2,7 +2,6 @@
 	session_start();
 	if (isset($_POST['path-data'])) {
 		$_SESSION['path-data'] = $_POST['path-data'];
-		// validateTimes();	
 		header('Location: ' . '../pages/' . $_POST['next-page-name']);			
 	}
 

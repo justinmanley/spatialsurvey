@@ -72,7 +72,7 @@ var spatialsurvey = function(map, doc) {
 			var toString = function() {
 				var stringable = new Object();	
 
-				// user has provided the empty response
+				// user has provided a response
 				if ( data.response ) {
 					stringable.path = data.path.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
 
@@ -100,7 +100,7 @@ var spatialsurvey = function(map, doc) {
 						data = new Object();
 					else
 						data = eval("(" + JSON.parse(this.responseText) + ")");
-					debug(data);
+					// debug(data);
 					if ( !isEmptyObject(data) ) {
 						setPolylineCoordinates(data.path.map(createLatLng));
 						onDataReceipt();				
@@ -183,7 +183,7 @@ var spatialsurvey = function(map, doc) {
 			if ( validate() ) { 
 				var pathData = doc.getElementById(type + '-path-data');
 				pathData.setAttribute('value', data.toString());
-				nextForm.submit(); 
+				// nextForm.submit(); 
 			} 
 			else {
 				var startTimeForm = doc.getElementById('sidebar-start-time');
@@ -787,10 +787,11 @@ var spatialsurvey = function(map, doc) {
 				if ( event.detail.lessonIndex + 1 < lessons.length )
 					nextLesson(lessons, event.detail.lessonIndex + 1);
 				else if ( event.detail.lessonIndex == lessons.length - 1 ) {
-					map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
-					showNextButton({}, 'start', 'tutorial', function() {
-						return true;
-					}, function() { });
+					map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
+					var nextButton = doc.createElement('a');
+					nextButton.setAttribute('href', '../start/');
+					nextButton.innerHTML = '<button class="dowsing-button">NEXT</button>';
+					map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextButton);						
 				}
 			});
 
