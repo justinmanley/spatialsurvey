@@ -1,11 +1,35 @@
-spatialsurvey
+Dowsing.js
 =============
 
-Spatialsurvey is a survey platform for geographic/spatial queries built using the Google Maps Javascript API.  Let's say you want to figure out how your employees are commuting to work so you can decide whether it's worthwhile to invest in a car-sharing or bike-subsidy program.  Or maybe you're a college interested in learning how your students are getting  around campus so you can determine what areas are popular, and which areas are underused.  This framework is perfect for all of these tasks because it lets users answer spatial questions in a spatial way: by drawing on a map.  Sure, you could answer all of those questions by simply tagging your subjects with a GPS locator beacon or tracking them over WiFi - but a survey is often less expensive, requires vastly less investment in infrastructure, and is less invasive.
+Dowsing.js is a survey platform for geographic/spatial queries built using the Google Maps Javascript API.  Let's say you want to figure out how your employees are commuting to work so you can decide whether it's worthwhile to invest in a car-sharing or bike-subsidy program.  Or maybe you're a college interested in learning how your students are getting  around campus so you can determine what areas are popular and which are underused.  This framework is perfect for all of these tasks because it lets users answer spatial questions in a spatial way: by drawing on a map.  A survey built using this framework is a good option to answer these kinds of questions because it is often less expensive, requires less investment in infrastructure, and is less invasive than other methods.
 
 Spatialsurvey is extremely lightweight with few dependencies other than the Google Maps Javascript API itself (it doesn't even depend on jQuery).
 
 This project is released under the MIT License.  Full documentation coming soon.
+
+Documentation
+
+----------------
+
+	spatialsurvey.pathData.create(pathDataOptions)
+
+Methods:
+
+	load()
+	tostring()
+	getPolyline()
+	getStartTime()
+	getEndTime()
+	setStartTime(timeString)
+	setEndTime(timeString)
+	getPolylineCoordinates(array)
+	setPolylineCoordinates(array)
+	setHasResponse(boolean)
+
+
+
+
+Copyright
 
 ----------------
 
