@@ -10,40 +10,40 @@ This project is released under the MIT License.  Full documentation coming soon.
 Documentation
 =============================
 
-```spatialsurvey.pathData.create(pathDataOptions)```
+	spatialsurvey.pathData.create(pathDataOptions)
 
 Methods:
 
-```load()```
-```tostring()```
-```getPolyline()```
-```getStartTime()```
-```getEndTime()```
-```setStartTime(startTime::timeString)```
-```setEndTime(endTime::string)```
-```getPolylineCoordinates(coordinates::array)```
-```setPolylineCoordinates(coordinates::array)```
-```setHasResponse(response::boolean)```
+	load()
+	tostring()
+	getPolyline()
+	getStartTime()
+	getEndTime()
+	setStartTime(startTime::timeString)
+	setEndTime(endTime::string)
+	getPolylineCoordinates(coordinates::array)
+	setPolylineCoordinates(coordinates::array)
+	setHasResponse(response::boolean)
 
 ------------------------------
 
-```spatialsurvey.tutorial.create(
-	drawingManager::google.maps.drawing.DrawingManager, 
-	lessons::array
-)```
+	spatialsurvey.tutorial.create(
+		drawingManager::google.maps.drawing.DrawingManager, 
+		lessons::array
+	)
 
-```lesson = {
-	instruction::instructionOptions,
-	fixed::bool,
-	advance::function
-}
-```
+	lesson = {
+		instruction::instructionOptions,
+		fixed::bool,
+		advance::function
+	}
 
-```spatialsurvey.tutorial.standardCurriculum```
+
+	spatialsurvey.tutorial.standardCurriculum
 
 ------------------------------
 
-```spatialsurvey.sidebar.create(sidebarOptions)```
+	spatialsurvey.sidebar.create(sidebarOptions)
 
 Methods:
 
@@ -51,20 +51,20 @@ Methods:
 
 ------------------------------
 
-```spatialsurvey.instructions.create(instructionsOptions)```
+	spatialsurvey.instructions.create(instructionsOptions)
 
 Methods:
 
 ------------------------------
 
-```
-spatialsurvey.showNextButton(
-	data::pathData, 
-	destinationPage::string,
-	currentPage::string,
-	validate::function
-)
-```
+
+	spatialsurvey.showNextButton(
+		data::pathData, 
+		destinationPage::string,
+		currentPage::string,
+		validate::function
+	)
+
 
 Copyright
 ==============================
