@@ -1,4 +1,31 @@
-/** @namespace */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: core.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: core.js</h1>
+
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @namespace */
 var spatialsurvey = function(map, doc) {
 	var map = map;
 
@@ -56,7 +83,7 @@ var spatialsurvey = function(map, doc) {
 			var getTimestamps = function() {
 				var timestampWindows = doc.getElementsByClassName('timestamp-form');
 				var timestamps = [];
-				for(var i = 0; i < timestampWindows.length; i++) {
+				for(var i = 0; i &lt; timestampWindows.length; i++) {
 					var startTime = timestampWindows[i].querySelector('input[name=start-time]').value;
 					var endTime = timestampWindows[i].querySelector('input[name=end-time]').value;
 					var lat = timestampWindows[i].getElementsByClassName('timestamp-position-lat')[0].value;
@@ -77,7 +104,7 @@ var spatialsurvey = function(map, doc) {
 					data.timestamps = getTimestamps();
 					debug(getTimestamps(), 'timestamps');
 
-					for (i = 0; i < dataStringProperties.length; i++) {
+					for (i = 0; i &lt; dataStringProperties.length; i++) {
 						var name = dataStringProperties[i];
 						if (data.hasOwnProperty(name)) { stringable[name] = data[name]; };	
 					}
@@ -187,10 +214,10 @@ var spatialsurvey = function(map, doc) {
 		nextForm.id = type + '-form';
 		nextForm.setAttribute('method', 'post');
 		nextForm.setAttribute('action', '../../dowsing-js/advance.php');
-		nextForm.innerHTML = '<input type="hidden" name="' + type + '-name" id="' + type + '-name" value="' + destination + '"/>'+
-								'<input type="hidden" name="current-page-name" id="current-page-name" value="'+currentPageName+'"/>'+
-								'<input type="hidden" name="path-data" id="' + type + '-path-data"/>'+
-								'<button type="button" class="dowsing-button" id="' + type + '-button">NEXT</button>';
+		nextForm.innerHTML = '&lt;input type="hidden" name="' + type + '-name" id="' + type + '-name" value="' + destination + '"/>'+
+								'&lt;input type="hidden" name="current-page-name" id="current-page-name" value="'+currentPageName+'"/>'+
+								'&lt;input type="hidden" name="path-data" id="' + type + '-path-data"/>'+
+								'&lt;button type="button" class="dowsing-button" id="' + type + '-button">NEXT&lt;/button>';
 		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextForm);	
 
 		google.maps.event.addDomListener(nextForm, 'click', function() {
@@ -238,16 +265,16 @@ var spatialsurvey = function(map, doc) {
 		info.setAttribute('class', 'timestamp-opened timestamp-container');
 
 
-		info.innerHTML = '<form class="timestamp-form" onclick="false">'+
-				'<label class="timestamp-label" for="time">Time</label>'+
-				'<br />'+
-				'<fieldset class="timestamp-data">'+
-					'<input type="text" name="start-time" class="timestamp" value="'+options.startTime+'"/>'+
-					'<input type="text" name="end-time" class="timestamp" value="'+options.endTime+'"/>'+
-					'<input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + options.position.lat() + '"/>'+
-					'<input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + options.position.lng() + '"/>'+
-				'</fieldset>'+
-			'</form>';
+		info.innerHTML = '&lt;form class="timestamp-form" onclick="false">'+
+				'&lt;label class="timestamp-label" for="time">Time&lt;/label>'+
+				'&lt;br />'+
+				'&lt;fieldset class="timestamp-data">'+
+					'&lt;input type="text" name="start-time" class="timestamp" value="'+options.startTime+'"/>'+
+					'&lt;input type="text" name="end-time" class="timestamp" value="'+options.endTime+'"/>'+
+					'&lt;input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + options.position.lat() + '"/>'+
+					'&lt;input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + options.position.lng() + '"/>'+
+				'&lt;/fieldset>'+
+			'&lt;/form>';
 
 		function getStartTime() {
 			return info.querySelector('.timestamp[name=start-time]').value;
@@ -280,15 +307,15 @@ var spatialsurvey = function(map, doc) {
 		var separator = options.type === 'double' ? ' - ' : '';
 
 		placeholder.setAttribute('class', 'timestamp-closed timestamp-container');
-		placeholder.innerHTML = '<form class="timestamp-form">'+
-				'<label for="start-time" class="timestamp-label">'+options.startTime+'</label>'+
+		placeholder.innerHTML = '&lt;form class="timestamp-form">'+
+				'&lt;label for="start-time" class="timestamp-label">'+options.startTime+'&lt;/label>'+
 				separator+
-				'<input type="hidden" name="start-time" class="timestamp" value="'+options.startTime+'"/>'+	
-				'<label for="end-time" class="timestamp-label">'+options.endTime+'</label>'+							
-				'<input type="hidden" name="end-time" class="timestamp" value="'+options.endTime+'"/>'+				
-				'<input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + options.position.lat() + '"/>'+
-				'<input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + options.position.lng() + '"/>'+
-			'</form>';
+				'&lt;input type="hidden" name="start-time" class="timestamp" value="'+options.startTime+'"/>'+	
+				'&lt;label for="end-time" class="timestamp-label">'+options.endTime+'&lt;/label>'+							
+				'&lt;input type="hidden" name="end-time" class="timestamp" value="'+options.endTime+'"/>'+				
+				'&lt;input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + options.position.lat() + '"/>'+
+				'&lt;input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + options.position.lng() + '"/>'+
+			'&lt;/form>';
 
 		function updateTimes(updatedStartTime, updatedEndTime) {
 			placeholder.querySelector('input[name=start-time]').value = updatedStartTime;
@@ -327,7 +354,7 @@ var spatialsurvey = function(map, doc) {
 	{
 		var imgs = Array.prototype.slice.apply(content.parentNode.getElementsByTagName('img'));
 		resultImgs = [];
-		for (var i = 0; i < imgs.length; i++) {
+		for (var i = 0; i &lt; imgs.length; i++) {
 			if (imgs[i].src.indexOf('close-icon.png') !== -1) {
 				resultImgs.push(imgs[i]);
 			}
@@ -358,7 +385,7 @@ var spatialsurvey = function(map, doc) {
 				throw "There is no InfoBox group answering to that identifier.";
 			} 
 			else {
-				for (var i = 0; i < groups[identifier].length; i++) {
+				for (var i = 0; i &lt; groups[identifier].length; i++) {
 					groups[identifier][i]();
 				}
 				groups[identifier] = [];
@@ -451,7 +478,7 @@ var spatialsurvey = function(map, doc) {
 		timestamp.close = function() {
 			var startTime = openedContent.getStartTime();
 			var endTime = openedContent.getEndTime();
-			if ( isValidTime(startTime) && ( isValidTime(endTime) || data.type === 'single' ) ) {
+			if ( isValidTime(startTime) &amp;&amp; ( isValidTime(endTime) || data.type === 'single' ) ) {
 				timestamp.opened.setMap(null);
 
 				closedContent.updateTimes(startTime, endTime);
@@ -464,7 +491,7 @@ var spatialsurvey = function(map, doc) {
 				openedContent.clearTime();
 				var inputs = openedContent.content.getElementsByClassName('timestamp');
 				var oldColor = inputs[0].style.backgroundColor;
-				for (i = 0; i < inputs.length; i++) {
+				for (i = 0; i &lt; inputs.length; i++) {
 					(function(thisInput) {
 						inputs[i].style.backgroundColor = '#ff4e4e';
 						setTimeout(function() { inputs[thisInput].style.backgroundColor = oldColor }, 1000);
@@ -607,7 +634,7 @@ var spatialsurvey = function(map, doc) {
 			    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
 
 			    google.maps.event.addDomListener(nextButton, 'click', function(event) {
-					if (primary_screen_index < content.length - 1) { 
+					if (primary_screen_index &lt; content.length - 1) { 
 					    primary_screen_index += 1;
 					    primary_content.innerHTML = content[primary_screen_index].content;
 					    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
@@ -631,14 +658,14 @@ var spatialsurvey = function(map, doc) {
 
 			function initPrimary() {
 				var extra = doc.getElementById('extra');
-				extra.innerHTML = '<div id="instructions-main">'+
-					'<div class="close-box">'+
-						'<img src="' + getResourceUrl('close-icon.png') + '"/>'+
-					'</div>'+				
-					'<div id="instructions-main-content">'+
-					'</div><!-- #instructions-main-content -->'+
-					'<button class="dowsing-button" id="next-instruction">Next</button>'+				
-				  '</div><!-- #instructions-main -->';
+				extra.innerHTML = '&lt;div id="instructions-main">'+
+					'&lt;div class="close-box">'+
+						'&lt;img src="' + getResourceUrl('close-icon.png') + '"/>'+
+					'&lt;/div>'+				
+					'&lt;div id="instructions-main-content">'+
+					'&lt;/div>&lt;!-- #instructions-main-content -->'+
+					'&lt;button class="dowsing-button" id="next-instruction">Next&lt;/button>'+				
+				  '&lt;/div>&lt;!-- #instructions-main -->';
 			}	
 
 			return {
@@ -798,13 +825,13 @@ var spatialsurvey = function(map, doc) {
 			initClickNoDrag();
 
 			doc.addEventListener("lessoncomplete", function(event) {
-				if ( event.detail.lessonIndex + 1 < lessons.length )
+				if ( event.detail.lessonIndex + 1 &lt; lessons.length )
 					nextLesson(lessons, event.detail.lessonIndex + 1);
 				else if ( event.detail.lessonIndex == lessons.length - 1 ) {
 					map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
 					var nextButton = doc.createElement('a');
 					nextButton.setAttribute('href', '../start/');
-					nextButton.innerHTML = '<button class="dowsing-button">NEXT</button>';
+					nextButton.innerHTML = '&lt;button class="dowsing-button">NEXT&lt;/button>';
 					map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextButton);						
 				}
 			});
@@ -846,7 +873,7 @@ var spatialsurvey = function(map, doc) {
 			infoBoxManager.clear('interactive');
 
 			var tutorial = new InfoBox({
-				content: '<div class="tutorial-movable-box">' + options.content + '</div>',
+				content: '&lt;div class="tutorial-movable-box">' + options.content + '&lt;/div>',
 				boxStyle: {
 					'background-color': '#ffffff',
 					'width': options.width + 'px',
@@ -931,7 +958,7 @@ var spatialsurvey = function(map, doc) {
 			// set defaults
 			var thisLesson = {
 				instruction: {
-					content: '<p style="color: #FF0000">Error: No tutorial content set</p>',
+					content: '&lt;p style="color: #FF0000">Error: No tutorial content set&lt;/p>',
 					hasButton: true,
 					buttonText: 'NEXT',
 					width: 400,
@@ -1003,11 +1030,11 @@ var spatialsurvey = function(map, doc) {
 					var prematurePolylineComplete = google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
 						var numberOfVertices = polyline.getPath().getArray().length;
 						var verticesString = numberOfVertices == 1 ? 'vertex' : 'vertices';
-						if ( numberOfVertices < 3 ) {
+						if ( numberOfVertices &lt; 3 ) {
 							doc.removeEventListener('clicknodrag', onThirdPoint);								
 							google.maps.event.removeListener(prematurePolylineComplete);
 
-							var errorMessage = 'You created a line with only ' + numberOfVertices + ' ' + verticesString + ', probably because you clicked twice on the same point.<br />To draw a line, single-click along your desired path to place vertices on the map.';
+							var errorMessage = 'You created a line with only ' + numberOfVertices + ' ' + verticesString + ', probably because you clicked twice on the same point.&lt;br />To draw a line, single-click along your desired path to place vertices on the map.';
 							error.report(errorMessage, function() { 
 								polyline.setMap(null);
 								drawingManager.setOptions({ drawingMode: google.maps.drawing.OverlayType.POLYLINE});
@@ -1211,9 +1238,9 @@ var mapcalc = function(map, doc)
 	var comparePoints = function(a, b) 
 // -----------------------------------------------------------------------------
 	{
-		if (google.maps.geometry.spherical.computeDistanceBetween(a.point, a.coord) < google.maps.geometry.spherical.computeDistanceBetween(b.point, b.coord)) 
+		if (google.maps.geometry.spherical.computeDistanceBetween(a.point, a.coord) &lt; google.maps.geometry.spherical.computeDistanceBetween(b.point, b.coord)) 
 			return -1;
-		if (google.maps.geometry.spherical.computeDistanceBetween(b.point, b.coord) < google.maps.geometry.spherical.computeDistanceBetween(a.point, a.coord))
+		if (google.maps.geometry.spherical.computeDistanceBetween(b.point, b.coord) &lt; google.maps.geometry.spherical.computeDistanceBetween(a.point, a.coord))
 			return 1;
 		else
 			return 0;
@@ -1256,7 +1283,7 @@ var mapcalc = function(map, doc)
 // --------------------------------------------------------------
 	{
 		var images = doc.getElementsByTagName('img');
-		for (var i = 0; i < images.length; i++) {
+		for (var i = 0; i &lt; images.length; i++) {
 			console.log(images[i].src);
 			if (images[i].src == 'https://maps.gstatic.com/mapfiles/undo_poly.png')
 				return images[i];
@@ -1269,7 +1296,7 @@ var mapcalc = function(map, doc)
 // --------------------------------------------------------------
 	{
 		var images = doc.getElementsByTagName('img');
-		for (var i = 0; i < images.length; i++) {
+		for (var i = 0; i &lt; images.length; i++) {
 			console.log(images[i].src);
 			if (images[i].src == getDeleteUrl())
 				return images[i];
@@ -1283,7 +1310,7 @@ var mapcalc = function(map, doc)
 	{
 		var deleteButton = doc.createElement('div');
 		deleteButton.setAttribute('style', 'overflow-x: hidden; overflow-y: hidden; position: absolute; width: 30px; height: 27px; top: -10px; left: 5px;');
-		deleteButton.innerHTML = '<img src="' + getDeleteUrl() + '" class="deletePoly" style="height:auto; width:auto; position: absolute; left:0;"/>';
+		deleteButton.innerHTML = '&lt;img src="' + getDeleteUrl() + '" class="deletePoly" style="height:auto; width:auto; position: absolute; left:0;"/>';
 		google.maps.event.addDomListener(deleteButton, 'mouseover', function() {
 			deleteButton.getElementsByTagName('img')[0].style.left = '-30px';
 		});	
@@ -1442,7 +1469,7 @@ var mapcalc = function(map, doc)
 	{
 		var path = polyline.getPath().getArray().slice(0);
 		var intersections = [];
-		for (var n = 0; n < path.length - 1; n++) {
+		for (var n = 0; n &lt; path.length - 1; n++) {
 			var line = Line({'point1': path[n], 'point2': path[n+1]});
 			var intersectionPoint = line.intersection(line.getPerpendicularThroughPoint(point));
 			if (isBetween(path[n], path[n+1], intersectionPoint)) {
@@ -1468,15 +1495,15 @@ var mapcalc = function(map, doc)
 	var isBetween = function(endpt1, endpt2, pt) 
 // ----------------------------------------------------------------------------
 	{
-		var lat1 = (endpt1.lat() <= pt.lat()) && (pt.lat() <= endpt2.lat());
-		var lat2 = (endpt2.lat() <= pt.lat()) && (pt.lat() <= endpt1.lat());
+		var lat1 = (endpt1.lat() &lt;= pt.lat()) &amp;&amp; (pt.lat() &lt;= endpt2.lat());
+		var lat2 = (endpt2.lat() &lt;= pt.lat()) &amp;&amp; (pt.lat() &lt;= endpt1.lat());
 		var betweenLat = lat1 || lat2;
 
-		var lng1 = (endpt1.lng() <= pt.lng() && pt.lng() <= endpt2.lng());
-		var lng2 = (endpt2.lng() <= pt.lng() && pt.lng() <= endpt1.lng());
+		var lng1 = (endpt1.lng() &lt;= pt.lng() &amp;&amp; pt.lng() &lt;= endpt2.lng());
+		var lng2 = (endpt2.lng() &lt;= pt.lng() &amp;&amp; pt.lng() &lt;= endpt1.lng());
 		var betweenLng = lng1 || lng2;
 
-		return betweenLat && betweenLng;
+		return betweenLat &amp;&amp; betweenLng;
 	}
 
 // takes a LatLng point and a polyline
@@ -1526,7 +1553,7 @@ var mapcalc = function(map, doc)
 		}
 
 		var getSpilloverPastVertex = function(info) {
-			if (info.currentVertex < path.length - 1) {
+			if (info.currentVertex &lt; path.length - 1) {
 				var thisSegmentLength = segmentLength(info.currentVertex);
 				return info.spillover + ((info.i + 1) - info.oldI)*delta - thisSegmentLength;
 			}
@@ -1543,7 +1570,7 @@ var mapcalc = function(map, doc)
 				info.spillover = getSpilloverPastVertex(info);
 				info.currentVertex += 1;
 
-				if (info.currentVertex < path.length - 1) {
+				if (info.currentVertex &lt; path.length - 1) {
 					var nextSegmentLength = segmentLength(info.currentVertex);
 					var nextSegmentVerticalChange = segmentVerticalChange(info.currentVertex);
 
@@ -1577,10 +1604,10 @@ var mapcalc = function(map, doc)
 		timestamp.create();
 		timestampCollection.push(timestamp);
 
-		for (var i = 0; i < numberOfTimestamps; i++) {
+		for (var i = 0; i &lt; numberOfTimestamps; i++) {
 			thisTimestampInfo = getVerticalDistance(thisTimestampInfo);
 	
-			if (thisTimestampInfo.currentVertex < path.length - 1) {
+			if (thisTimestampInfo.currentVertex &lt; path.length - 1) {
 				var endpoint1 = polyline.getPath().getAt(thisTimestampInfo.currentVertex);
 				var endpoint2 = polyline.getPath().getAt(thisTimestampInfo.currentVertex + 1);
 				var line = Line({
@@ -1622,7 +1649,7 @@ var mapcalc = function(map, doc)
 	Math.sgn = function(x) 
 // ---------------------------------------------------------------------	
 	{
-	    return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
+	    return typeof x === 'number' ? x ? x &lt; 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
 	}
 
 // ---------------------------------------------------------------------
@@ -1747,11 +1774,11 @@ var getTotalTime = function(startTimeString, endTimeString)
 	var endMinute = typeof endParsed[2] === 'undefined' ? 0 : endParsed[2];
 	var endTime = endHour + (endMinute/60);
 
-	if ( /^P.?M.?$/i.test(endParsed[3]) && endHour != 12 ) 
+	if ( /^P.?M.?$/i.test(endParsed[3]) &amp;&amp; endHour != 12 ) 
 		endTime += 12; 
-	else if ( /^A.?M.?$/i.test(endParsed[3]) && endHour != 12 )
+	else if ( /^A.?M.?$/i.test(endParsed[3]) &amp;&amp; endHour != 12 )
 		endTime += 24;
-	else if ( /^A.?M.?$/i.test(endParsed[3]) && endHour == 12 )
+	else if ( /^A.?M.?$/i.test(endParsed[3]) &amp;&amp; endHour == 12 )
 		endTime += 12;
 
 	return endTime - startTime;
@@ -1788,9 +1815,9 @@ var timestringToInteger = function(timeString) {
 	var hour = parseInt(parsed[1]) % 24;
 	var minute = typeof parsed[2] === 'undefined' ? 0 : parseInt(parsed[2])/60;
 
-	if ( /^P.?M.?$/i.test(parsed[3]) && hour != 12) 
+	if ( /^P.?M.?$/i.test(parsed[3]) &amp;&amp; hour != 12) 
 		hour += 12; 
-	if ( /^A.?M.?$/i.test(parsed[3]) && hour == 12 )
+	if ( /^A.?M.?$/i.test(parsed[3]) &amp;&amp; hour == 12 )
 		hour = 0;
 
 	return hour + minute;
@@ -1810,7 +1837,7 @@ if(!Array.prototype.last) {
 function getCSSRule(ruleName, deleteFlag) {               // Return requested style obejct
    ruleName=ruleName.toLowerCase();                       // Convert test string to lower case.
    if (document.styleSheets) {                            // If browser can play with stylesheets
-      for (var i=0; i<document.styleSheets.length; i++) { // For each stylesheet
+      for (var i=0; i&lt;document.styleSheets.length; i++) { // For each stylesheet
          var styleSheet=document.styleSheets[i];          // Get the current Stylesheet
          var ii=0;                                        // Initialize subCounter.
          var cssRule=false;                               // Initialize cssRule. 
@@ -1844,3 +1871,26 @@ function getCSSRule(ruleName, deleteFlag) {               // Return requested st
 function getResourceUrl(filename) {
 	return '../../dowsing-js/resources/' + filename;
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Externals</h3><ul><li><a href="pathData.html">pathData</a></li></ul><h3>Namespaces</h3><ul><li><a href="spatialsurvey.html">spatialsurvey</a></li></ul><h3>Global</h3><ul><li><a href="global.html#create">create</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Tue Apr 08 2014 18:50:25 GMT-0500 (CDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
