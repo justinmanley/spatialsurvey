@@ -9,7 +9,7 @@ var spatialsurvey = function(map, doc) {
 	var map = map;
 
 	/** verbose should be true only in a development environment */
-	var verbose = false;	
+	var verbose = true;	
 
 	/**
 	 * Returns a new pathData object.
@@ -22,10 +22,9 @@ var spatialsurvey = function(map, doc) {
 	 */
 	function PathData(data)
 	{
-		// var doc = doc;
 		var data = data || { response: true };
 
-		// determines what properties of PathData are serialized by PathData.tostring()
+		/* Determines what properties of PathData are serialized by PathData.tostring() */
 		var dataStringProperties = ['timestamps', 'endTime', 'startTime'];
 
 		/** 
@@ -148,17 +147,47 @@ var spatialsurvey = function(map, doc) {
 				return true;
 			}
 		}
+
+		/** 
+		 * Advances to the next page of the survey. 
+		 * @param {Object} options
+		 * @param {string} options.destinationPageName 
+		 * @param {string} options.currentPageName
+		 * @param {function} options.validates
+		 * @param {function} options.validationError
+		 */
+		function send(opt) {
+			debug(toString(), 'path-data');
+
+			var dataForm = doc.createElement('form');
+			dataForm.id = 'data-form';
+			dataForm.setAttribute('method', 'post');
+			dataForm.setAttribute('action', '../../dowsing-js/advance.php');
+			dataForm.innerHTML = ''+
+				'<input type="hidden" name="destination-page-name" id="destination-page-name" value="' + opt.destinationPageName + '"/>'+
+				'<input type="hidden" name="current-page-name" id="current-page-name" value="' + opt.currentPageName + '"/>'+
+				'<input type="hidden" value=' + toString() + ' name="path-data" id="path-data"/>';
+
+			debug(dataForm, 'dataForm');
+
+			if ( opt.validates() )
+				dataForm.submit();
+			else 
+				opt.validationError();		
+		}
 		
 		this.load = load;
 		this.toString = toString;
 		this.getPolyline = getPolyline;
 		this.getStartTime = getStartTime;
+		this.getEndTime = getEndTime;
 		this.getTimestamps = getTimestamps;
 		this.getPolylineCoordinates = getPolylineCoordinates;
 		this.setPolylineCoordinates = setPolylineCoordinates;
 		this.setStartTime = setStartTime;
 		this.setEndTime = setEndTime;
 		this.setHasResponse = setHasResponse;
+		this.send = send;
 	};
 
 	/** 
@@ -179,24 +208,11 @@ var spatialsurvey = function(map, doc) {
 		@param {Object} coord
 		@returns {google.maps.LatLng}
 	*/
-	var createLatLng = function(coord) {
+	function createLatLng(coord) {
 		return new google.maps.LatLng(coord.lat, coord.lng);
 	}
 
-	var getContainer = function(doc, matchClass) {
-		inputs = new Array(); 
-	    var elems = doc.getElementsByTagName('*'), i;
-	    for (i in elems) {
-	        if((' ' + elems[i].className + ' ').indexOf(' ' + matchClass + ' ')
-	                > -1) {
-	        	inputs.push(elems[i]);
-	        }
-	    }
-	    return inputs;
-	}
-
-	/* Add elements to the page */
-
+// should be a class from which nextButton and previousButton derive
 // -------------------------------------------------------------------------------------
 	var showButton = function(data, destination, type, currentPageName, validate) 
 // -------------------------------------------------------------------------------------
@@ -1204,7 +1220,7 @@ var spatialsurvey = function(map, doc) {
 
 	// public methods and constructors for module spatialsurvey
 	return {
-		'pathData': pathData, 
+		'PathData': PathData, 
 		'showNextButton': showNextButton,
 		'timestamp': timestamp,
 		'instructions': instructions,

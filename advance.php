@@ -2,7 +2,7 @@
 	session_start();
 	if (isset($_POST['path-data'])) {
 		$_SESSION['path-data'] = $_POST['path-data'];
-		header('Location: ' . '../pages/' . $_POST['next-page-name']);			
+		header('Location: ' . '../pages/' . $_POST['destination-page-name']);			
 	}
 
 	function validateTime($timeString) {
