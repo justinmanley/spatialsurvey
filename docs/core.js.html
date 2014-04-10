@@ -25,161 +25,174 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/** @namespace */
+            <pre class="prettyprint source linenums"><code>/** 
+ * Google Maps LatLng Class
+ * @external LatLng
+ * @see {@linkcode https://developers.google.com/maps/documentation/javascript/reference#LatLng}
+ */
+
+/** @namespace */
 var spatialsurvey = function(map, doc) {
 	var map = map;
 
 	/** verbose should be true only in a development environment */
 	var verbose = false;	
 
-	/** 
-	 * @external google.maps.LatLng
-	 * @see {@link https://developers.google.com/maps/documentation/javascript/reference#LatLng google.maps.LatLng}
+	/**
+	 * Returns a new pathData object.
+	 * @constructor
+	 * @param {Object} data - Object containing user response data.
+	 * @param {@link external:LatLng} data.path - An array of {@linkcode external:LatLng} coordinates.
+	 * @param {string} data.startTime 
+	 * @param {string} data.endTime
+	 * @returns {pathData}
 	 */
-	var pathData = (function()
+	function PathData(data)
 	{
-		/**
-		 * Returns a new pathData object.
-		 * @function create
-		 * @param data Object containing user response data.
-		 * @param {LatLng[]} data.path An array of LatLng coordinates.
-		 * @param {string} data.startTime 
-		 * @param {string} data.endTime
-		 * @returns {pathData}
+		// var doc = doc;
+		var data = data || { response: true };
+
+		// determines what properties of PathData are serialized by PathData.tostring()
+		var dataStringProperties = ['timestamps', 'endTime', 'startTime'];
+
+		/** 
+		 * Set the coordinates for the user's path.
+		 * @param {Object} path - An array of LatLng coordinates (i.e. the result of polyline.getPath().getArray() ).
 		 */
-		var create = function(data) {
-			// var doc = doc;
-			var data = data || { response: true };
+		function setPolylineCoordinates(path) { data.path = path };
 
-			var dataStringProperties = ['timestamps', 'endTime', 'startTime'];
+		/** 
+		 * Get the coordinates for the user's path.
+		 * @returns {Object} Array of coordinates.
+		 */
+		function getPolylineCoordinates() { return data.path || new Array(); };
 
-			// takes an array of LatLng coordinates: i.e. input should be the result of polyline.getPath().getArray()
-			var setPolylineCoordinates = function(path) { data.path = path };
+		/** @returns {string} */
+		function getStartTime() { return data.startTime; };
 
-			// returns an array of LatLng coordinates
-			var getPolylineCoordinates = function() { return data.path || new Array(); };
+		/** @returns {string} */
+		function getEndTime() { return data.endTime; };
 
-			var getStartTime = function() { return data.startTime; };
-			var getEndTime = function() { return data.endTime; };
+		/** @param {string} startTime */
+		function setStartTime(startTime) { data.startTime = startTime; };
 
-			var setStartTime = function(startTime) { data.startTime = startTime; };
-			var setEndTime = function(endTime) { data.endTime = endTime; };
+		/** @param {string} endTime */
+		function setEndTime(endTime) { data.endTime = endTime; };
 
-			var setHasResponse = function(bool) { data.response = bool; }
+		/** @param {bool} hasResponse */
+		function setHasResponse(hasResponse) { data.response = hasResponse; }
 
-			var getPolyline = function() {
-				if (typeof data.polyline === 'undefined') {
-					var polyline = new google.maps.Polyline({
-						path: getPolylineCoordinates(),
-						strokeColor: '#4387fd',
-						strokeWeight: 4,
-						clickable: false
-					});
-					data.polyline = polyline;
-				}
-				return data.polyline;
+		/** 
+		 * Returns the google.maps.Polyline instance associated with the path.
+		 * @returns {Object} 
+		 */
+		function getPolyline() {
+			if (typeof data.polyline === 'undefined') {
+				var polyline = new google.maps.Polyline({
+					path: getPolylineCoordinates(),
+					strokeColor: '#4387fd',
+					strokeWeight: 4,
+					clickable: false
+				});
+				data.polyline = polyline;
 			}
+			return data.polyline;
+		}
 
-			var getTimestamps = function() {
-				var timestampWindows = doc.getElementsByClassName('timestamp-form');
-				var timestamps = [];
-				for(var i = 0; i &lt; timestampWindows.length; i++) {
-					var startTime = timestampWindows[i].querySelector('input[name=start-time]').value;
-					var endTime = timestampWindows[i].querySelector('input[name=end-time]').value;
-					var lat = timestampWindows[i].getElementsByClassName('timestamp-position-lat')[0].value;
-					var lng = timestampWindows[i].getElementsByClassName('timestamp-position-lng')[0].value;
+		/** 
+			Retrieve the timestamps from the DOM.
+			@returns {Array}
+		*/
+		function getTimestamps() {
+			var timestampWindows = doc.getElementsByClassName('timestamp-form');
+			var timestamps = [];
+			for(var i = 0; i &lt; timestampWindows.length; i++) {
+				var startTime = timestampWindows[i].querySelector('input[name=start-time]').value;
+				var endTime = timestampWindows[i].querySelector('input[name=end-time]').value;
+				var lat = timestampWindows[i].getElementsByClassName('timestamp-position-lat')[0].value;
+				var lng = timestampWindows[i].getElementsByClassName('timestamp-position-lng')[0].value;
 
-					timestamps.push({ 'startTime': startTime, 'endTime': endTime, 'position': { 'lat': lat, 'lng': lng }});
-				}
-				return timestamps;
-			}		
-
-			var toString = function() {
-				var stringable = new Object();	
-
-				// user has provided a response
-				if ( data.response ) {
-					stringable.path = data.path.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
-
-					data.timestamps = getTimestamps();
-					debug(getTimestamps(), 'timestamps');
-
-					for (i = 0; i &lt; dataStringProperties.length; i++) {
-						var name = dataStringProperties[i];
-						if (data.hasOwnProperty(name)) { stringable[name] = data[name]; };	
-					}
-				}	
-				return JSON.stringify(stringable); 
-			};
-
-			// load data from previous screens
-			var load = function(onNoData, onDataReceipt) {
-				conn = new XMLHttpRequest();
-				conn.overrideMimeType('application/json');
-				conn.open('GET', '../../dowsing-js/polyline.php', true);
-				conn.onreadystatechange = function() {
-					if (this.readyState !== 4 ) return; 
-					if (this.status !== 200 ) return; 
-					debug(this.responseText);
-					if ( this.responseText === "{}" )
-						data = new Object();
-					else
-						data = eval("(" + JSON.parse(this.responseText) + ")");
-					// debug(data);
-					if ( !isEmptyObject(data) ) {
-						setPolylineCoordinates(data.path.map(createLatLng));
-						onDataReceipt();				
-					}
-					else
-						onNoData();
-				};
-				conn.send();
-
-				function isEmptyObject(obj) {
-					var key;
-					for (key in obj) {
-						if (obj.hasOwnProperty(key))
-							return false;
-					}
-					return true;
-				}
+				timestamps.push({ 'startTime': startTime, 'endTime': endTime, 'position': { 'lat': lat, 'lng': lng }});
 			}
+			return timestamps;
+		}		
 
-			/** 
-			 * @typedef pathData
-			 * @type {Object}
-			 * @property load {function}  
-			 * @property toString
-			 * @property getPolyline
-			 * @property getEndTime
-			 * @property getStartTime
-			 * @property getEndTime
-			 * @property getTimestamps
-			 * @property getPolylineCoordinates
-			 * @property setPolylineCoordinates
-			 * @property setStartTime
-			 * @property setEndTime
-			 * @property setHasResponse
-			 */
-			return {
-				'load': load,
-				'toString': toString,
-				'getPolyline': getPolyline,
-				'getStartTime': getStartTime,
-				'getEndTime': getEndTime,
-				'getTimestamps': getTimestamps,
-				'getPolylineCoordinates': getPolylineCoordinates,
-				'setPolylineCoordinates': setPolylineCoordinates,
-				'setStartTime': setStartTime,
-				'setEndTime': setEndTime,
-				'setHasResponse': setHasResponse
+		/** 
+		 * Serializes the PathData object to JSON format.
+		 * @returns {string} 
+		 */
+		function toString() {
+			var stringable = new Object();	
+
+			// user has provided a response
+			if ( data.response ) {
+				stringable.path = data.path.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
+
+				data.timestamps = getTimestamps();
+				debug(getTimestamps(), 'timestamps');
+
+				for (i = 0; i &lt; dataStringProperties.length; i++) {
+					var name = dataStringProperties[i];
+					if (data.hasOwnProperty(name)) { stringable[name] = data[name]; };	
+				}
+			}	
+			return JSON.stringify(stringable); 
+		};
+
+		/** 
+		 * Sets the polyline coordinates of the PathData instance.
+		 * @param {function} onNoData - Called if there is not yet a path set.
+		 * @param {function} onDataReceipt - Called if there is a nontrivial path.
+		 */
+		function load(onNoData, onDataReceipt) {
+			conn = new XMLHttpRequest();
+			conn.overrideMimeType('application/json');
+			conn.open('GET', '../../dowsing-js/polyline.php', true);
+			conn.onreadystatechange = function() {
+				if (this.readyState !== 4 ) return; 
+				if (this.status !== 200 ) return; 
+				debug(this.responseText);
+				if ( this.responseText === "{}" )
+					data = new Object();
+				else
+					data = eval("(" + JSON.parse(this.responseText) + ")");
+				// debug(data);
+				if ( !isEmptyObject(data) ) {
+					setPolylineCoordinates(data.path.map(createLatLng));
+					onDataReceipt();				
+				}
+				else
+					onNoData();
 			};
-		};
-		return { 
-			'create': create
-		};
-	}());
+			conn.send();
 
+			function isEmptyObject(obj) {
+				var key;
+				for (key in obj) {
+					if (obj.hasOwnProperty(key))
+						return false;
+				}
+				return true;
+			}
+		}
+		
+		this.load = load;
+		this.toString = toString;
+		this.getPolyline = getPolyline;
+		this.getStartTime = getStartTime;
+		this.getTimestamps = getTimestamps;
+		this.getPolylineCoordinates = getPolylineCoordinates;
+		this.setPolylineCoordinates = setPolylineCoordinates;
+		this.setStartTime = setStartTime;
+		this.setEndTime = setEndTime;
+		this.setHasResponse = setHasResponse;
+	};
+
+	/** 
+		Utility function for console debugging that is controlled by the verbose variable.
+		@param {object} object
+		@param {string} description - Identify the object being examined.
+	*/
 	function debug(object, description) {
 		if (verbose) {
 			if (typeof description !== 'undefined')
@@ -188,6 +201,11 @@ var spatialsurvey = function(map, doc) {
 		}
 	}	
 
+	/** 
+		Utility function returning a google.maps.LatLng object.
+		@param {Object} coord
+		@returns {google.maps.LatLng}
+	*/
 	var createLatLng = function(coord) {
 		return new google.maps.LatLng(coord.lat, coord.lng);
 	}
@@ -1881,13 +1899,13 @@ function getResourceUrl(filename) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Externals</h3><ul><li><a href="pathData.html">pathData</a></li></ul><h3>Namespaces</h3><ul><li><a href="spatialsurvey.html">spatialsurvey</a></li></ul><h3>Global</h3><ul><li><a href="global.html#create">create</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="spatialsurvey-PathData.html">PathData</a></li></ul><h3>Namespaces</h3><ul><li><a href="spatialsurvey.html">spatialsurvey</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Tue Apr 08 2014 18:50:25 GMT-0500 (CDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Thu Apr 10 2014 14:25:29 GMT-0500 (CDT)
 </footer>
 
 <script> prettyPrint(); </script>
