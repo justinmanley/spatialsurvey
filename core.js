@@ -212,6 +212,28 @@ var spatialsurvey = function(map, doc) {
 		return new google.maps.LatLng(coord.lat, coord.lng);
 	}
 
+	/** 
+		@constructor
+		@param {Object} options
+		@param {string} options.id
+		@param {string} options.text
+		@param {function} options.onClick
+	*/
+	function Button(opt) {
+		var button = doc.createElement('button');
+		button.id = opt.id;
+		button.setAttribute('class', 'dowsing-button');
+		button.innerHTML = opt.text;
+		
+		/** Adds the button to the bottom center control position on the map. */
+		this.show = function() {
+			map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(button);			
+		}
+
+		google.maps.event.addDomListener(button, 'click', opt.onClick);	
+
+	}
+
 // should be a class from which nextButton and previousButton derive
 // -------------------------------------------------------------------------------------
 	var showButton = function(data, destination, type, currentPageName, validate) 
@@ -1228,7 +1250,8 @@ var spatialsurvey = function(map, doc) {
 		'showProgress': showProgress,	
 		'tutorial': tutorial,
 		'error': error,
-		'isValidTime': isValidTime
+		'isValidTime': isValidTime,
+		'Button': Button
 
 	};
 };
