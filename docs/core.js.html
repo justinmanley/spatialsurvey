@@ -25,18 +25,23 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/** 
- * Google Maps LatLng Class
- * @external LatLng
- * @see {@linkcode https://developers.google.com/maps/documentation/javascript/reference#LatLng}
- */
+            <pre class="prettyprint source linenums"><code>/** @namespace  */
+var surveyHelper = (function() {
+	/** 
+	 * Sets the the environment for the module. 
+	 */
+	var environment = {
+		verbose: false
+	};
 
-/** @namespace */
-var spatialsurvey = function(map, doc) {
-	var map = map;
-
-	/** verbose should be true only in a development environment */
-	var verbose = true;	
+	/** 
+	 *	Set up environment. 
+	 *	@params {Object} opt - Options object.
+	 * 	@params {Object} opt.map - A google.maps.map object.
+	 */
+	function init(opt) {
+		environment.map = opt.map;
+	}
 
 	/**
 	 * Returns a new pathData object.
@@ -246,7 +251,7 @@ var spatialsurvey = function(map, doc) {
 		@param {string} options.text
 		@param {function} options.onClick
 	*/
-	function Button(opt) {
+	function Button(opt) {	
 		var button = doc.createElement('button');
 		button.id = opt.id;
 		button.setAttribute('class', 'dowsing-button');
@@ -258,169 +263,20 @@ var spatialsurvey = function(map, doc) {
 		}
 
 		google.maps.event.addDomListener(button, 'click', opt.onClick);	
-
 	}
 
-// should be a class from which nextButton and previousButton derive
-// -------------------------------------------------------------------------------------
-	var showButton = function(data, destination, type, currentPageName, validate) 
-// -------------------------------------------------------------------------------------
-	{
-		var nextForm = doc.createElement('form');
-		nextForm.id = type + '-form';
-		nextForm.setAttribute('method', 'post');
-		nextForm.setAttribute('action', '../../dowsing-js/advance.php');
-		nextForm.innerHTML = '&lt;input type="hidden" name="' + type + '-name" id="' + type + '-name" value="' + destination + '"/>'+
-								'&lt;input type="hidden" name="current-page-name" id="current-page-name" value="'+currentPageName+'"/>'+
-								'&lt;input type="hidden" name="path-data" id="' + type + '-path-data"/>'+
-								'&lt;button type="button" class="dowsing-button" id="' + type + '-button">NEXT&lt;/button>';
-		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextForm);	
-
-		google.maps.event.addDomListener(nextForm, 'click', function() {
-			if ( validate() ) { 
-				var pathData = doc.getElementById(type + '-path-data');
-				pathData.setAttribute('value', data.toString());
-				nextForm.submit(); 
-			} 
-			else {
-				var startTimeForm = doc.getElementById('sidebar-start-time');
-				var endTimeForm = doc.getElementById('sidebar-end-time');
-
-				var oldColor = startTimeForm.style.backgroundColor;
-
-				startTimeForm.style.backgroundColor = '#ff4e4e';
-				endTimeForm.style.backgroundColor = '#ff4e4e';
-
-				setTimeout(function() { startTimeForm.style.backgroundColor = oldColor; }, 1500);
-				setTimeout(function() { endTimeForm.style.backgroundColor = oldColor; }, 1500);
-			}
-		});		
-	}
-
-	// -------------------------------------------------------------
-	var showNextButton = function(data, destination, currentPageName, validate) 
-	// -------------------------------------------------------------
-	{
-		showButton(data, destination, 'next-page', currentPageName, validate);
-	}
-
-	// -------------------------------------------------------------
-	var showPreviousButton = function(data, destination, currentPageName, validate) 
-	// -------------------------------------------------------------
-	{
-		showButton(data, destination, 'previous-page', currentPageName, validate);
-	}
-
-	// -------------------------------------------------------------
-	function timestampOpenedContent(options) 
-	// -------------------------------------------------------------
-	{
-		if ( typeof options.startTime === 'undefined') { options.startTime = ''; };		
-		if ( typeof options.endTime === 'undefined') { options.endTime = ''; };		
-		var info = document.createElement('div');
-		info.setAttribute('class', 'timestamp-opened timestamp-container');
-
-
-		info.innerHTML = '&lt;form class="timestamp-form" onclick="false">'+
-				'&lt;label class="timestamp-label" for="time">Time&lt;/label>'+
-				'&lt;br />'+
-				'&lt;fieldset class="timestamp-data">'+
-					'&lt;input type="text" name="start-time" class="timestamp" value="'+options.startTime+'"/>'+
-					'&lt;input type="text" name="end-time" class="timestamp" value="'+options.endTime+'"/>'+
-					'&lt;input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + options.position.lat() + '"/>'+
-					'&lt;input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + options.position.lng() + '"/>'+
-				'&lt;/fieldset>'+
-			'&lt;/form>';
-
-		function getStartTime() {
-			return info.querySelector('.timestamp[name=start-time]').value;
-		}
-
-		function getEndTime() {
-			return info.querySelector('.timestamp[name=end-time]').value;
-		}
-
-		function clearTime() {
-			info.querySelector('.timestamp').value = '';
-		}
-
-		return {
-			'content': info,
-			'getStartTime': getStartTime,
-			'getEndTime': getEndTime,
-			'clearTime': clearTime
-		};
-	}
-
-	// --------------------------------------------------------------
-	function timestampClosedContent(options) 
-	// --------------------------------------------------------------
-	{
-		if ( typeof options.startTime === 'undefined') { options.startTime = ''; }
-		if ( typeof options.endTime === 'undefined') { options.endTime = ''; }
-
-		var placeholder = doc.createElement('div');
-		var separator = options.type === 'double' ? ' - ' : '';
-
-		placeholder.setAttribute('class', 'timestamp-closed timestamp-container');
-		placeholder.innerHTML = '&lt;form class="timestamp-form">'+
-				'&lt;label for="start-time" class="timestamp-label">'+options.startTime+'&lt;/label>'+
-				separator+
-				'&lt;input type="hidden" name="start-time" class="timestamp" value="'+options.startTime+'"/>'+	
-				'&lt;label for="end-time" class="timestamp-label">'+options.endTime+'&lt;/label>'+							
-				'&lt;input type="hidden" name="end-time" class="timestamp" value="'+options.endTime+'"/>'+				
-				'&lt;input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + options.position.lat() + '"/>'+
-				'&lt;input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + options.position.lng() + '"/>'+
-			'&lt;/form>';
-
-		function updateTimes(updatedStartTime, updatedEndTime) {
-			placeholder.querySelector('input[name=start-time]').value = updatedStartTime;
-			placeholder.querySelector('input[name=end-time]').value = updatedEndTime;
-			placeholder.querySelector('label[for=start-time]').innerHTML = updatedStartTime;
-			placeholder.querySelector('label[for=end-time]').innerHTML = updatedEndTime;			
-		}
-
-		return {
-			'content': placeholder,
-			'updateTimes': updateTimes
-		};
-	}
-
-// ----------------------------------------------------------------------
+	/** 
+	 * Tests whether a timestring is valid using a regular expression.
+	 * @param {string} timeString
+	 * @returns {bool}
+	 */
 	function isValidTime(timeString) 
-// ----------------------------------------------------------------------
 	{
 		var regex = /^(\d|[1][0-2])(:([0-5]\d))?\s?(AM|PM)$/i;
 		return regex.test(timeString);
 	}
 
-// ---------------------------------------------------------------
-	function getIcon()
-// ---------------------------------------------------------------
-	{
-		return {
-			url: getResourceUrl('marker.png'),
-			anchor: new google.maps.Point(10,10)
-		};
-	}
-
-// ---------------------------------------------------------------------
-	function getCloseButton(content)
-// ---------------------------------------------------------------------	
-	{
-		var imgs = Array.prototype.slice.apply(content.parentNode.getElementsByTagName('img'));
-		resultImgs = [];
-		for (var i = 0; i &lt; imgs.length; i++) {
-			if (imgs[i].src.indexOf('close-icon.png') !== -1) {
-				resultImgs.push(imgs[i]);
-			}
-		}
-		return resultImgs[0];
-	}
-
-// ---------------------------------------------------------------------
 	var infoBoxManager = (function()
-// ---------------------------------------------------------------------
 	{
 		var groups = {};
 		var init = function(identifier) {
@@ -455,110 +311,115 @@ var spatialsurvey = function(map, doc) {
 
 	}());
 
-// ---------------------------------------------------------------------
-	var timestamp = function(options)
-// ---------------------------------------------------------------------	
-	{
+	/** 
+		@constructor
+		@param {Object} options
+		@param {Object} options.polyline - google.maps.Polyline object
+		@param {Object} options.position - google.maps.LatLng object
+		@param {string} options.startTime
+		@param {string} options.endTime
+		@param {string} options.type - duration or single
+	*/
+	function Timestamp(options) {
+		// Timestamp defaults
 		var data = {
 			polyline: new google.maps.Polyline({}),
 			position: new google.maps.LatLng({}),
 			startTime: '',
 			endTime: '',
-			type: 'double',
-			openOnCreate: true
+			type: 'duration'
 		}
 
+		// initialize Timestamp data
 		for ( property in options ) {
 			if ( options.hasOwnProperty(property) ) {
 				data[property] = options[property];
 			}
 		}
 
-		var timestamp = {};		
 		var openedContent = timestampOpenedContent(data);
 		var closedContent = timestampClosedContent(data);		
-	
-		timestamp.create = function() {
-			if ( data.openOnCreate ) {
+
+		var timestamp = {
+			opened: new InfoBox({
+				content: openedContent.content,
+				position: data.position,
+				boxStyle: {
+					background: '#ffffff',
+					opacity: 1,
+					padding: '5px',
+					width: '130px',
+					height: '60px',
+					'border-radius': '7px'
+				},
+				closeBoxURL: getResourceUrl('close-icon.png'),
+				pixelOffset: new google.maps.Size(-68,-95)
+			}),
+			closed: new InfoBox({
+				content: closedContent.content,
+				position: data.position,
+				boxStyle: {
+					background: '#ffffff',
+					opacity: 1,
+					padding: '5px',
+					width: '105px',
+					height: '20px',
+					'border-radius': '7px'
+				},
+				closeBoxURL: "",
+				pixelOffset: new google.maps.Size(-55,-55)
+			}),
+			pyramid: new google.maps.Marker({
+				icon: { url: getResourceUrl('pyramid.png'), anchor: new google.maps.Point(10,30) },
+				shape: { type: "rect", coords: [0,0,20,20] },
+				position: data.position,
+				map: map		
+			})
+		};
+
+		/** 
+		 *	Show the timestamp on the map. 
+		 *	@param {string} state - open, closed, or none. 	
+		*/
+		function show(state) {
+			if ( state == 'open' ) {
 				timestamp.opened.open(map, timestamp.pyramid);
+				timestamp.pyramid.setMap(map);
 				open = true;
-			}				
-			else {
-				timestamp.closed.open(map, timestamp.pyramid);
-				open = false;					
+				return this;
 			}
-			timestamp.pyramid.setMap(map);
-			return timestamp;
-		}
+			else if ( state == 'closed' ) {
+				var startTime = openedContent.getStartTime();
+				var endTime = openedContent.getEndTime();
+				if ( isValidTime(startTime) &amp;&amp; ( isValidTime(endTime) || data.type === 'single' ) ) {
+					timestamp.opened.setMap(null);
 
-		timestamp.opened = new InfoBox({
-			content: openedContent.content,
-			position: data.position,
-			boxStyle: {
-				background: '#ffffff',
-				opacity: 1,
-				padding: '5px',
-				width: '130px',
-				height: '60px',
-				'border-radius': '7px'
-			},
-			closeBoxURL: getResourceUrl('close-icon.png'),
-			pixelOffset: new google.maps.Size(-68,-95),
-			map: map
-		});
-		timestamp.closed = new InfoBox({
-			content: closedContent.content,
-			position: data.position,
-			boxStyle: {
-				background: '#ffffff',
-				opacity: 1,
-				padding: '5px',
-				width: '105px',
-				height: '20px',
-				'border-radius': '7px'
-			},
-			closeBoxURL: "",
-			pixelOffset: new google.maps.Size(-55,-55)
-		});		
-		timestamp.pyramid = new google.maps.Marker({
-			icon: { url: getResourceUrl('pyramid.png'), anchor: new google.maps.Point(10,30) },
-			shape: { type: "rect", coords: [0,0,20,20] },
-			position: data.position,
-			map: map		
-		});
-		timestamp.open = function() {
-			timestamp.opened.open(map, timestamp.pyramid);
-			timestamp.pyramid.setMap(map);
-			open = true;
-		}
-		timestamp.close = function() {
-			var startTime = openedContent.getStartTime();
-			var endTime = openedContent.getEndTime();
-			if ( isValidTime(startTime) &amp;&amp; ( isValidTime(endTime) || data.type === 'single' ) ) {
-				timestamp.opened.setMap(null);
+					closedContent.updateTimes(startTime, endTime);
+					// closedContent.updateColor(startTime, endTime);	
 
-				closedContent.updateTimes(startTime, endTime);
-				// closedContent.updateColor(startTime, endTime);	
-
-				timestamp.closed.open(map, timestamp.pyramid);
-				open = false;							
-			} 
-			else {
-				openedContent.clearTime();
-				var inputs = openedContent.content.getElementsByClassName('timestamp');
-				var oldColor = inputs[0].style.backgroundColor;
-				for (i = 0; i &lt; inputs.length; i++) {
-					(function(thisInput) {
-						inputs[i].style.backgroundColor = '#ff4e4e';
-						setTimeout(function() { inputs[thisInput].style.backgroundColor = oldColor }, 1000);
-					}(i));
+					timestamp.closed.open(map, timestamp.pyramid);
+					open = false;							
+				} 
+				else {
+					openedContent.clearTime();
+					var inputs = openedContent.content.getElementsByClassName('timestamp');
+					var oldColor = inputs[0].style.backgroundColor;
+					for (i = 0; i &lt; inputs.length; i++) {
+						(function(thisInput) {
+							inputs[i].style.backgroundColor = '#ff4e4e';
+							setTimeout(function() { inputs[thisInput].style.backgroundColor = oldColor }, 1000);
+						}(i));
+					}
 				}
 			}
+			return this;
 		}
-		timestamp.isOpen = function() {
-			return open;
-		}
-		timestamp.savePosition = function(position) {
+
+		/** 
+		 *	
+		 * @param {Object} position - A google.maps.LatLng object. 
+		*/
+		function savePosition(position) {
 			timestamp.opened.getContent().getElementsByClassName('timestamp-position-lat')[0].value = position.lat();
 			timestamp.opened.getContent().getElementsByClassName('timestamp-position-lng')[0].value = position.lng();
 
@@ -566,44 +427,42 @@ var spatialsurvey = function(map, doc) {
 			timestamp.closed.getContent().getElementsByClassName('timestamp-position-lng')[0].value = position.lng();	
 		}
 
-		if ( data.type == 'double' ) {
-			timestamp.pyramid.setDraggable(true);
-			google.maps.event.addListener(timestamp.pyramid, 'drag', function(event) {
-				var dragPosition = mapcalc(map, doc).closestPointOnPolyline(data.polyline, timestamp.pyramid.getPosition());
-				timestamp.pyramid.setPosition(dragPosition);		
-			});		
-			google.maps.event.addListener(timestamp.pyramid, 'dragend', function(event) {
-				timestamp.closed.setPosition(event.latLng);
-				timestamp.savePosition(event.latLng);
-			});			
+		timestamp.pyramid.setDraggable(true);
+		google.maps.event.addListener(timestamp.pyramid, 'drag', function(event) {
+			var dragPosition = mapcalc(map, doc).closestPointOnPolyline(data.polyline, timestamp.pyramid.getPosition());
+			timestamp.pyramid.setPosition(dragPosition);		
+		});		
+		google.maps.event.addListener(timestamp.pyramid, 'dragend', function(event) {
+			timestamp.closed.setPosition(event.latLng);
+			timestamp.savePosition(event.latLng);
+		});			
 
-			google.maps.event.addListener(timestamp.opened, 'closeclick', function() {
-				timestamp.pyramid.setMap(null);
-				timestamp.opened.setMap(null);
-				timestamp.closed.setMap(null);
-			});	
+		google.maps.event.addListener(timestamp.opened, 'closeclick', function() {
+			timestamp.pyramid.setMap(null);
+			timestamp.opened.setMap(null);
+			timestamp.closed.setMap(null);
+		});	
 
-			var overlay = new google.maps.OverlayView();
-			overlay.draw = function() {};
-			overlay.setMap(map);
+		var overlay = new google.maps.OverlayView();
+		overlay.draw = function() {};
+		overlay.setMap(map);
 
-			var closedForm = closedContent.content.getElementsByClassName('timestamp-form')[0];
-			google.maps.event.addDomListener(closedForm, 'mousedown', function() {
-				var onTimestampDrag = google.maps.event.addDomListener(doc, 'mousemove', function(event) {
-					dragTimestamp(event);
-				});
-				google.maps.event.addDomListener(doc, 'mouseup', function() {
-					google.maps.event.removeListener(onTimestampDrag);
-				});			
+		var closedForm = closedContent.content.getElementsByClassName('timestamp-form')[0];
+		google.maps.event.addDomListener(closedForm, 'mousedown', function() {
+			var onTimestampDrag = google.maps.event.addDomListener(doc, 'mousemove', function(event) {
+				dragTimestamp(event);
 			});
+			google.maps.event.addDomListener(doc, 'mouseup', function() {
+				google.maps.event.removeListener(onTimestampDrag);
+			});			
+		});
 
-			var openedLabel = openedContent.content.querySelectorAll('label[for=time]')[0];
-			google.maps.event.addDomListener(openedLabel, 'click', function() { timestamp.close();  });
-			google.maps.event.addDomListener(closedForm, 'click', function() { timestamp.open();   });			
+		var openedLabel = openedContent.content.querySelectorAll('label[for=time]')[0];
+		google.maps.event.addDomListener(openedLabel, 'click', function() { show('closed');  });
+		google.maps.event.addDomListener(closedForm, 'click', function() { show('open');   });			
 
-			var startPixelY;
-			var startPixelX;							
-		}
+		var startPixelY;
+		var startPixelX;							
 
 		function dragTimestamp(event) {
 			pauseEvent(event);
@@ -623,18 +482,89 @@ var spatialsurvey = function(map, doc) {
 			startPixelY = event.y;
 		}
 
-		function pauseEvent(e){
+		function pauseEvent(e) {
 		    if(e.stopPropagation) e.stopPropagation();
 		    if(e.preventDefault) e.preventDefault();
 		    e.cancelBubble=true;
 		    e.returnValue=false;
 		    return false;
-		}			
+		}
+
+		function timestampOpenedContent(openedOptions) {
+			if ( typeof openedOptions.startTime === 'undefined') { openedOptions.startTime = ''; };		
+			if ( typeof openedOptions.endTime === 'undefined') { openedOptions.endTime = ''; };		
+			var info = document.createElement('div');
+			info.setAttribute('class', 'timestamp-opened timestamp-container');
 
 
-		return timestamp;
+			info.innerHTML = '&lt;form class="timestamp-form" onclick="false">'+
+					'&lt;label class="timestamp-label" for="time">Time&lt;/label>'+
+					'&lt;br />'+
+					'&lt;fieldset class="timestamp-data">'+
+						'&lt;input type="text" name="start-time" class="timestamp" value="'+openedOptions.startTime+'"/>'+
+						'&lt;input type="text" name="end-time" class="timestamp" value="'+openedOptions.endTime+'"/>'+
+						'&lt;input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + openedOptions.position.lat() + '"/>'+
+						'&lt;input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + openedOptions.position.lng() + '"/>'+
+					'&lt;/fieldset>'+
+				'&lt;/form>';
+
+			function getStartTime() {
+				return info.querySelector('.timestamp[name=start-time]').value;
+			}
+
+			function getEndTime() {
+				return info.querySelector('.timestamp[name=end-time]').value;
+			}
+
+			function clearTime() {
+				info.querySelector('.timestamp').value = '';
+			}
+
+			return {
+				'content': info,
+				'getStartTime': getStartTime,
+				'getEndTime': getEndTime,
+				'clearTime': clearTime
+			};
+		}
+
+		function timestampClosedContent(closedOptions) {
+			if ( typeof closedOptions.startTime === 'undefined') { closedOptions.startTime = ''; }
+			if ( typeof closedOptions.endTime === 'undefined') { closedOptions.endTime = ''; }
+
+			var placeholder = doc.createElement('div');
+			var separator = closedOptions.type === 'double' ? ' - ' : '';
+
+			placeholder.setAttribute('class', 'timestamp-closed timestamp-container');
+			placeholder.innerHTML = '&lt;form class="timestamp-form">'+
+					'&lt;label for="start-time" class="timestamp-label">'+closedOptions.startTime+'&lt;/label>'+
+					separator+
+					'&lt;input type="hidden" name="start-time" class="timestamp" value="'+closedOptions.startTime+'"/>'+	
+					'&lt;label for="end-time" class="timestamp-label">'+closedOptions.endTime+'&lt;/label>'+							
+					'&lt;input type="hidden" name="end-time" class="timestamp" value="'+closedOptions.endTime+'"/>'+				
+					'&lt;input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + closedOptions.position.lat() + '"/>'+
+					'&lt;input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + closedOptions.position.lng() + '"/>'+
+				'&lt;/form>';
+
+			function updateTimes(updatedStartTime, updatedEndTime) {
+				placeholder.querySelector('input[name=start-time]').value = updatedStartTime;
+				placeholder.querySelector('input[name=end-time]').value = updatedEndTime;
+				placeholder.querySelector('label[for=start-time]').innerHTML = updatedStartTime;
+				placeholder.querySelector('label[for=end-time]').innerHTML = updatedEndTime;			
+			}
+
+			return {
+				'content': placeholder,
+				'updateTimes': updateTimes
+			};
+		}						
+
+		this.show = show;
+		this.savePosition = savePosition;
+		return this;
 	}
 
+	/** @namespace spatialsurvey.instructions */
 	var instructions = (function() {
 		var create = function(drawingManager, options) {
 			// set defaults
@@ -1269,9 +1199,9 @@ var spatialsurvey = function(map, doc) {
 
 	// public methods and constructors for module spatialsurvey
 	return {
-		'PathData': PathData, 
-		'showNextButton': showNextButton,
-		'timestamp': timestamp,
+		'PathData': PathData,
+		'Button': Button,
+		'Timestamp': Timestamp,
 		'instructions': instructions,
 		'sidebar': sidebar,
 		'showProgress': showProgress,	
@@ -1281,10 +1211,10 @@ var spatialsurvey = function(map, doc) {
 		'Button': Button
 
 	};
-};
+}());
 
 // -----------------------------------------------------------------------------
-var mapcalc = function(map, doc) 
+var mapHelper = (function()
 // -----------------------------------------------------------------------------
 {
 
@@ -1700,103 +1630,7 @@ var mapcalc = function(map, doc)
 		'distributeTimeStamps': distributeTimeStamps
 	}
 
-};
-
-// ---------------------------------------------------------------------
-	Math.sgn = function(x) 
-// ---------------------------------------------------------------------	
-	{
-	    return typeof x === 'number' ? x ? x &lt; 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
-	}
-
-// ---------------------------------------------------------------------
-	Math.sinh = function(x) 
-// ---------------------------------------------------------------------
-	{
-		return 0.5*(Math.exp(x) - Math.exp(-x));
-	}
-
-// ---------------------------------------------------------------------
-	Math.cosh = function(x) 
-// ---------------------------------------------------------------------
-	{
-		return 0.5*	(Math.exp(x) + Math.exp(-x));
-	}
-
-// ---------------------------------------------------------------------
-	Math.tanh = function(x) 
-// ---------------------------------------------------------------------
-	{
-		return Math.sinh(x)/Math.cosh(x);
-	}
-
-// ---------------------------------------------------------------------
-	Math.atanh = function(x) 
-// ---------------------------------------------------------------------
-	{
-		return 0.5*Math.log((1+x)/(1-x));
-	}
-
-// ---------------------------------------------------------------------
-	Math.cot = function(x)
-// ---------------------------------------------------------------------
-{
-	return 1/Math.tan(x);
-}
-
-// ---------------------------------------------------------------------
-	Math.sec = function(x)
-// ---------------------------------------------------------------------
-{
-	return 1/Math.cos(x);
-}
-
-// ---------------------------------------------------------------------
-	var bearing = function(point1, point2) 
-// ---------------------------------------------------------------------
-	{
-		var top = Math.atanh(Math.sin(point2.lat()));
-		var bottom = point2.lng() - equatorialIntercept(point1, point2);
-		return top/bottom;
-	}
-
-// ---------------------------------------------------------------------
-	var equatorialIntercept = function(point1, point2)
-// ---------------------------------------------------------------------
-	{
-		var y1 = Math.atanh(Math.sin(point1.lat()));
-		var y2 = Math.atanh(Math.sin(point2.lat()));
-		var top = y2*point1.lng() - y1*point2.lng();
-		var bottom = y2 - y1;
-		return top/bottom;
-	}
-
-// ---------------------------------------------------------------------
-	var rhumbLineLatitude = function(point1, point2, longitude)
-// ---------------------------------------------------------------------
-{
-	var azimuth = Math.cot(bearing(point1, point2));
-	var lambda = equatorialIntercept(point1, point2)
-	return Math.asin(Math.tanh(azimuth*(longitude - lambda)));
-}
-
-// eccentricity from WGS84
-var eccentricity = 0.08181919084;
-
-// semi-major axis in meters
-var semiMajorAxis = 6378137;
-
-var aMap = function(map) {
-	var top = 256*Math.pow(2,map.getZoom());
-	var bottom = 2*Math.PI;
-	return top/bottom;
-}
-
-var dx = function(map, latitude) { 
-	var top = aMap(map)*Math.sec(latitude)*Math.sqrt(1 - (eccentricity*Math.sin(latitude))^2);
-	var bottom = semiMajorAxis;
-	return top/bottom;
-}
+}());
 
 var metersToLat = function(point) {
 	var latDistance = google.maps.geometry.spherical.computeDistanceBetween(
@@ -1865,7 +1699,7 @@ var incrementTimestamp = function(baseTimeString, timeDifference) {
 	return newTimeString;
 }
 
-var timestringToInteger = function(timeString) {
+function timestringToInteger(timeString) {
 	var regex = /^(\d|[1][0-2])(?::)?([0-5]\d)?\s?(AM|PM)$/i;
 	var parsed = regex.exec(timeString);
 
@@ -1938,13 +1772,13 @@ function getResourceUrl(filename) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="spatialsurvey-Button.html">Button</a></li><li><a href="spatialsurvey-PathData.html">PathData</a></li></ul><h3>Namespaces</h3><ul><li><a href="spatialsurvey.html">spatialsurvey</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Namespaces</h3><ul><li><a href="spatialsurvey.instructions.html">instructions</a></li><li><a href="surveyHelper.html">surveyHelper</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Thu Apr 10 2014 20:48:22 GMT-0500 (CDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Thu Apr 24 2014 17:52:13 GMT-0500 (CDT)
 </footer>
 
 <script> prettyPrint(); </script>
