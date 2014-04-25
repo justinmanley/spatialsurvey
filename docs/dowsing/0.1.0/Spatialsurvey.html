@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: spatialsurvey</title>
+    <title>JSDoc: Namespace: Spatialsurvey</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: spatialsurvey</h1>
+    <h1 class="page-title">Namespace: Spatialsurvey</h1>
 
     
 
@@ -27,7 +27,7 @@
 
 <header>
     <h2>
-    spatialsurvey
+    Spatialsurvey
     </h2>
     
 </header>
@@ -62,7 +62,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core.js.html">core.js</a>, <a href="core.js.html#line2">line 2</a>
+        <a href="core.js.html">core.js</a>, <a href="core.js.html#line1">line 1</a>
     </li></ul></dd>
     
 
@@ -88,24 +88,17 @@
         <h3 class="subsection-title">Classes</h3>
 
         <dl>
-            <dt><a href="spatialsurvey-Button.html">Button</a></dt>
+            <dt><a href="Spatialsurvey.Button.html">Button</a></dt>
             <dd></dd>
         
-            <dt><a href="spatialsurvey-PathData.html">PathData</a></dt>
+            <dt><a href="Spatialsurvey.PathData.html">PathData</a></dt>
             <dd></dd>
         
-            <dt><a href="spatialsurvey-Timestamp.html">Timestamp</a></dt>
+            <dt><a href="Spatialsurvey.Timestamp.html">Timestamp</a></dt>
             <dd></dd>
         </dl>
     
 
-    
-        <h3 class="subsection-title">Namespaces</h3>
-
-        <dl>
-            <dt><a href="namespaces.html#spatialsurvey.instructions"><a href="spatialsurvey.instructions.html">instructions</a></a></dt>
-            <dd></dd>
-        </dl>
     
 
     
@@ -114,14 +107,14 @@
         <dl>
             
 <dt>
-    <h4 class="name" id="verbose"><span class="type-signature">&lt;inner> </span>verbose<span class="type-signature"></span></h4>
+    <h4 class="name" id="environment"><span class="type-signature">&lt;private, static> </span>environment<span class="type-signature"></span></h4>
 
     
 </dt>
 <dd>
     
     <div class="description">
-        verbose should be true only in a development environment
+        Contains the environment for the module.
     </div>
     
 
@@ -150,7 +143,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core.js.html">core.js</a>, <a href="core.js.html#line6">line 6</a>
+        <a href="core.js.html">core.js</a>, <a href="core.js.html#line11">line 11</a>
     </li></ul></dd>
     
 
@@ -176,7 +169,7 @@
         <dl>
             
 <dt>
-    <h4 class="name" id="createLatLng"><span class="type-signature">&lt;inner> </span>createLatLng<span class="signature">(coord)</span><span class="type-signature"> &rarr; {google.maps.LatLng}</span></h4>
+    <h4 class="name" id="createLatLng"><span class="type-signature">&lt;static> </span>createLatLng<span class="signature">(coord)</span><span class="type-signature"> &rarr; {google.maps.LatLng}</span></h4>
 
     
 </dt>
@@ -265,7 +258,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core.js.html">core.js</a>, <a href="core.js.html#line205">line 205</a>
+        <a href="core.js.html">core.js</a>, <a href="core.js.html#line249">line 249</a>
     </li></ul></dd>
     
 
@@ -313,7 +306,7 @@
         
             
 <dt>
-    <h4 class="name" id="debug"><span class="type-signature">&lt;inner> </span>debug<span class="signature">(object, description)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="debug"><span class="type-signature">&lt;static> </span>debug<span class="signature">(object, description)</span><span class="type-signature"></span></h4>
 
     
 </dt>
@@ -425,7 +418,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core.js.html">core.js</a>, <a href="core.js.html#line192">line 192</a>
+        <a href="core.js.html">core.js</a>, <a href="core.js.html#line235">line 235</a>
     </li></ul></dd>
     
 
@@ -455,7 +448,174 @@
         
             
 <dt>
-    <h4 class="name" id="isValidTime"><span class="type-signature">&lt;inner> </span>isValidTime<span class="signature">(timeString)</span><span class="type-signature"> &rarr; {bool}</span></h4>
+    <h4 class="name" id="init"><span class="type-signature">&lt;static> </span>init<span class="signature">(opt)</span><span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Set up environment.
+    </div>
+    
+
+    
+
+    
+
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>opt</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Options object.
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>map</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A google.maps.map object.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+    
+
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="core.js.html">core.js</a>, <a href="core.js.html#line21">line 21</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="isValidTime"><span class="type-signature">&lt;static> </span>isValidTime<span class="signature">(timeString)</span><span class="type-signature"> &rarr; {bool}</span></h4>
 
     
 </dt>
@@ -544,7 +704,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core.js.html">core.js</a>, <a href="core.js.html#line235">line 235</a>
+        <a href="core.js.html">core.js</a>, <a href="core.js.html#line284">line 284</a>
     </li></ul></dd>
     
 
@@ -605,13 +765,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="spatialsurvey-Button.html">Button</a></li><li><a href="spatialsurvey-PathData.html">PathData</a></li><li><a href="spatialsurvey-Timestamp.html">Timestamp</a></li></ul><h3>Namespaces</h3><ul><li><a href="spatialsurvey.html">spatialsurvey</a></li><li><a href="spatialsurvey.instructions.html">instructions</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="Spatialsurvey.Button.html">Button</a></li><li><a href="Spatialsurvey.PathData.html">PathData</a></li><li><a href="Spatialsurvey.Timestamp.html">Timestamp</a></li></ul><h3>Namespaces</h3><ul><li><a href="Spatialsurvey.html">Spatialsurvey</a></li><li><a href="spatialsurvey.instructions.html">instructions</a></li></ul><h3>Global</h3><ul><li><a href="global.html#getResourceUrl">getResourceUrl</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Thu Apr 24 2014 17:03:25 GMT-0500 (CDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Fri Apr 25 2014 00:02:29 GMT-0500 (CDT)
 </footer>
 
 <script> prettyPrint(); </script>

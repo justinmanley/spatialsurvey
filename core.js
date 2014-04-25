@@ -1,7 +1,12 @@
-/** @namespace  */
+/** 
+ * @name Spatialsurvey
+ * @namespace  
+ */
 var surveyHelper = (function() {
 	/** 
-	 * Sets the the environment for the module. 
+	 * Contains the environment for the module.
+	 * @memberOf Spatialsurvey
+	 * @private
 	 */
 	var environment = {
 		verbose: false
@@ -9,6 +14,7 @@ var surveyHelper = (function() {
 
 	/** 
 	 * Set up environment. 
+	 * @memberOf Spatialsurvey
 	 * @param {Object} opt - Options object.
 	 * @param {Object} opt.map - A google.maps.map object.
 	 */
@@ -20,6 +26,7 @@ var surveyHelper = (function() {
 	/**
 	 * Returns a new pathData object.
 	 * @constructor
+	 * @memberOf Spatialsurvey
 	 * @param {Object} data - Object containing user response data.
 	 * @param {Object} data.path - An array of {@linkcode external:LatLng} coordinates.
 	 * @param {string} data.startTime 
@@ -35,33 +42,51 @@ var surveyHelper = (function() {
 
 		/** 
 		 * Set the coordinates for the user's path.
+		 * @memberOf Spatialsurvey.PathData
 		 * @param {Object} path - An array of LatLng coordinates (i.e. the result of polyline.getPath().getArray() ).
 		 */
 		function setPolylineCoordinates(path) { data.path = path; }
 
 		/** 
 		 * Get the coordinates for the user's path.
+		 * @memberOf Spatialsurvey.PathData		 
 		 * @returns {Object} Array of coordinates.
 		 */
 		function getPolylineCoordinates() { return data.path || []; }
 
-		/** @returns {string} */
+		/** 
+		 * @memberOf Spatialsurvey.PathData		
+		 * @returns {string} 
+		 */
 		function getStartTime() { return data.startTime; }
 
-		/** @returns {string} */
+		/** 
+		 * @memberOf Spatialsurvey.PathData		
+		 * @returns {string} 
+		 */
 		function getEndTime() { return data.endTime; }
 
-		/** @param {string} startTime */
+		/** 
+		 * @memberOf Spatialsurvey.PathData
+		 * @param {string} startTime 
+		 */
 		function setStartTime(startTime) { data.startTime = startTime; }
 
-		/** @param {string} endTime */
+		/** 
+		 * @memberOf Spatialsurvey.PathData
+		 * @param {string} endTime 
+		 */
 		function setEndTime(endTime) { data.endTime = endTime; }
 
-		/** @param {bool} hasResponse */
+		/** 
+		 * @memberOf Spatialsurvey.PathData
+		 * @param {bool} hasResponse 
+		 */
 		function setHasResponse(hasResponse) { data.response = hasResponse; }
 
 		/** 
 		 * Returns the google.maps.Polyline instance associated with the path.
+		 * @memberOf Spatialsurvey.PathData
 		 * @returns {Object} 
 		 */
 		function getPolyline() {
@@ -78,8 +103,9 @@ var surveyHelper = (function() {
 		}
 
 		/** 
-			Retrieve the timestamps from the DOM.
-			@returns {Array}
+		 * Retrieve the timestamps from the DOM.
+		 * @memberOf Spatialsurvey.PathData
+		 * @returns {Array}
 		*/
 		function getTimestamps() {
 			var timestampWindows = document.getElementsByClassName('timestamp-form');
@@ -97,6 +123,7 @@ var surveyHelper = (function() {
 
 		/** 
 		 * Serializes the PathData object to JSON format.
+		 * @memberOf Spatialsurvey.PathData		 
 		 * @returns {string} 
 		 */
 		function toString() {
@@ -120,6 +147,7 @@ var surveyHelper = (function() {
 
 		/** 
 		 * Sets the polyline coordinates of the PathData instance.
+		 * @memberOf Spatialsurvey.PathData
 		 * @param {function} onNoData - Called if there is not yet a path set.
 		 * @param {function} onDataReceipt - Called if there is a nontrivial path.
 		 */
@@ -157,6 +185,7 @@ var surveyHelper = (function() {
 
 		/** 
 		 * Advances to the next page of the survey. 
+		 * @memberOf Spatialsurvey.PathData
 		 * @param {Object} options
 		 * @param {string} options.destinationPageName 
 		 * @param {string} options.currentPageName
@@ -198,10 +227,11 @@ var surveyHelper = (function() {
 	}
 
 	/** 
-		Utility function for console debugging that is controlled by the verbose variable.
-		@param {object} object
-		@param {string} description - Identify the object being examined.
-	*/
+	 * Utility function for console debugging that is controlled by the verbose variable.
+	 * @memberOf Spatialsurvey
+	 * @param {object} object
+	 * @param {string} description - Identify the object being examined.
+	 */
 	function debug(object, description) {
 		if (verbose) {
 			if (typeof description !== 'undefined')
@@ -211,9 +241,10 @@ var surveyHelper = (function() {
 	}	
 
 	/** 
-		Utility function returning a google.maps.LatLng object.
-		@param {Object} coord
-		@returns {google.maps.LatLng}
+	 * Utility function returning a google.maps.LatLng object.
+	 * @memberOf Spatialsurvey
+	 * @param {Object} coord
+	 * @returns {google.maps.LatLng}
 	*/
 	function createLatLng(coord) {
 		return new google.maps.LatLng(coord.lat, coord.lng);
@@ -221,6 +252,7 @@ var surveyHelper = (function() {
 
 	/** 
 		@constructor
+		@memberOf Spatialsurvey		
 		@param {Object} options
 		@param {string} options.id
 		@param {string} options.text
@@ -232,7 +264,10 @@ var surveyHelper = (function() {
 		button.setAttribute('class', 'dowsing-button');
 		button.innerHTML = opt.text;
 		
-		/** Adds the button to the bottom center control position on the map. */
+		/** 
+		 * Adds the button to the bottom center control position on the map. 
+		 * @memberOf Spatialsurvey.Button
+		 */
 		this.show = function() {
 			environment.environment.map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(button);			
 		};
@@ -242,6 +277,7 @@ var surveyHelper = (function() {
 
 	/** 
 	 * Tests whether a timestring is valid using a regular expression.
+	 * @memberOf Spatialsurvey
 	 * @param {string} timeString
 	 * @returns {bool}
 	 */
@@ -287,13 +323,14 @@ var surveyHelper = (function() {
 	}());
 
 	/** 
-		@constructor
-		@param {Object} options
-		@param {Object} options.polyline - google.maps.Polyline object
-		@param {Object} options.position - google.maps.LatLng object
-		@param {string} options.startTime
-		@param {string} options.endTime
-		@param {string} options.type - duration or single
+	 * @constructor
+	 * @memberOf Spatialsurvey
+	 * @param {Object} options
+	 * @param {Object} options.polyline - google.maps.Polyline object
+	 * @param {Object} options.position - google.maps.LatLng object
+	 * @param {string} options.startTime
+	 * @param {string} options.endTime
+	 * @param {string} options.type - duration or single
 	*/
 	function Timestamp(options) {
 		// Timestamp defaults
@@ -354,6 +391,7 @@ var surveyHelper = (function() {
 
 		/**
 		 * Show the timestamp on the map. 
+		 * @memberOf Spatialsurvey.Timestamp
 		 * @param {string} state - open, closed, or none.
 		*/
 		function show(state) {
@@ -391,7 +429,7 @@ var surveyHelper = (function() {
 		}
 
 		/** 
-		 *	
+		 * @memberOf Spatialsurvey.Timestamp	
 		 * @param {Object} position - A google.maps.LatLng object. 
 		*/
 		function savePosition(position) {
@@ -1729,6 +1767,7 @@ function getCSSRule(ruleName, deleteFlag) {               // Return requested st
    return false;                                          // we found NOTHING!
 }                                                         // end getCSSRule 
 
+/** Gets the URL. */
 function getResourceUrl(filename) {
 	return '../../dowsing-js/resources/' + filename;
 }
