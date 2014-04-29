@@ -1,5 +1,5 @@
 test("getResouceUrl()", function() {
-	equal(getResourceUrl('hello.js'), '../../dowsing-js/resources/hello.js');
+	equal(getResourceUrl('hello.js'), '../../spatialsurvey/resources/hello.js');
 });
 
 test("timestringToInteger()", function() {

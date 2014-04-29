@@ -1,7 +1,7 @@
 {
 	"name":"spatialsurvey",
 	"version":"0.1.0",
-	"repository": "https://github.com/manleyjster/dowsing-js",
+	"repository": "https://github.com/manleyjster/spatialsurvey",
 	"devDependencies": {
 		"grunt": "~0.4.2",
 		"grunt-contrib-jshint": "~0.6.3",

@@ -2,14 +2,14 @@
  * @name Spatialsurvey
  * @namespace  
  */
-var surveyHelper = (function() {
+spatialsurvey = (function() {
 	/** 
 	 * Contains the environment for the module.
 	 * @memberOf Spatialsurvey
 	 * @private
 	 */
 	var environment = {
-		verbose: false
+		verbose: true
 	};
 
 	/** 
@@ -151,36 +151,16 @@ var surveyHelper = (function() {
 		 * @param {function} onNoData - Called if there is not yet a path set.
 		 * @param {function} onDataReceipt - Called if there is a nontrivial path.
 		 */
-		function load(onNoData, onDataReceipt) {
-			conn = new XMLHttpRequest();
-			conn.overrideMimeType('application/json');
-			conn.open('GET', '../../dowsing-js/polyline.php', true);
-			conn.onreadystatechange = function() {
-				if (this.readyState !== 4 ) return; 
-				if (this.status !== 200 ) return; 
-				debug(this.responseText);
-				if ( this.responseText === "{}" )
-					data = {};
-				else
-					data = eval("(" + JSON.parse(this.responseText) + ")");
-				// debug(data);
-				if ( !isEmptyObject(data) ) {
-					setPolylineCoordinates(data.path.map(createLatLng));
-					onDataReceipt();				
-				}
-				else
-					onNoData();
-			};
-			conn.send();
-
-			function isEmptyObject(obj) {
-				var key;
-				for (key in obj) {
-					if (obj.hasOwnProperty(key))
-						return false;
-				}
-				return true;
+		function load() {
+			storedData = sessionStorage.getItem('path-data');
+			if ( storedData !== null )
+			{
+				debug(storedData, "storedData");
+				data = JSON.parse(storedData);
+				debug(data, "data");
+				setPolylineCoordinates(data.path.map(createLatLng));
 			}
+			return this;
 		}
 
 		/** 
@@ -195,19 +175,8 @@ var surveyHelper = (function() {
 		function send(opt) {
 			debug(toString(), 'path-data');
 
-			var dataForm = document.createElement('form');
-			dataForm.id = 'data-form';
-			dataForm.setAttribute('method', 'post');
-			dataForm.setAttribute('action', '../../dowsing-js/advance.php');
-			dataForm.innerHTML = ''+
-				'<input type="hidden" name="destination-page-name" id="destination-page-name" value="' + opt.destinationPageName + '"/>'+
-				'<input type="hidden" name="current-page-name" id="current-page-name" value="' + opt.currentPageName + '"/>'+
-				'<input type="hidden" value=' + toString() + ' name="path-data" id="path-data"/>';
-
-			debug(dataForm, 'dataForm');
-
-			if ( opt.validates() )
-				dataForm.submit();
+			if ( opt.validates() ) 
+				sessionStorage.setItem('path-data', toString());
 			else 
 				opt.validationError();		
 		}
@@ -233,11 +202,21 @@ var surveyHelper = (function() {
 	 * @param {string} description - Identify the object being examined.
 	 */
 	function debug(object, description) {
-		if (verbose) {
+		if (environment.verbose) {
 			if (typeof description !== 'undefined')
 				console.log(description);			
 			console.log(object);			
 		}
+	}
+
+	/** 
+	 * Advances the user to the next page in the survey.
+	 * @memberOf Spatialsurvey
+	 * @param {Object} options
+	 * @param {string} options.destinationPageName
+	 */
+	function advance(options) {
+		window.location.assign('../' + options.destinationPageName);
 	}	
 
 	/** 
@@ -393,7 +372,7 @@ var surveyHelper = (function() {
 		 * Show the timestamp on the map. 
 		 * @memberOf Spatialsurvey.Timestamp
 		 * @param {string} state - open, closed, or none.
-		*/
+		 */
 		function show(state) {
 			if ( state == 'open' ) {
 				timestamp.opened.open(environment.map, timestamp.pyramid);
@@ -1216,7 +1195,8 @@ var surveyHelper = (function() {
 		'showProgress': showProgress,	
 		'tutorial': tutorial,
 		'error': error,
-		'isValidTime': isValidTime
+		'isValidTime': isValidTime,
+		'init': init
 	};
 }());
 
@@ -1769,5 +1749,5 @@ function getCSSRule(ruleName, deleteFlag) {               // Return requested st
 
 /** Gets the URL. */
 function getResourceUrl(filename) {
-	return '../../dowsing-js/resources/' + filename;
+	return '../../spatialsurvey/resources/' + filename;
 }
