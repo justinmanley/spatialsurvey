@@ -13,6 +13,10 @@
 		<script type="text/javascript"
 			src="http://google-maps-utility-library-v3.googlecode.com/svn/tags/infobox/1.1.9/src/infobox.js">
 		</script>
+		<script type="text/javascript" src="../../node_modules/terraformer/terraformer.min.js"></script>
+		<script type="text/javascript" src="../../node_modules/terraformer-geostore/browser/terraformer-geostore.js"></script>		
+		<script type="text/javascript" src="../../node_modules/terraformer-geostore-memory/terraformer-geostore-memory.min.js"></script>		
+		<script type="text/javascript" src="../../node_modules/terraformer-rtree/terraformer-geostore-rtree.min.js"></script>		
 		<script type="text/javascript" src="../../spatialsurvey/core.js"></script>
 		<script type="text/javascript" src="../../spatialsurvey/colors/rainbowvis.js"></script>		
 		<script type="text/javascript" src="index.js"></script>

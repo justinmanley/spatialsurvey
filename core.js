@@ -1,32 +1,34 @@
 /** 
- * @name Spatialsurvey
+ * @name spatialsurvey
  * @namespace  
  */
 spatialsurvey = (function() {
 	/** 
 	 * Contains the environment for the module.
-	 * @memberOf Spatialsurvey
+	 * @memberOf spatialsurvey
 	 * @private
 	 */
 	var environment = {
-		verbose: true
+		verbose: false
 	};
 
 	/** 
 	 * Set up environment. 
-	 * @memberOf Spatialsurvey
+	 * @memberOf spatialsurvey
 	 * @param {Object} opt - Options object.
 	 * @param {Object} opt.map - A google.maps.map object.
 	 */
 	function init(opt) {
 		environment.map = opt.map;
 		environment.drawingManager = opt.drawingManager;
+
+		initClickNoDrag();
 	}
 
 	/**
 	 * Returns a new pathData object.
 	 * @constructor
-	 * @memberOf Spatialsurvey
+	 * @memberOf spatialsurvey
 	 * @param {Object} data - Object containing user response data.
 	 * @param {Object} data.path - An array of {@linkcode external:LatLng} coordinates.
 	 * @param {string} data.startTime 
@@ -42,51 +44,51 @@ spatialsurvey = (function() {
 
 		/** 
 		 * Set the coordinates for the user's path.
-		 * @memberOf Spatialsurvey.PathData
+		 * @memberOf spatialsurvey.PathData
 		 * @param {Object} path - An array of LatLng coordinates (i.e. the result of polyline.getPath().getArray() ).
 		 */
 		function setPolylineCoordinates(path) { data.path = path; }
 
 		/** 
 		 * Get the coordinates for the user's path.
-		 * @memberOf Spatialsurvey.PathData		 
+		 * @memberOf spatialsurvey.PathData		 
 		 * @returns {Object} Array of coordinates.
 		 */
 		function getPolylineCoordinates() { return data.path || []; }
 
 		/** 
-		 * @memberOf Spatialsurvey.PathData		
+		 * @memberOf spatialsurvey.PathData		
 		 * @returns {string} 
 		 */
 		function getStartTime() { return data.startTime; }
 
 		/** 
-		 * @memberOf Spatialsurvey.PathData		
+		 * @memberOf spatialsurvey.PathData		
 		 * @returns {string} 
 		 */
 		function getEndTime() { return data.endTime; }
 
 		/** 
-		 * @memberOf Spatialsurvey.PathData
+		 * @memberOf spatialsurvey.PathData
 		 * @param {string} startTime 
 		 */
 		function setStartTime(startTime) { data.startTime = startTime; }
 
 		/** 
-		 * @memberOf Spatialsurvey.PathData
+		 * @memberOf spatialsurvey.PathData
 		 * @param {string} endTime 
 		 */
 		function setEndTime(endTime) { data.endTime = endTime; }
 
 		/** 
-		 * @memberOf Spatialsurvey.PathData
+		 * @memberOf spatialsurvey.PathData
 		 * @param {bool} hasResponse 
 		 */
 		function setHasResponse(hasResponse) { data.response = hasResponse; }
 
 		/** 
 		 * Returns the google.maps.Polyline instance associated with the path.
-		 * @memberOf Spatialsurvey.PathData
+		 * @memberOf spatialsurvey.PathData
 		 * @returns {Object} 
 		 */
 		function getPolyline() {
@@ -104,7 +106,7 @@ spatialsurvey = (function() {
 
 		/** 
 		 * Retrieve the timestamps from the DOM.
-		 * @memberOf Spatialsurvey.PathData
+		 * @memberOf spatialsurvey.PathData
 		 * @returns {Array}
 		*/
 		function getTimestamps() {
@@ -123,7 +125,7 @@ spatialsurvey = (function() {
 
 		/** 
 		 * Serializes the PathData object to JSON format.
-		 * @memberOf Spatialsurvey.PathData		 
+		 * @memberOf spatialsurvey.PathData		 
 		 * @returns {string} 
 		 */
 		function toString() {
@@ -147,7 +149,7 @@ spatialsurvey = (function() {
 
 		/** 
 		 * Sets the polyline coordinates of the PathData instance.
-		 * @memberOf Spatialsurvey.PathData
+		 * @memberOf spatialsurvey.PathData
 		 * @param {function} onNoData - Called if there is not yet a path set.
 		 * @param {function} onDataReceipt - Called if there is a nontrivial path.
 		 */
@@ -158,14 +160,17 @@ spatialsurvey = (function() {
 				debug(storedData, "storedData");
 				data = JSON.parse(storedData);
 				debug(data, "data");
-				setPolylineCoordinates(data.path.map(createLatLng));
+				if ( typeof data.path !== 'undefined' )
+					setPolylineCoordinates(data.path.map(createLatLng));
+				else 
+					setPolylineCoordinates([]);
 			}
 			return this;
 		}
 
 		/** 
 		 * Advances to the next page of the survey. 
-		 * @memberOf Spatialsurvey.PathData
+		 * @memberOf spatialsurvey.PathData
 		 * @param {Object} options
 		 * @param {string} options.destinationPageName 
 		 * @param {string} options.currentPageName
@@ -197,7 +202,7 @@ spatialsurvey = (function() {
 
 	/** 
 	 * Utility function for console debugging that is controlled by the verbose variable.
-	 * @memberOf Spatialsurvey
+	 * @memberOf spatialsurvey
 	 * @param {object} object
 	 * @param {string} description - Identify the object being examined.
 	 */
@@ -211,7 +216,7 @@ spatialsurvey = (function() {
 
 	/** 
 	 * Advances the user to the next page in the survey.
-	 * @memberOf Spatialsurvey
+	 * @memberOf spatialsurvey
 	 * @param {Object} options
 	 * @param {string} options.destinationPageName
 	 */
@@ -221,7 +226,7 @@ spatialsurvey = (function() {
 
 	/** 
 	 * Utility function returning a google.maps.LatLng object.
-	 * @memberOf Spatialsurvey
+	 * @memberOf spatialsurvey
 	 * @param {Object} coord
 	 * @returns {google.maps.LatLng}
 	*/
@@ -231,7 +236,7 @@ spatialsurvey = (function() {
 
 	/** 
 		@constructor
-		@memberOf Spatialsurvey		
+		@memberOf spatialsurvey		
 		@param {Object} options
 		@param {string} options.id
 		@param {string} options.text
@@ -245,10 +250,10 @@ spatialsurvey = (function() {
 		
 		/** 
 		 * Adds the button to the bottom center control position on the map. 
-		 * @memberOf Spatialsurvey.Button
+		 * @memberOf spatialsurvey.Button
 		 */
 		this.show = function() {
-			environment.environment.map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(button);			
+			environment.map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(button);			
 		};
 
 		google.maps.event.addDomListener(button, 'click', opt.onClick);	
@@ -256,7 +261,7 @@ spatialsurvey = (function() {
 
 	/** 
 	 * Tests whether a timestring is valid using a regular expression.
-	 * @memberOf Spatialsurvey
+	 * @memberOf spatialsurvey
 	 * @param {string} timeString
 	 * @returns {bool}
 	 */
@@ -303,7 +308,7 @@ spatialsurvey = (function() {
 
 	/** 
 	 * @constructor
-	 * @memberOf Spatialsurvey
+	 * @memberOf spatialsurvey
 	 * @param {Object} options
 	 * @param {Object} options.polyline - google.maps.Polyline object
 	 * @param {Object} options.position - google.maps.LatLng object
@@ -364,13 +369,13 @@ spatialsurvey = (function() {
 				icon: { url: getResourceUrl('pyramid.png'), anchor: new google.maps.Point(10,30) },
 				shape: { type: "rect", coords: [0,0,20,20] },
 				position: data.position,
-				map: map		
+				map: environment.map		
 			})
 		};
 
 		/**
 		 * Show the timestamp on the map. 
-		 * @memberOf Spatialsurvey.Timestamp
+		 * @memberOf spatialsurvey.Timestamp
 		 * @param {string} state - open, closed, or none.
 		 */
 		function show(state) {
@@ -408,7 +413,7 @@ spatialsurvey = (function() {
 		}
 
 		/** 
-		 * @memberOf Spatialsurvey.Timestamp	
+		 * @memberOf spatialsurvey.Timestamp	
 		 * @param {Object} position - A google.maps.LatLng object. 
 		*/
 		function savePosition(position) {
@@ -421,7 +426,7 @@ spatialsurvey = (function() {
 
 		timestamp.pyramid.setDraggable(true);
 		google.maps.event.addListener(timestamp.pyramid, 'drag', function(event) {
-			var dragPosition = mapcalc(environment.map, doc).closestPointOnPolyline(data.polyline, timestamp.pyramid.getPosition());
+			var dragPosition = mapHelper.closestPointOnPolyline(data.polyline, timestamp.pyramid.getPosition());
 			timestamp.pyramid.setPosition(dragPosition);		
 		});		
 		google.maps.event.addListener(timestamp.pyramid, 'dragend', function(event) {
@@ -459,13 +464,13 @@ spatialsurvey = (function() {
 		function dragTimestamp(event) {
 			pauseEvent(event);
 
-			var proj = overlay.getProjection();
+			var proj = environment.map.getProjection();
 			var pos = timestamp.closed.getPosition();
 			var p = proj.fromLatLngToContainerPixel(pos);					
 
 			if ( typeof startPixelX !== 'undefined' ) {
 				var newPoint = new google.maps.Point(p.x + (event.x - startPixelX), p.y + (event.y - startPixelY));
-				var newLatLng = mapcalc(environment.map, doc).closestPointOnPolyline(data.polyline, proj.fromContainerPixelToLatLng(newPoint));
+				var newLatLng = mapHelper.closestPointOnPolyline(data.polyline, proj.fromContainerPixelToLatLng(newPoint));
 				timestamp.closed.setPosition(newLatLng);
 				timestamp.pyramid.setPosition(newLatLng);
 			}
@@ -895,31 +900,6 @@ spatialsurvey = (function() {
 			};
 		}());
 
-		function initClickNoDrag() {
-			var hasMoved = false;
-			addEventListener('mousedown', function(){
-				hasMoved = false;
-				addEventListener('mousemove', onMove, false);
-				addEventListener('mouseup', onUp, false);				
-			}, false);	
-
-			function onMove() {
-				hasMoved = true;
-			}
-					
-			function onUp(event) {
-				removeEventListener('mousemove', onMove);
-				removeEventListener('mouseup', onUp);
-
-				if ( hasMoved === false ) {
-					var clickNoDrag = new CustomEvent("clicknodrag", {
-						detail: event
-					});
-					document.dispatchEvent(clickNoDrag);
-				}
-			}			
-		}
-
 		function storeData(dataName, data) {
 			userTutorialData[dataName] = data;
 		}
@@ -941,7 +921,7 @@ spatialsurvey = (function() {
 					buttonText: 'NEXT',
 					width: 400,
 					clearFixed: true,
-					position: map.getCenter()
+					position: environment.map.getCenter()
 				},
 				advance: function() { }, 
 				fixed: true,
@@ -988,13 +968,14 @@ spatialsurvey = (function() {
 				fixed: true,
 				advance: function() { 
 					var points = 1;
-					var proj = overlay.getProjection();
+					var proj = environment.map.getProjection();
+					console.log(proj);
 					function onThirdPoint(event) {
 						if ( points == 3 ) {
 							var browserCursorX = event.detail.clientX;
 							var browserCurxorY = event.detail.clientY;
 							var browserPoint = new google.maps.Point(browserCursorX, browserCurxorY);
-							standardTutorialData.position = proj.fromDivPixelToLatLng(browserPoint);
+							standardTutorialData.position = proj.fromPointToLatLng(browserPoint);
 
 							debug('at least three points in polyline');
 							dispatchLessonComplete();
@@ -1033,7 +1014,7 @@ spatialsurvey = (function() {
 				advance: function() { 
 					var onCompletePolyline = google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
 						drawingManager.setOptions({ drawingMode: null });
-						mapcalc(environment.map, doc).rightClickButton(polyline);
+						mapHelper.rightClickButton(polyline);
 						standardTutorialData.polyline = polyline;						
 
 						console.log('path is completed');
@@ -1092,7 +1073,7 @@ spatialsurvey = (function() {
 							url: getResourceUrl("arrow-diagonal-down-small-white.png"), 
 							anchor: new google.maps.Point(75,80)
 						},
-						map: map						
+						map: environment.map						
 					});
 
 					function onInsertPoint() {
@@ -1185,6 +1166,31 @@ spatialsurvey = (function() {
 		};
 	}());
 
+	function initClickNoDrag() {
+		var hasMoved = false;
+		addEventListener('mousedown', function(){
+			hasMoved = false;
+			addEventListener('mousemove', onMove, false);
+			addEventListener('mouseup', onUp, false);				
+		}, false);	
+
+		function onMove() {
+			hasMoved = true;
+		}
+				
+		function onUp(event) {
+			removeEventListener('mousemove', onMove);
+			removeEventListener('mouseup', onUp);
+
+			if ( hasMoved === false ) {
+				var clickNoDrag = new CustomEvent("clicknodrag", {
+					detail: event
+				});
+				document.dispatchEvent(clickNoDrag);
+			}
+		}			
+	}
+
 	// public methods and constructors for module spatialsurvey
 	return {
 		'PathData': PathData,
@@ -1196,25 +1202,34 @@ spatialsurvey = (function() {
 		'tutorial': tutorial,
 		'error': error,
 		'isValidTime': isValidTime,
+		'advance': advance,
 		'init': init
 	};
 }());
 
-// -----------------------------------------------------------------------------
+/** 
+ * @name mapHelper
+ * @namespace
+ */
 var mapHelper = (function()
-// -----------------------------------------------------------------------------
 {
+	/** 
+	 * Contains the environment for the module.
+	 * @memberOf mapHelper
+	 * @private
+	 */
 	var environment = {
 		verbose: false
 	};
 
+	/** 
+	 * @memberOf mapHelper
+	 */
 	function init(opt) {
 		environment.map = opt.map;
 	}
 
-// -----------------------------------------------------------------------------
 	function comparePoints(a, b) 
-// -----------------------------------------------------------------------------
 	{
 		if (google.maps.geometry.spherical.computeDistanceBetween(a.point, a.coord) < google.maps.geometry.spherical.computeDistanceBetween(b.point, b.coord)) 
 			return -1;
@@ -1224,13 +1239,11 @@ var mapHelper = (function()
 			return 0;
 	}
 
-// ----------------------------------------------------------------------------
 	function placeMarker(point) 
-// ----------------------------------------------------------------------------
 	{
 		var marker = new google.maps.Marker({
 			position: point,
-			map: map
+			map: environment.map
 		});
 		return marker;
 	}
@@ -1309,7 +1322,7 @@ var mapHelper = (function()
 	var rightClickButton = function(polyline)
 // ----------------------------------------------------------------------
 	{
-		var deleteButton = addDeleteButton(doc, polyline);
+		var deleteButton = addDeleteButton(document, polyline);
 		var rightClickDiv = new InfoBox({
 			content: deleteButton,
 			closeBoxURL: getResourceUrl('close-icon.png'),
@@ -1334,11 +1347,11 @@ var mapHelper = (function()
 		};
 
 		google.maps.event.addListener(polyline, 'rightclick', function(point) {
-			if (point.vertex !== null) getUndoButton(doc).style.display = 'none';
+			if (point.vertex !== null) getUndoButton(document).style.display = 'none';
 		});	
 
 		google.maps.event.addListener(polyline.getPath(), 'set_at', function(point) {
-			if (!rightClickDiv.mapCalcIsVisible()) { getUndoButton(doc).style.display = 'block'; }
+			if (!rightClickDiv.mapCalcIsVisible()) { getUndoButton(document).style.display = 'block'; }
 			else { getUndoButton(doc).style.display = 'none'; }
 		});
 
@@ -1380,17 +1393,20 @@ var mapHelper = (function()
 		return rightClickDiv;
 	};
 
-/* 
- * Latitude is treated as the dependent variable (x) and longitude is independent (y).  This is 
- * convenient because the amount of stretching in the mercator projection depends on latitude,
- * not longitude.
- */
-// ------------------------------------------------------------
+	/*
+	 * @constructor
+	 * @memberOf mapHelper
+	 * @param {Object} pointSlope
+	 * @param {Object} point1 - google.maps.LatLng
+	 * @param {Object} point2 - google.maps.LatLng
+	 * @param {int} slope
+	 * Latitude is treated as the dependent variable (x) and longitude is independent (y).  This is 
+	 * convenient because the amount of stretching in the mercator projection depends on latitude,
+	 * not longitude.
+	 */
 	function Line(pointSlope) 
-// ------------------------------------------------------------
 	{
-		var line = {};
-		var latToLngScalingFactor = function(lat) {
+		function latToLngScalingFactor(lat) {
 		        var unitDistanceLat = google.maps.geometry.spherical.computeDistanceBetween(
 		                new google.maps.LatLng(lat - 0.1, -87.600732),
 		                new google.maps.LatLng(lat + 0.1, -87.600732)
@@ -1401,54 +1417,74 @@ var mapHelper = (function()
 		                new google.maps.LatLng(41.790113, -87.700732)
 		        );
 		        return unitDistanceLat/unitDistanceLng;
-		};
-		line.getSlope = function() {
+		}
+
+		/**
+		 * Get the slope of a line. 
+		 * @memberOf mapHelper.Line
+		 */
+		function getSlope() {
 			if (pointSlope.hasOwnProperty('slope')) { return pointSlope.slope; }
 			else 
 			{
-				var top = pointSlope.point1.lng() - pointSlope.point2.lng();
-				var bottom = pointSlope.point1.lat() - pointSlope.point2.lat();			
-				return top/bottom;
+				var lngDelta = pointSlope.point1.lng() - pointSlope.point2.lng();
+				var latDelta = pointSlope.point1.lat() - pointSlope.point2.lat();			
+				return lngDelta/latDelta;
 			}
-		};
-		line.getIntercept = function() {
-			return pointSlope.point1.lng() - line.getSlope()*pointSlope.point1.lat();
-		};
-		line.extrapolate = function(latitude) {
-			return new google.maps.LatLng(latitude, line.getSlope()*latitude + line.getIntercept());
-		};
-		line.getPerpendicularThroughPoint = function(point) {
-			return Line({
-				'slope': latToLngScalingFactor(point.lat())*line.getPerpendicularSlope(),
+		}
+		this.getSlope = getSlope;
+
+		function getIntercept() {
+			return pointSlope.point1.lng() - getSlope()*pointSlope.point1.lat();
+		}
+		this.getIntercept = getIntercept;
+
+		function extrapolate(latitude) {
+			return new google.maps.LatLng(latitude, getSlope()*latitude + line.getIntercept());
+		}
+		this.extrapolate = extrapolate;
+
+		function getPerpendicularThroughPoint(point) {
+			return new Line({
+				'slope': latToLngScalingFactor(point.lat())*getPerpendicularSlope(),
 				'point1': point
 			});
-		};
-		line.distanceToLine = function(point) {
+		}
+		this.getPerpendicularThroughPoint = getPerpendicularThroughPoint;
+
+		function distanceToLine(point) {
 			var dlat = (pointSlope.point1.lat() - point.lat())^2;
 			var dlng = (pointSlope.point1.lng() - point.lng())^2;
 			return Math.sqrt(dlat + dlng);
-		};
-		line.getPerpendicularSlope = function () { return -1/line.getSlope(); };
-		line.intersection = function(otherLine) {
-			var top = line.getIntercept() - otherLine.getIntercept();
-			var bottom = otherLine.getSlope() - line.getSlope();
+		}
+		this.distanceToLine = distanceToLine;
 
-			var lng = line.getSlope()*(top/bottom) + line.getIntercept();
+		function getPerpendicularSlope() { return -1/getSlope(); }
+		this.getPerpendicularSlope = getPerpendicularSlope;
+
+		function intersection(otherLine) {
+			var top = getIntercept() - otherLine.getIntercept();
+			var bottom = otherLine.getSlope() - getSlope();
+
+			var lng = getSlope()*(top/bottom) + getIntercept();
 
 			return new google.maps.LatLng(top/bottom, lng);
-		};
+		}
+		this.intersection = intersection;
 
-		return line;
+		return this;
 	}
 
-// ---------------------------------------------------------------------------------------
+	/** 
+	 * @memberOf mapHelper
+	 * @returns google.maps.LatLng
+	 */
 	function closestPointOnPolyline(polyline, point)
-// ---------------------------------------------------------------------------------------
 	{
 		var path = polyline.getPath().getArray().slice(0);
 		var intersections = [];
 		for (var n = 0; n < path.length - 1; n++) {
-			var line = Line({'point1': path[n], 'point2': path[n+1]});
+			var line = new Line({'point1': path[n], 'point2': path[n+1]});
 			var intersectionPoint = line.intersection(line.getPerpendicularThroughPoint(point));
 			if (isBetween(path[n], path[n+1], intersectionPoint)) {
 				intersections.push({
@@ -1586,7 +1622,7 @@ var mapHelper = (function()
 			if (thisTimestampInfo.currentVertex < path.length - 1) {
 				var endpoint1 = polyline.getPath().getAt(thisTimestampInfo.currentVertex);
 				var endpoint2 = polyline.getPath().getAt(thisTimestampInfo.currentVertex + 1);
-				var line = Line({
+				var line = new Line({
 					'point1': endpoint1, 
 					'point2': endpoint2
 				});
@@ -1610,12 +1646,27 @@ var mapHelper = (function()
 		return timestampCollection;
 	}
 
+	/** 
+	 * Convert pixel coordinates to geographic coordinates.
+	 * @memberOf mapHelper
+	 */
+	function pixelsToLatLng(evt) {
+		var overlay = new google.maps.OverlayView();
+		overlay.draw = function() {};
+		overlay.setMap(environment.map);		
+		var proj = overlay.getProjection();
+		return proj.fromDivPixelToLatLng(new google.maps.Point(evt.detail.clientX, evt.detail.clientY));
+	}
+
 	// public methods and constructors
 	return {
 		'closestPointOnPolyline': closestPointOnPolyline, 
 		'rightClickButton': rightClickButton,
 		'placeMarker': placeMarker,
-		'distributeTimeStamps': distributeTimeStamps
+		'distributeTimeStamps': distributeTimeStamps,
+		'pixelsToLatLng': pixelsToLatLng,
+		'Line': Line,
+		'init': init
 	};
 
 }());

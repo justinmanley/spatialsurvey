@@ -6,15 +6,6 @@ module.exports = function(grunt) {
 		clean: {
 			docs: ['docs']
 		},
-		jsdoc: {
-			dist: {
-				src: forDocumentation,
-				options: {
-					destination: 'docs'
-				},
-				jsdoc: '/usr/bin/jsdoc'
-			}
-		},
 		jshint: {
 			options: {
 				'smarttabs': true
@@ -41,7 +32,16 @@ module.exports = function(grunt) {
 				files: forDocumentation,
 				tasks: ['jsdoc']
 			}
-		}
+		},
+		jsdoc: {
+			dist: {
+				src: forDocumentation,
+				options: {
+					destination: 'docs'
+				},
+				jsdoc: '/usr/bin/jsdoc'
+			}
+		}		
 	});
 	grunt.registerTask('default', ['clean:docs', 'jsdoc', 'less', 'jshint']);
 	grunt.registerTask('watch', ['watch']);	
