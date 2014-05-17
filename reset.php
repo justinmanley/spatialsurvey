@@ -1,5 +1,6 @@
 <?php 
 	session_start();
-	$_SESSION['path-data'] = '{}';
-	header('Location: ../pages/start/');
+	$_SESSION['path-reset'] = 'true';
+	print_r($_SESSION);
+	// header('Location: ../pages/start/');
 ?>

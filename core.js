@@ -180,8 +180,10 @@ spatialsurvey = (function() {
 		function send(opt) {
 			debug(toString(), 'path-data');
 
-			if ( opt.validates() ) 
+			if ( opt.validates() ) {
 				sessionStorage.setItem('path-data', toString());
+				spatialsurvey.advance({ destinationPageName: opt.destinationPageName });
+			}
 			else 
 				opt.validationError();		
 		}
@@ -1227,6 +1229,9 @@ var mapHelper = (function()
 	 */
 	function init(opt) {
 		environment.map = opt.map;
+		google.maps.event.addListener(opt.drawingManager, 'polylinecomplete', function(polyline) {
+			rightClickButton(polyline);
+		});
 	}
 
 	function comparePoints(a, b) 
@@ -1650,12 +1655,12 @@ var mapHelper = (function()
 	 * Convert pixel coordinates to geographic coordinates.
 	 * @memberOf mapHelper
 	 */
-	function pixelsToLatLng(evt) {
+	function pixelsToLatLng(x,y) {
 		var overlay = new google.maps.OverlayView();
 		overlay.draw = function() {};
 		overlay.setMap(environment.map);		
 		var proj = overlay.getProjection();
-		return proj.fromDivPixelToLatLng(new google.maps.Point(evt.detail.clientX, evt.detail.clientY));
+		return proj.fromDivPixelToLatLng(new google.maps.Point(x, y));
 	}
 
 	// public methods and constructors
