@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Timestamp</title>
+    <title>JSDoc: Class: Instructions</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Timestamp</h1>
+    <h1 class="page-title">Class: Instructions</h1>
 
     
 
@@ -29,7 +29,7 @@
     <h2>
         <span class="ancestors"><a href="spatialsurvey.html">spatialsurvey</a>.</span>
     
-    Timestamp
+    Instructions
     </h2>
     
 </header>
@@ -41,7 +41,7 @@
     
         
 <dt>
-    <h4 class="name" id="Timestamp"><span class="type-signature"></span>new Timestamp<span class="signature">(options)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Instructions"><span class="type-signature"></span>new Instructions<span class="signature">(options)</span><span class="type-signature"></span></h4>
 
     
 </dt>
@@ -121,13 +121,13 @@
 
         <tr>
             
-                <td class="name"><code>polyline</code></td>
+                <td class="name"><code>content</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">Array</span>
 
 
             
@@ -137,43 +137,20 @@
 
             
 
-            <td class="description last">google.maps.Polyline object</td>
+            <td class="description last">Each object in this array represents an instruction screen.  Parameters are content and buttonText.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>position</code></td>
+                <td class="name"><code>action</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">google.maps.LatLng object</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>startTime</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
+<span class="param-type">function</span>
 
 
             
@@ -190,13 +167,13 @@
 
         <tr>
             
-                <td class="name"><code>endTime</code></td>
+                <td class="name"><code>hideAction</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">function</span>
 
 
             
@@ -207,29 +184,6 @@
             
 
             <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>type</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">duration or single</td>
         </tr>
 
     
@@ -266,7 +220,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core.js.html">core.js</a>, <a href="core.js.html#line321">line 321</a>
+        <a href="core.js.html">core.js</a>, <a href="core.js.html#line575">line 575</a>
     </li></ul></dd>
     
 
@@ -314,66 +268,22 @@
         <dl>
             
 <dt>
-    <h4 class="name" id="savePosition"><span class="type-signature">&lt;static> </span>savePosition<span class="signature">(position)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="hide"><span class="type-signature">&lt;static> </span>hide<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 </dt>
 <dd>
 
     
-
+    <div class="description">
+        Hides the main instruction panel.
+    </div>
     
 
     
 
     
-        <h5>Parameters:</h5>
-        
 
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>position</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">A google.maps.LatLng object.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
     
 
     
@@ -399,7 +309,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core.js.html">core.js</a>, <a href="core.js.html#line422">line 422</a>
+        <a href="core.js.html">core.js</a>, <a href="core.js.html#line639">line 639</a>
     </li></ul></dd>
     
 
@@ -429,7 +339,7 @@
         
             
 <dt>
-    <h4 class="name" id="show"><span class="type-signature">&lt;static> </span>show<span class="signature">(state)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="show"><span class="type-signature">&lt;static> </span>show<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 </dt>
@@ -437,7 +347,7 @@
 
     
     <div class="description">
-        Show the timestamp on the map.
+        Displays the main instructions panel.
     </div>
     
 
@@ -445,54 +355,6 @@
 
     
 
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>state</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">open, closed, or none.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
     
 
     
@@ -518,7 +380,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core.js.html">core.js</a>, <a href="core.js.html#line383">line 383</a>
+        <a href="core.js.html">core.js</a>, <a href="core.js.html#line606">line 606</a>
     </li></ul></dd>
     
 

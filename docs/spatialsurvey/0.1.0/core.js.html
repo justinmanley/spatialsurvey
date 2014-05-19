@@ -207,8 +207,10 @@ spatialsurvey = (function() {
 		function send(opt) {
 			debug(toString(), 'path-data');
 
-			if ( opt.validates() ) 
+			if ( opt.validates() ) {
 				sessionStorage.setItem('path-data', toString());
+				spatialsurvey.advance({ destinationPageName: opt.destinationPageName });
+			}
 			else 
 				opt.validationError();		
 		}
@@ -428,12 +430,13 @@ spatialsurvey = (function() {
 					openedContent.clearTime();
 					var inputs = openedContent.content.getElementsByClassName('timestamp');
 					var oldColor = inputs[0].style.backgroundColor;
+					var flashWarning = function(i) {
+						inputs[i].style.backgroundColor = '#ff4e4e';
+						setTimeout(function() { inputs[thisInput].style.backgroundColor = oldColor; }, 1000);
+					};
 					for (var i = 0; i &lt; inputs.length; i++) {
-						(function(thisInput) {
-							inputs[i].style.backgroundColor = '#ff4e4e';
-							setTimeout(function() { inputs[thisInput].style.backgroundColor = oldColor; }, 1000);
-						}(i));
-					}
+						flashWarning(i);
+					}	
 				}
 			}
 			return this;
@@ -588,106 +591,87 @@ spatialsurvey = (function() {
 		return this;
 	}
 
-	/** @namespace spatialsurvey.instructions */
-	var instructions = (function() {
-		var create = function(drawingManager, options) {
-			// set defaults
-			var data = { 
-				primary: [], 
-				showPrimaryOnCreate: true, 
-				action: function() { },
-				hideAction: function() { }
-			};
-
-			// initialize data object
-			for ( var property in options) {
-				if ( options.hasOwnProperty(property) ) {
-					data[property] = options[property];
-				}
-			}
-
-			initPrimary();
-
-			if ( data.showPrimaryOnCreate ) {
-				showPrimary();
-
-				// event handler to close welcome screen
-				var welcome_close = document.getElementsByClassName('close-box')[0];
-				google.maps.event.addDomListener(welcome_close, 'click', function() {
-					startDrawing(drawingManager, initDrawingManager);
-				});
-
-				// if user clicks outside of welcome screen, then start drawing
-				var initDrawingManager = google.maps.event.addListener(environment.map, 'click', function() {
-					drawingManager.setMap(environment.map);
-					google.maps.event.removeListener(initDrawingManager);										
-				});					
-			}
-			else 
-				data.action();
-
-			function showPrimary() {
-				// if user defines hideAction, this allows primary and action to toggle back and forth
-				data.hideAction();
-
-				var primary = document.getElementById('instructions-main');
-				var primary_content = document.getElementById('instructions-main-content');
-
-				primary.style.display = 'block';
-
-				// initialize instructions_main screen
-			    var primary_screen_index = 0;
-			    var content = data.content;
-			    var nextButton = document.getElementById('next-instruction');
-
-			    primary_content.innerHTML = content[primary_screen_index].content;
-			    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
-
-			    google.maps.event.addDomListener(nextButton, 'click', function(event) {
-					if (primary_screen_index &lt; content.length - 1) { 
-					    primary_screen_index += 1;
-					    primary_content.innerHTML = content[primary_screen_index].content;
-					    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
-					}
-					else {
-						drawingManager.setMap(environment.map);		
-
-						// needs to be wrapped in a function, otherwise it will stop the current event listener				
-						(function() { event.stopPropagation(); } ());
-						hidePrimary();
-					}
-				});			
-			}
-
-			function hidePrimary() {
-				document.getElementById('instructions-main').style.display = 'none';
-				google.maps.event.clearListeners(document.getElementById('next-instruction'), 'click');
-
-				data.action();
-			}
-
-			function initPrimary() {
-				var extra = document.getElementById('extra');
-				extra.innerHTML = '&lt;div id="instructions-main">'+
-					'&lt;div class="close-box">'+
-						'&lt;img src="' + getResourceUrl('close-icon.png') + '"/>'+
-					'&lt;/div>'+				
-					'&lt;div id="instructions-main-content">'+
-					'&lt;/div>&lt;!-- #instructions-main-content -->'+
-					'&lt;button class="dowsing-button" id="next-instruction">Next&lt;/button>'+				
-				  '&lt;/div>&lt;!-- #instructions-main -->';
-			}	
-
-			return {
-				'showPrimary': showPrimary,
-				'hidePrimary': hidePrimary,
-			};
+	/**
+	 * @constructor
+	 * @memberOf spatialsurvey
+	 * @param {Object} options
+	 * @param {Array} options.content - Each object in this array represents an instruction screen.  Parameters are content and buttonText.
+	 * @param {function} options.action
+	 * @param {function} options.hideAction 
+	 */
+	function Instructions(options) {
+		// set defaults
+		var data = { 
+			content: [], 
+			action: function() { },
+			hideAction: function() { }
 		};
 
-		return {
-			'create': create
-		};	
-	}());
+		// initialize data object
+		for ( var property in options) {
+			if ( options.hasOwnProperty(property) ) {
+				data[property] = options[property];
+			}
+		}
+
+		// initialize the div element
+		var extra = document.getElementById('extra');
+		extra.innerHTML = '&lt;div id="instructions-main">'+
+			'&lt;div class="close-box">'+
+				'&lt;img src="' + getResourceUrl('close-icon.png') + '"/>'+
+			'&lt;/div>'+				
+			'&lt;div id="instructions-main-content">'+
+			'&lt;/div>&lt;!-- #instructions-main-content -->'+
+			'&lt;button class="dowsing-button" id="next-instruction">Next&lt;/button>'+				
+			'&lt;/div>&lt;!-- #instructions-main -->';
+		document.getElementById('instructions-main').style.display = 'none';				
+		
+		/** 
+		 * Displays the main instructions panel.
+		 * @memberOf spatialsurvey.Instructions
+		 */
+		function show() {
+			// if user defines hideAction, this allows primary and action to toggle back and forth
+			data.hideAction();
+
+			var primary = document.getElementById('instructions-main');
+			var primary_content = document.getElementById('instructions-main-content');
+
+			primary.style.display = 'block';
+
+			// initialize instructions_main screen
+		    var primary_screen_index = 0;
+		    var content = data.content;
+		    var nextButton = document.getElementById('next-instruction');
+
+		    primary_content.innerHTML = content[primary_screen_index].content;
+		    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
+
+		    google.maps.event.addDomListener(nextButton, 'click', function(event) {
+				if (primary_screen_index &lt; content.length - 1) { 
+				    primary_screen_index += 1;
+				    primary_content.innerHTML = content[primary_screen_index].content;
+				    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
+				}
+				else
+					hide();
+			});
+		}
+		this.show = show;
+
+		/** 
+		 * Hides the main instruction panel.
+		 * @memberOf spatialsurvey.Instructions
+		 */
+		function hide() {
+			document.getElementById('instructions-main').style.display = 'none';
+			google.maps.event.clearListeners(document.getElementById('next-instruction'), 'click');
+
+			data.action();
+		}
+		this.hide = hide;
+		return this;
+	}
 
 	var sidebar = (function() {
 		// set defaults
@@ -733,7 +717,7 @@ spatialsurvey = (function() {
 				sidebar.style.display = 'block';	
 
 				environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].clear();
-				environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sidebar);						
+				environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sidebar);					
 			};
 
 			var hide = function() {
@@ -1160,7 +1144,7 @@ spatialsurvey = (function() {
 
 		function report(message, action) {
 			if ( typeof action === 'undefined')
-				var action = function() { };
+				action = function() { };
 
 			var mapUserError = new CustomEvent('mapUserError', {
 				detail: {
@@ -1223,7 +1207,7 @@ spatialsurvey = (function() {
 		'PathData': PathData,
 		'Button': Button,
 		'Timestamp': Timestamp,
-		'instructions': instructions,
+		'Instructions': Instructions,
 		'sidebar': sidebar,
 		'showProgress': showProgress,	
 		'tutorial': tutorial,
@@ -1254,6 +1238,9 @@ var mapHelper = (function()
 	 */
 	function init(opt) {
 		environment.map = opt.map;
+		google.maps.event.addListener(opt.drawingManager, 'polylinecomplete', function(polyline) {
+			rightClickButton(polyline);
+		});
 	}
 
 	function comparePoints(a, b) 
@@ -1676,13 +1663,15 @@ var mapHelper = (function()
 	/** 
 	 * Convert pixel coordinates to geographic coordinates.
 	 * @memberOf mapHelper
+	 * @param {float} x
+	 * @param {float} y
 	 */
-	function pixelsToLatLng(evt) {
+	function pixelsToLatLng(x,y) {
 		var overlay = new google.maps.OverlayView();
 		overlay.draw = function() {};
 		overlay.setMap(environment.map);		
 		var proj = overlay.getProjection();
-		return proj.fromDivPixelToLatLng(new google.maps.Point(evt.detail.clientX, evt.detail.clientY));
+		return proj.fromDivPixelToLatLng(new google.maps.Point(x, y));
 	}
 
 	// public methods and constructors
@@ -1839,13 +1828,13 @@ function getResourceUrl(filename) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="spatialsurvey.Button.html">Button</a></li><li><a href="spatialsurvey.PathData.html">PathData</a></li><li><a href="spatialsurvey.Timestamp.html">Timestamp</a></li></ul><h3>Namespaces</h3><ul><li><a href="mapHelper.html">mapHelper</a></li><li><a href="spatialsurvey.html">spatialsurvey</a></li><li><a href="spatialsurvey.instructions.html">instructions</a></li></ul><h3>Global</h3><ul><li><a href="global.html#getResourceUrl">getResourceUrl</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="spatialsurvey.Button.html">Button</a></li><li><a href="spatialsurvey.Instructions.html">Instructions</a></li><li><a href="spatialsurvey.PathData.html">PathData</a></li><li><a href="spatialsurvey.Timestamp.html">Timestamp</a></li></ul><h3>Namespaces</h3><ul><li><a href="mapHelper.html">mapHelper</a></li><li><a href="spatialsurvey.html">spatialsurvey</a></li></ul><h3>Global</h3><ul><li><a href="global.html#getResourceUrl">getResourceUrl</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Wed May 07 2014 13:51:32 GMT-0500 (CDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Mon May 19 2014 15:29:38 GMT-0500 (CDT)
 </footer>
 
 <script> prettyPrint(); </script>

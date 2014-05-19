@@ -403,12 +403,13 @@ spatialsurvey = (function() {
 					openedContent.clearTime();
 					var inputs = openedContent.content.getElementsByClassName('timestamp');
 					var oldColor = inputs[0].style.backgroundColor;
+					var flashWarning = function(i) {
+						inputs[i].style.backgroundColor = '#ff4e4e';
+						setTimeout(function() { inputs[thisInput].style.backgroundColor = oldColor; }, 1000);
+					};
 					for (var i = 0; i < inputs.length; i++) {
-						(function(thisInput) {
-							inputs[i].style.backgroundColor = '#ff4e4e';
-							setTimeout(function() { inputs[thisInput].style.backgroundColor = oldColor; }, 1000);
-						}(i));
-					}
+						flashWarning(i);
+					}	
 				}
 			}
 			return this;
@@ -566,16 +567,27 @@ spatialsurvey = (function() {
 	/**
 	 * @constructor
 	 * @memberOf spatialsurvey
+	 * @param {Object} options
+	 * @param {Array} options.content - Each object in this array represents an instruction screen.  Parameters are content and buttonText.
+	 * @param {function} options.action
+	 * @param {function} options.hideAction 
 	 */
 	function Instructions(options) {
 		// set defaults
 		var data = { 
-			primary: [], 
-			showPrimaryOnCreate: true, 
+			content: [], 
 			action: function() { },
 			hideAction: function() { }
 		};
 
+		// initialize data object
+		for ( var property in options) {
+			if ( options.hasOwnProperty(property) ) {
+				data[property] = options[property];
+			}
+		}
+
+		// initialize the div element
 		var extra = document.getElementById('extra');
 		extra.innerHTML = '<div id="instructions-main">'+
 			'<div class="close-box">'+
@@ -584,14 +596,13 @@ spatialsurvey = (function() {
 			'<div id="instructions-main-content">'+
 			'</div><!-- #instructions-main-content -->'+
 			'<button class="dowsing-button" id="next-instruction">Next</button>'+				
-		  '</div><!-- #instructions-main -->';		
-
-		// initialize data object
-		for ( var property in options) {
-			if ( options.hasOwnProperty(property) ) {
-				data[property] = options[property];
-			}
-		}		
+			'</div><!-- #instructions-main -->';
+		document.getElementById('instructions-main').style.display = 'none';				
+		
+		/** 
+		 * Displays the main instructions panel.
+		 * @memberOf spatialsurvey.Instructions
+		 */
 		function show() {
 			// if user defines hideAction, this allows primary and action to toggle back and forth
 			data.hideAction();
@@ -621,6 +632,10 @@ spatialsurvey = (function() {
 		}
 		this.show = show;
 
+		/** 
+		 * Hides the main instruction panel.
+		 * @memberOf spatialsurvey.Instructions
+		 */
 		function hide() {
 			document.getElementById('instructions-main').style.display = 'none';
 			google.maps.event.clearListeners(document.getElementById('next-instruction'), 'click');
@@ -1102,7 +1117,7 @@ spatialsurvey = (function() {
 
 		function report(message, action) {
 			if ( typeof action === 'undefined')
-				var action = function() { };
+				action = function() { };
 
 			var mapUserError = new CustomEvent('mapUserError', {
 				detail: {
@@ -1165,7 +1180,7 @@ spatialsurvey = (function() {
 		'PathData': PathData,
 		'Button': Button,
 		'Timestamp': Timestamp,
-		'instructions': instructions,
+		'Instructions': Instructions,
 		'sidebar': sidebar,
 		'showProgress': showProgress,	
 		'tutorial': tutorial,
