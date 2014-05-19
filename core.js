@@ -563,106 +563,73 @@ spatialsurvey = (function() {
 		return this;
 	}
 
-	/** @namespace spatialsurvey.instructions */
-	var instructions = (function() {
-		var create = function(drawingManager, options) {
-			// set defaults
-			var data = { 
-				primary: [], 
-				showPrimaryOnCreate: true, 
-				action: function() { },
-				hideAction: function() { }
-			};
-
-			// initialize data object
-			for ( var property in options) {
-				if ( options.hasOwnProperty(property) ) {
-					data[property] = options[property];
-				}
-			}
-
-			initPrimary();
-
-			if ( data.showPrimaryOnCreate ) {
-				showPrimary();
-
-				// event handler to close welcome screen
-				var welcome_close = document.getElementsByClassName('close-box')[0];
-				google.maps.event.addDomListener(welcome_close, 'click', function() {
-					startDrawing(drawingManager, initDrawingManager);
-				});
-
-				// if user clicks outside of welcome screen, then start drawing
-				var initDrawingManager = google.maps.event.addListener(environment.map, 'click', function() {
-					drawingManager.setMap(environment.map);
-					google.maps.event.removeListener(initDrawingManager);										
-				});					
-			}
-			else 
-				data.action();
-
-			function showPrimary() {
-				// if user defines hideAction, this allows primary and action to toggle back and forth
-				data.hideAction();
-
-				var primary = document.getElementById('instructions-main');
-				var primary_content = document.getElementById('instructions-main-content');
-
-				primary.style.display = 'block';
-
-				// initialize instructions_main screen
-			    var primary_screen_index = 0;
-			    var content = data.content;
-			    var nextButton = document.getElementById('next-instruction');
-
-			    primary_content.innerHTML = content[primary_screen_index].content;
-			    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
-
-			    google.maps.event.addDomListener(nextButton, 'click', function(event) {
-					if (primary_screen_index < content.length - 1) { 
-					    primary_screen_index += 1;
-					    primary_content.innerHTML = content[primary_screen_index].content;
-					    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
-					}
-					else {
-						drawingManager.setMap(environment.map);		
-
-						// needs to be wrapped in a function, otherwise it will stop the current event listener				
-						(function() { event.stopPropagation(); } ());
-						hidePrimary();
-					}
-				});			
-			}
-
-			function hidePrimary() {
-				document.getElementById('instructions-main').style.display = 'none';
-				google.maps.event.clearListeners(document.getElementById('next-instruction'), 'click');
-
-				data.action();
-			}
-
-			function initPrimary() {
-				var extra = document.getElementById('extra');
-				extra.innerHTML = '<div id="instructions-main">'+
-					'<div class="close-box">'+
-						'<img src="' + getResourceUrl('close-icon.png') + '"/>'+
-					'</div>'+				
-					'<div id="instructions-main-content">'+
-					'</div><!-- #instructions-main-content -->'+
-					'<button class="dowsing-button" id="next-instruction">Next</button>'+				
-				  '</div><!-- #instructions-main -->';
-			}	
-
-			return {
-				'showPrimary': showPrimary,
-				'hidePrimary': hidePrimary,
-			};
+	/**
+	 * @constructor
+	 * @memberOf mapHelper
+	 */
+	function Instructions(options) {
+		// set defaults
+		var data = { 
+			primary: [], 
+			showPrimaryOnCreate: true, 
+			action: function() { },
+			hideAction: function() { }
 		};
 
-		return {
-			'create': create
-		};	
-	}());
+		var extra = document.getElementById('extra');
+		extra.innerHTML = '<div id="instructions-main">'+
+			'<div class="close-box">'+
+				'<img src="' + getResourceUrl('close-icon.png') + '"/>'+
+			'</div>'+				
+			'<div id="instructions-main-content">'+
+			'</div><!-- #instructions-main-content -->'+
+			'<button class="dowsing-button" id="next-instruction">Next</button>'+				
+		  '</div><!-- #instructions-main -->';		
+
+		// initialize data object
+		for ( var property in options) {
+			if ( options.hasOwnProperty(property) ) {
+				data[property] = options[property];
+			}
+		}		
+		function show() {
+			// if user defines hideAction, this allows primary and action to toggle back and forth
+			data.hideAction();
+
+			var primary = document.getElementById('instructions-main');
+			var primary_content = document.getElementById('instructions-main-content');
+
+			primary.style.display = 'block';
+
+			// initialize instructions_main screen
+		    var primary_screen_index = 0;
+		    var content = data.content;
+		    var nextButton = document.getElementById('next-instruction');
+
+		    primary_content.innerHTML = content[primary_screen_index].content;
+		    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
+
+		    google.maps.event.addDomListener(nextButton, 'click', function(event) {
+				if (primary_screen_index < content.length - 1) { 
+				    primary_screen_index += 1;
+				    primary_content.innerHTML = content[primary_screen_index].content;
+				    nextButton.innerHTML = typeof content[primary_screen_index].buttonText !== 'undefined' ? content[primary_screen_index].buttonText : 'NEXT';
+				}
+				else
+					hide();
+			});
+		}
+		this.show = show;
+
+		function hide() {
+			document.getElementById('instructions-main').style.display = 'none';
+			google.maps.event.clearListeners(document.getElementById('next-instruction'), 'click');
+
+			data.action();
+		}
+		this.hide = hide;
+		return this;
+	}
 
 	var sidebar = (function() {
 		// set defaults
