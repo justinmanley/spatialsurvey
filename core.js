@@ -565,7 +565,7 @@ spatialsurvey = (function() {
 
 	/**
 	 * @constructor
-	 * @memberOf mapHelper
+	 * @memberOf spatialsurvey
 	 */
 	function Instructions(options) {
 		// set defaults
