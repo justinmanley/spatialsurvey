@@ -708,7 +708,7 @@ spatialsurvey = (function() {
 				sidebar.style.display = 'block';	
 
 				environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].clear();
-				environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sidebar);						
+				environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sidebar);					
 			};
 
 			var hide = function() {
@@ -1654,6 +1654,8 @@ var mapHelper = (function()
 	/** 
 	 * Convert pixel coordinates to geographic coordinates.
 	 * @memberOf mapHelper
+	 * @param {float} x
+	 * @param {float} y
 	 */
 	function pixelsToLatLng(x,y) {
 		var overlay = new google.maps.OverlayView();
