@@ -1,70 +1,19 @@
-Dowsing.js
-========================
-
-Dowsing.js is a survey platform for geographic/spatial queries built using the Google Maps Javascript API.  Let's say you want to figure out how your employees are commuting to work so you can decide whether it's worthwhile to invest in a car-sharing or bike-subsidy program.  Or maybe you're a college interested in learning how your students are getting  around campus so you can determine what areas are popular and which are underused.  This framework is perfect for all of these tasks because it lets users answer spatial questions in a spatial way: by drawing on a map.  A survey built using this framework is a good option to answer these kinds of questions because it is often less expensive, requires less investment in infrastructure, and is less invasive than other methods.
-
-Spatialsurvey is extremely lightweight with few dependencies other than the Google Maps Javascript API itself (it doesn't even depend on jQuery).
-
-This project is released under the MIT License.  Full documentation coming soon.
-
-Documentation
+spatialsurvey
 =============================
 
-	spatialsurvey.pathData.create(pathDataOptions)
+spatialsurvey is a library for creating geographic survey applications using the Google Maps Javascript API.  Geographic surveys - that is, surveys in the questions are geographic or spatial, rather than verbal, are a useful tool for
+	* campus planners
+	* architects
+	* urban planners
+	* HR departments
+	* logistics specialists
+to learn about how people are getting around.  The spatialsurvey library has been used at the University of Chicago to develop surveys for campus planning that were administered to approximately 5,000 students (see the code survey application [here](https://github.com/manleyjster/wherewewalk)).
 
-Methods:
+Structure
+==============================
+The library is divided into two modules: `spatialsurvey`, and `mapHelper`.  The first, `spatialsurvey`, contains classes and functions for managing survey response data, as well as UI classes for building a survey interface.
 
-	load()
-	tostring()
-	getPolyline()
-	getStartTime()
-	getEndTime()
-	setStartTime(startTime::timeString)
-	setEndTime(endTime::string)
-	getPolylineCoordinates(coordinates::array)
-	setPolylineCoordinates(coordinates::array)
-	setHasResponse(response::boolean)
-
-------------------------------
-
-	spatialsurvey.tutorial.create(
-		drawingManager::google.maps.drawing.DrawingManager, 
-		lessons::array
-	)
-
-	lesson = {
-		instruction::instructionOptions,
-		fixed::bool,
-		advance::function
-	}
-
-
-	spatialsurvey.tutorial.standardCurriculum
-
-------------------------------
-
-	spatialsurvey.sidebar.create(sidebarOptions)
-
-Methods:
-
-
-
-------------------------------
-
-	spatialsurvey.instructions.create(instructionsOptions)
-
-Methods:
-
-------------------------------
-
-
-	spatialsurvey.showNextButton(
-		data::pathData, 
-		destinationPage::string,
-		currentPage::string,
-		validate::function
-	)
-
+The second module, `mapHelper`, contains utility methods for geographic calculations and conversions not provided by the google maps Javascript API.
 
 Copyright
 ==============================
