@@ -11,7 +11,7 @@
 	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
 
 	
-	<link type="text/css" rel="stylesheet" href="styles/site.spacelab.css">
+	<link type="text/css" rel="stylesheet" href="styles/site.flatly.css">
 	
 </head>
 
@@ -55,7 +55,7 @@
 						</li>
 						
 						<li>
-							<a href="spatialsurvey.PathData.html">PathData</a>
+							<a href="spatialsurvey.SurveyResponse.html">SurveyResponse</a>
 						</li>
 						
 						<li>
@@ -95,7 +95,7 @@ spatialsurvey = (function() {
 	 * @private
 	 */
 	var environment = {
-		verbose: false
+		verbose: true
 	};
 
 	/** 
@@ -107,92 +107,72 @@ spatialsurvey = (function() {
 	function init(opt) {
 		environment.map = opt.map;
 		environment.drawingManager = opt.drawingManager;
+		environment.appName = opt.appName || 'spatialsurvey-app';
 
 		initClickNoDrag();
 	}
 
 	/**
-	 * Returns a new pathData object.
+	 * Returns a new SurveyResponse object.
 	 * @constructor
 	 * @memberOf spatialsurvey
 	 * @param {Object} data - Object containing user response data.
 	 * @param {Object} data.path - An array of {@linkcode external:LatLng} coordinates.
 	 * @param {string} data.startTime 
 	 * @param {string} data.endTime
-	 * @returns {pathData}
+	 * @returns {SurveyResponse}
 	 */
-	function PathData(responseData)
+	function SurveyResponse()
 	{
-		var data = responseData || { hasResponse: false };
+		window.addEventListener('beforeunload', function() {
+			sessionStorage.setItem(environment.appName + '-data', toString());
+		});
 
-		/* Determines what properties of PathData are serialized by PathData.tostring() */
-		var dataStringProperties = ['timestamps', 'endTime', 'startTime'];
+		var data = {};
 
-		/** 
-		 * Set the coordinates for the user's path.
-		 * @memberOf spatialsurvey.PathData
-		 * @param {Object} path - An array of LatLng coordinates (i.e. the result of polyline.getPath().getArray() ).
-		 */
-		function setPolylineCoordinates(path) { data.path = path; }
-
-		/** 
-		 * Get the coordinates for the user's path.
-		 * @memberOf spatialsurvey.PathData		 
-		 * @returns {Object} Array of coordinates.
-		 */
-		function getPolylineCoordinates() { return data.path || []; }
-
-		/** 
-		 * @memberOf spatialsurvey.PathData		
-		 * @returns {string} 
-		 */
-		function getStartTime() { return data.startTime; }
-
-		/** 
-		 * @memberOf spatialsurvey.PathData		
-		 * @returns {string} 
-		 */
-		function getEndTime() { return data.endTime; }
-
-		/** 
-		 * @memberOf spatialsurvey.PathData
-		 * @param {string} startTime 
-		 */
-		function setStartTime(startTime) { data.startTime = startTime; }
-
-		/** 
-		 * @memberOf spatialsurvey.PathData
-		 * @param {string} endTime 
-		 */
-		function setEndTime(endTime) { data.endTime = endTime; }
-
-		/** 
-		 * @memberOf spatialsurvey.PathData
-		 * @param {bool} hasResponse 
-		 */
-		function setHasResponse(hasResponse) { data.response = hasResponse; }
-
-		/** 
-		 * Returns the google.maps.Polyline instance associated with the path.
-		 * @memberOf spatialsurvey.PathData
-		 * @returns {Object} 
-		 */
-		function getPolyline() {
-			if (typeof data.polyline === 'undefined') {
-				var polyline = new google.maps.Polyline({
-					path: getPolylineCoordinates(),
-					strokeColor: '#4387fd',
-					strokeWeight: 4,
-					clickable: false
-				});
-				data.polyline = polyline;
+		/* Retrieve stored data, if any, and populate data object. */
+		storedData = sessionStorage.getItem(environment.appName + '-data');
+		if ( storedData !== null )
+		{
+			debug(storedData, "storedData");
+			parsedData = JSON.parse(storedData);
+			debug(data, "data");
+			for ( key in parsedData ) {
+				/* data[key] is a geoJSON object */
+				if ( typeof parsedData[key].type !== 'undefined' ) {
+					if ( parsedData[key].type === "LineString" || parsedData[key].type === "Point") {
+						data[key] = mapHelper.fromGeoJSON(parsedData[key]);
+					}
+				}
+				else {
+					data[key] = parsedData[key];
+				}
 			}
-			return data.polyline;
 		}
 
 		/** 
+		 * @memberOf spatialsurvey.SurveyResponse
+		 * @param {string} key 
+		 * @param {Object} value
+		 */
+		function setValue(key, value) {
+			data[key] = value;
+		}
+		this.setValue = setValue;
+
+		/** 
+		 * @memberOf spatialsurvey.SurveyResponse
+		 * @param {string} key
+		 * @returns {Object}
+		 */
+		function getValue(key) {
+			return data[key];
+		}
+		this.getValue = getValue;
+
+		/** 
 		 * Retrieve the timestamps from the DOM.
-		 * @memberOf spatialsurvey.PathData
+		 * @memberOf spatialsurvey.SurveyResponse
 		 * @returns {Array}
 		*/
 		function getTimestamps() {
@@ -208,92 +188,39 @@ spatialsurvey = (function() {
 			}
 			return timestamps;
 		}		
+		this.getTimestamps = getTimestamps;
 
 		/** 
-		 * Serializes the PathData object to JSON format.
-		 * @memberOf spatialsurvey.PathData		 
+		 * Serializes the SurveyResponse object to JSON format.
+		 * @memberOf spatialsurvey.SurveyResponse		 
 		 * @returns {string} 
 		 */
 		function toString() {
 			var stringable = {};	
 
-			// user has provided a response
-			if ( data.response ) {
-				stringable.path = data.path.map(function(p) { return { lat: p.lat(), lng: p.lng() }; });
-
-				data.timestamps = getTimestamps();
-				debug(getTimestamps(), 'timestamps');
-
-				for (i = 0; i &lt; dataStringProperties.length; i++) {
-					var name = dataStringProperties[i];
-					if (data.hasOwnProperty(name)) 
-						stringable[name] = data[name];
-				}
-			}	
-			return JSON.stringify(stringable); 
-		}
-
-		/** 
-		 * Converts the PathData object to a geoJSON object.
-		 * @memberOf spatialsurvey.PathData
-		 */
-		function toGeoJSON() {
-
-		}
-
-		/** 
-		 * Sets the polyline coordinates of the PathData instance.
-		 * @memberOf spatialsurvey.PathData
-		 * @param {function} onNoData - Called if there is not yet a path set.
-		 * @param {function} onDataReceipt - Called if there is a nontrivial path.
-		 */
-		function load() {
-			storedData = sessionStorage.getItem('path-data');
-			if ( storedData !== null )
-			{
-				debug(storedData, "storedData");
-				data = JSON.parse(storedData);
-				debug(data, "data");
-				if ( typeof data.path !== 'undefined' )
-					setPolylineCoordinates(data.path.map(createLatLng));
+			for ( key in data ) {
+				/* data[key] is a google.maps.LatLng object. */
+				if ( typeof data[key].lat === 'function' )
+					stringable[key] = mapHelper.toGeoJSON(data[key]);
+				/* data[key] is a google.maps.Polyline object. */
+				else if ( typeof data[key].getPath === 'function' )
+					stringable[key] = mapHelper.toGeoJSON(data[key]);
 				else 
-					setPolylineCoordinates([]);
+					stringable[key] = data[key];
 			}
-			return this;
-		}
 
-		/** 
-		 * Advances to the next page of the survey. 
-		 * @memberOf spatialsurvey.PathData
-		 * @param {Object} options
-		 * @param {string} options.destinationPageName 
-		 * @param {string} options.currentPageName
-		 * @param {function} options.validates
-		 * @param {function} options.validationError
-		 */
-		function send(opt) {
-			debug(toString(), 'path-data');
-
-			if ( opt.validates() ) {
-				sessionStorage.setItem('path-data', toString());
-				spatialsurvey.advance({ destinationPageName: opt.destinationPageName });
-			}
-			else 
-				opt.validationError();		
+			return JSON.stringify(stringable);
 		}
-		
-		this.load = load;
-		this.toString = toString;
-		this.getPolyline = getPolyline;
-		this.getStartTime = getStartTime;
-		this.getEndTime = getEndTime;
-		this.getTimestamps = getTimestamps;
-		this.getPolylineCoordinates = getPolylineCoordinates;
-		this.setPolylineCoordinates = setPolylineCoordinates;
-		this.setStartTime = setStartTime;
-		this.setEndTime = setEndTime;
-		this.setHasResponse = setHasResponse;
-		this.send = send;
+		this.toString = toString;		
+	}
+
+	/** 
+	 * Intended for implementation by the application developer.  By default returns an empty FeatureCollection GeoJSON object.
+	 * @memberOf spatialsurvey.SurveyResponse
+	 * @returns {GeoJSON}
+	 */
+	SurveyResponse.prototype.toGeoJSON = function() {
+		throw "Error: SurveyResponse.toGeoJSON has not been implemented.\nThe application developer should implement this function."
 	}
 
 	/** 
@@ -352,7 +279,7 @@ spatialsurvey = (function() {
 			environment.map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(button);			
 		};
 
-		google.maps.event.addDomListener(button, 'click', opt.onClick);	
+		google.maps.event.addDomListener(button, 'click', opt.onClick);
 	}
 
 	/** 
@@ -1244,6 +1171,16 @@ spatialsurvey = (function() {
 		};
 	}());
 
+	/** 
+	 * Gets the URL. 
+	 * @memberOf spatialsurvey
+	 * @param {string} filename
+	 * @returns {string}
+	 */
+	function getResourceUrl(filename) {
+		return '../../spatialsurvey/resources/' + filename;
+	}
+
 	function initClickNoDrag() {
 		var hasMoved = false;
 		addEventListener('mousedown', function(){
@@ -1271,7 +1208,7 @@ spatialsurvey = (function() {
 
 	// public methods and constructors for module spatialsurvey
 	return {
-		'PathData': PathData,
+		'SurveyResponse': SurveyResponse,
 		'Button': Button,
 		'Timestamp': Timestamp,
 		'Instructions': Instructions,
@@ -1281,6 +1218,7 @@ spatialsurvey = (function() {
 		'error': error,
 		'isValidTime': isValidTime,
 		'advance': advance,
+		'getResourceUrl': getResourceUrl,
 		'init': init
 	};
 }());
@@ -1407,7 +1345,7 @@ var mapHelper = (function()
 		var deleteButton = addDeleteButton(document, polyline);
 		var rightClickDiv = new InfoBox({
 			content: deleteButton,
-			closeBoxURL: getResourceUrl('close-icon.png'),
+			closeBoxURL: spatialsurvey.getResourceUrl('close-icon.png'),
 			visible: false,
 		});
 
@@ -1735,7 +1673,7 @@ var mapHelper = (function()
 	 * @memberOf mapHelper
 	 * @param {float} x
 	 * @param {float} y
-	 * @return {google.maps.LatLng}
+	 * @returns {google.maps.LatLng}
 	 */
 	function pixelsToLatLng(x,y) {
 		var overlay = new google.maps.OverlayView();
@@ -1746,20 +1684,10 @@ var mapHelper = (function()
 	}
 
 	/** 
-	 * Gets the URL. 
-	 * @memberOf mapHelper
-	 * @param {string} filename
-	 * @return {string}
-	 */
-	function getResourceUrl(filename) {
-		return '../../spatialsurvey/resources/' + filename;
-	}
-
-	/** 
 	 * Convert google.maps objects to geoJSON.
 	 * @memberOf mapHelper
 	 * @param {Object} geodata - google.maps.LatLng or google.maps.Polyline
-	 * @return {Object}
+	 * @returns {GeoJSON}
 	 */
 	function toGeoJSON(geodata) {
 		var type = null;
@@ -1800,6 +1728,36 @@ var mapHelper = (function()
 		return geoJSON;
 	}
 
+	/** 
+	 * @memberOf mapHelper
+	 * @param {GeoJSON}
+	 * @returns {Object} - Returns google.maps.Point or google.maps.Polyline object.
+	 */
+	function fromGeoJSON(geojson) {
+		if ( typeof geojson.type === 'undefined')
+			throw "Incorrect geoJSON syntax.  Object has no \"type\" attribute.";
+		else {
+			if ( geojson.type === "Point" ) {
+				return new google.maps.LatLng(geojson.coordinates[1], geojson.coordinates[0]);
+			}
+			else if ( geojson.type === "LineString") {
+				var polylinePath = [];
+				for (var i = 0; i &lt; geojson.coordinates.length; i++) 
+					polylinePath.push(new google.maps.LatLng(geojson.coordinates[i][1], geojson.coordinates[i][0]));
+
+				return new google.maps.Polyline({
+					path: polylinePath,
+					strokeColor: '#4387fd',
+					strokeWeight: 4,
+					clickable: false					
+				});
+			}
+			else {
+				throw "mapHelper.fromGeoJSON() cannot yet convert this type of GeoJSON.";
+			}
+		}
+	}
+
 	// public methods and constructors
 	return {
 		'closestPointOnPolyline': closestPointOnPolyline, 
@@ -1809,7 +1767,8 @@ var mapHelper = (function()
 		'pixelsToLatLng': pixelsToLatLng,
 		'Line': Line,
 		'init': init,
-		'toGeoJSON': toGeoJSON
+		'toGeoJSON': toGeoJSON,
+		'fromGeoJSON': fromGeoJSON
 	};
 
 }());

@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>spatialsurvey Class: Timestamp</title>
+	<title>spatialsurvey Class: google.maps.ControlPosition</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -47,7 +47,7 @@
 					<ul class="dropdown-menu ">
 						
 						<li>
-							<a href="spatialsurvey.Button.html">Button</a>
+							<a href="spatialsurvey.google.maps.ControlPosition.html">google.maps.ControlPosition</a>
 						</li>
 						
 						<li>
@@ -79,14 +79,14 @@
 					
 
 
-	<h1 class="page-title">Class: Timestamp</h1>
+	<h1 class="page-title">Class: google.maps.ControlPosition</h1>
 <section>
 
 <header>
     <h2>
         <span class="ancestors"><a href="spatialsurvey.html">spatialsurvey</a>.</span>
     
-    Timestamp
+    google.maps.ControlPosition
     </h2>
     
 </header>
@@ -98,7 +98,7 @@
     
         
 <dt>
-    <h4 class="name" id="Timestamp"><span class="type-signature"></span>new Timestamp<span class="signature">(options)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="google.maps.ControlPosition"><span class="type-signature"></span>new google.maps.ControlPosition<span class="signature">(options)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -178,53 +178,7 @@
 
         <tr>
             
-                <td class="name"><code>polyline</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>google.maps.Polyline object</p></td>
-        </tr>
-
-	
-
-        <tr>
-            
-                <td class="name"><code>position</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>google.maps.LatLng object</p></td>
-        </tr>
-
-	
-
-        <tr>
-            
-                <td class="name"><code>startTime</code></td>
+                <td class="name"><code>id</code></td>
             
 
             <td class="type">
@@ -247,7 +201,7 @@
 
         <tr>
             
-                <td class="name"><code>endTime</code></td>
+                <td class="name"><code>text</code></td>
             
 
             <td class="type">
@@ -270,13 +224,13 @@
 
         <tr>
             
-                <td class="name"><code>type</code></td>
+                <td class="name"><code>onClick</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">function</span>
 
 
             
@@ -286,7 +240,7 @@
 
             
 
-            <td class="description last"><p>duration or single</p></td>
+            <td class="description last"></td>
         </tr>
 
 	
@@ -330,7 +284,7 @@
 		<ul class="dummy">
 			<li>
 				<a href="core.js.html">/var/www/wherewewalk/spatialsurvey/core.js</a>,
-				 <a href="core.js.html#sunlight-1-line-256">line 256</a>
+				 <a href="core.js.html#sunlight-1-line-301">line 301</a>
 			</li>
 		</ul>
 	</dd>
@@ -372,256 +326,6 @@
 
     
 
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        <dl>
-            
-<dt>
-    <h4 class="name" id="savePosition"><span class="type-signature">&lt;static> </span>savePosition<span class="signature">(position)</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
-
-        <tr>
-            
-                <td class="name"><code>position</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>A google.maps.LatLng object.</p></td>
-        </tr>
-
-	
-	</tbody>
-</table>
-
-    
-    
-    
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source">
-		<ul class="dummy">
-			<li>
-				<a href="core.js.html">/var/www/wherewewalk/spatialsurvey/core.js</a>,
-				 <a href="core.js.html#sunlight-1-line-357">line 357</a>
-			</li>
-		</ul>
-	</dd>
-	
-
-	
-
-	
-
-	
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="show"><span class="type-signature">&lt;static> </span>show<span class="signature">(state)</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Show the timestamp on the map.</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
-
-        <tr>
-            
-                <td class="name"><code>state</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>open, closed, or none.</p></td>
-        </tr>
-
-	
-	</tbody>
-</table>
-
-    
-    
-    
-<dl class="details">
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source">
-		<ul class="dummy">
-			<li>
-				<a href="core.js.html">/var/www/wherewewalk/spatialsurvey/core.js</a>,
-				 <a href="core.js.html#sunlight-1-line-318">line 318</a>
-			</li>
-		</ul>
-	</dd>
-	
-
-	
-
-	
-
-	
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-        </dl>
     
 
     
