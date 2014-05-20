@@ -116,10 +116,6 @@ spatialsurvey = (function() {
 	 * Returns a new SurveyResponse object.
 	 * @constructor
 	 * @memberOf spatialsurvey
-	 * @param {Object} data - Object containing user response data.
-	 * @param {Object} data.path - An array of {@linkcode external:LatLng} coordinates.
-	 * @param {string} data.startTime 
-	 * @param {string} data.endTime
 	 * @returns {SurveyResponse}
 	 */
 	function SurveyResponse()
@@ -171,24 +167,26 @@ spatialsurvey = (function() {
 		this.getValue = getValue;
 
 		/** 
-		 * Retrieve the timestamps from the DOM.
+		 * Deletes all response data from the SurveyResponse object.
 		 * @memberOf spatialsurvey.SurveyResponse
-		 * @returns {Array}
-		*/
-		function getTimestamps() {
-			var timestampWindows = document.getElementsByClassName('timestamp-form');
-			var timestamps = [];
-			for(var i = 0; i &lt; timestampWindows.length; i++) {
-				var startTime = timestampWindows[i].querySelector('input[name=start-time]').value;
-				var endTime = timestampWindows[i].querySelector('input[name=end-time]').value;
-				var lat = timestampWindows[i].getElementsByClassName('timestamp-position-lat')[0].value;
-				var lng = timestampWindows[i].getElementsByClassName('timestamp-position-lng')[0].value;
+		 */
+		function reset() {
+			data = {};
+		}
+		this.reset = reset;
 
-				timestamps.push({ 'startTime': startTime, 'endTime': endTime, 'position': { 'lat': lat, 'lng': lng }});
+		/** 
+		 * Answers whether any survey response has been recorded yet.
+		 * @returns {boolean}
+		 */
+		function isEmpty() {
+			for ( key in data ) {
+				if ( data.hasOwnProperty(key))
+					return false;
 			}
-			return timestamps;
-		}		
-		this.getTimestamps = getTimestamps;
+			return true;
+		}
+		this.isEmpty = isEmpty;
 
 		/** 
 		 * Serializes the SurveyResponse object to JSON format.
@@ -391,8 +389,7 @@ spatialsurvey = (function() {
 			pyramid: new google.maps.Marker({
 				icon: { url: getResourceUrl('pyramid.png'), anchor: new google.maps.Point(10,30) },
 				shape: { type: "rect", coords: [0,0,20,20] },
-				position: data.position,
-				map: environment.map		
+				position: data.position
 			})
 		};
 
@@ -455,7 +452,7 @@ spatialsurvey = (function() {
 		});		
 		google.maps.event.addListener(timestamp.pyramid, 'dragend', function(event) {
 			timestamp.closed.setPosition(event.latLng);
-			timestamp.savePosition(event.latLng);
+			savePosition(event.latLng);
 		});			
 
 		google.maps.event.addListener(timestamp.opened, 'closeclick', function() {
