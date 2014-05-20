@@ -148,6 +148,14 @@ spatialsurvey = (function() {
 		}
 
 		/** 
+		 * Converts the PathData object to a geoJSON object.
+		 * @memberOf spatialsurvey.PathData
+		 */
+		function toGeoJSON() {
+
+		}
+
+		/** 
 		 * Sets the polyline coordinates of the PathData instance.
 		 * @memberOf spatialsurvey.PathData
 		 * @param {function} onNoData - Called if there is not yet a path set.
@@ -1207,6 +1215,7 @@ var mapHelper = (function()
 	};
 
 	/** 
+	 * Set up environment.
 	 * @memberOf mapHelper
 	 */
 	function init(opt) {
@@ -1464,7 +1473,9 @@ var mapHelper = (function()
 
 	/** 
 	 * @memberOf mapHelper
-	 * @returns google.maps.LatLng
+	 * @param {Object} polyline - google.maps.Polyline
+	 * @param {Object} point - google.maps.LatLng
+	 * @returns {google.maps.LatLng}
 	 */
 	function closestPointOnPolyline(polyline, point)
 	{
@@ -1638,6 +1649,7 @@ var mapHelper = (function()
 	 * @memberOf mapHelper
 	 * @param {float} x
 	 * @param {float} y
+	 * @return {google.maps.LatLng}
 	 */
 	function pixelsToLatLng(x,y) {
 		var overlay = new google.maps.OverlayView();
@@ -1645,6 +1657,61 @@ var mapHelper = (function()
 		overlay.setMap(environment.map);		
 		var proj = overlay.getProjection();
 		return proj.fromDivPixelToLatLng(new google.maps.Point(x, y));
+	}
+
+	/** 
+	 * Gets the URL. 
+	 * @memberOf mapHelper
+	 * @param {string} filename
+	 * @return {string}
+	 */
+	function getResourceUrl(filename) {
+		return '../../spatialsurvey/resources/' + filename;
+	}
+
+	/** 
+	 * Convert google.maps objects to geoJSON.
+	 * @memberOf mapHelper
+	 * @param {Object} geodata - google.maps.LatLng or google.maps.Polyline
+	 * @return {Object}
+	 */
+	function toGeoJSON(geodata) {
+		var type = null;
+		var geoJSON = {};
+		/* geodata is a google.maps.LatLng object. */
+		if ( typeof geodata.lat === 'function' ) {
+			type = 'LatLng';
+			geoJSON = {
+				"type": "Point", 
+				"coordinates": [ geodata.lng(), geodata.lat() ]
+			};
+		}
+		/* geodata is a google.maps.Polygon object. */
+		else if ( typeof geodata.getPaths === 'function' ) {
+			type = 'Polygon';
+			var polygonCoordinates = [];
+			var polygonSize = geodata.getPath().getArray().length;
+			if ( polygonSize < 4 )
+				throw "A geoJSON Polygon must be a LinearRing with four or more vertices.";
+			geoJSON = {
+				"type": "Polygon",
+				"coordinates": toGeoJSON(new google.maps.Polyline({ path: polygonCoordinates })).coordinates
+			};
+		}
+		/* geodata is a google.maps.Polyline object. */
+		else if ( typeof geodata.getPath === 'function' ) {
+			type = 'Polyline';
+			var polylineCoordinates = [];
+			var polylineLength = geodata.getPath().getArray().length;
+			for (var i = 0; i < polylineLength; i++) {
+				polylineCoordinates.push([geodata.getPath().getAt(i).lng(), geodata.getPath().getAt(i).lat()]);
+			}
+			geoJSON = {
+				"type": "LineString",
+				"coordinates": polylineCoordinates
+			};
+		}
+		return geoJSON;
 	}
 
 	// public methods and constructors
@@ -1655,7 +1722,8 @@ var mapHelper = (function()
 		'distributeTimeStamps': distributeTimeStamps,
 		'pixelsToLatLng': pixelsToLatLng,
 		'Line': Line,
-		'init': init
+		'init': init,
+		'toGeoJSON': toGeoJSON
 	};
 
 }());
@@ -1786,8 +1854,3 @@ function getCSSRule(ruleName, deleteFlag) {               // Return requested st
    }                                                      // end styleSheet ability check
    return false;                                          // we found NOTHING!
 }                                                         // end getCSSRule 
-
-/** Gets the URL. */
-function getResourceUrl(filename) {
-	return '../../spatialsurvey/resources/' + filename;
-}

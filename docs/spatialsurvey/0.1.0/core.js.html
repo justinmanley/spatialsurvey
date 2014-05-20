@@ -1,31 +1,90 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>JSDoc: Source: core.js</title>
+	<meta charset="utf-8">
+	<title>spatialsurvey Source: /var/www/wherewewalk/spatialsurvey/core.js</title>
 
-    <script src="scripts/prettify/prettify.js"> </script>
-    <script src="scripts/prettify/lang-css.js"> </script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	
+	<link type="text/css" rel="stylesheet" href="styles/site.spacelab.css">
+	
 </head>
 
 <body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top navbar-inverse">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">spatialsurvey</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b
+						class="caret"></b></a>
 
-<div id="main">
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="mapHelper.html">mapHelper</a>
+						</li>
+						
+						<li>
+							<a href="spatialsurvey.html">spatialsurvey</a>
+						</li>
+						
 
-    <h1 class="page-title">Source: core.js</h1>
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
 
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="spatialsurvey.Button.html">Button</a>
+						</li>
+						
+						<li>
+							<a href="spatialsurvey.Instructions.html">Instructions</a>
+						</li>
+						
+						<li>
+							<a href="spatialsurvey.PathData.html">PathData</a>
+						</li>
+						
+						<li>
+							<a href="spatialsurvey.Timestamp.html">Timestamp</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: /var/www/wherewewalk/spatialsurvey/core.js</h1>
     
-
-
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/** 
+<section>
+	<article>
+		<pre
+			class="sunlight-highlight-javascript linenums">/** 
  * @name spatialsurvey
  * @namespace  
  */
@@ -172,6 +231,14 @@ spatialsurvey = (function() {
 				}
 			}	
 			return JSON.stringify(stringable); 
+		}
+
+		/** 
+		 * Converts the PathData object to a geoJSON object.
+		 * @memberOf spatialsurvey.PathData
+		 */
+		function toGeoJSON() {
+
 		}
 
 		/** 
@@ -1234,6 +1301,7 @@ var mapHelper = (function()
 	};
 
 	/** 
+	 * Set up environment.
 	 * @memberOf mapHelper
 	 */
 	function init(opt) {
@@ -1491,7 +1559,9 @@ var mapHelper = (function()
 
 	/** 
 	 * @memberOf mapHelper
-	 * @returns google.maps.LatLng
+	 * @param {Object} polyline - google.maps.Polyline
+	 * @param {Object} point - google.maps.LatLng
+	 * @returns {google.maps.LatLng}
 	 */
 	function closestPointOnPolyline(polyline, point)
 	{
@@ -1665,6 +1735,7 @@ var mapHelper = (function()
 	 * @memberOf mapHelper
 	 * @param {float} x
 	 * @param {float} y
+	 * @return {google.maps.LatLng}
 	 */
 	function pixelsToLatLng(x,y) {
 		var overlay = new google.maps.OverlayView();
@@ -1672,6 +1743,61 @@ var mapHelper = (function()
 		overlay.setMap(environment.map);		
 		var proj = overlay.getProjection();
 		return proj.fromDivPixelToLatLng(new google.maps.Point(x, y));
+	}
+
+	/** 
+	 * Gets the URL. 
+	 * @memberOf mapHelper
+	 * @param {string} filename
+	 * @return {string}
+	 */
+	function getResourceUrl(filename) {
+		return '../../spatialsurvey/resources/' + filename;
+	}
+
+	/** 
+	 * Convert google.maps objects to geoJSON.
+	 * @memberOf mapHelper
+	 * @param {Object} geodata - google.maps.LatLng or google.maps.Polyline
+	 * @return {Object}
+	 */
+	function toGeoJSON(geodata) {
+		var type = null;
+		var geoJSON = {};
+		/* geodata is a google.maps.LatLng object. */
+		if ( typeof geodata.lat === 'function' ) {
+			type = 'LatLng';
+			geoJSON = {
+				"type": "Point", 
+				"coordinates": [ geodata.lng(), geodata.lat() ]
+			};
+		}
+		/* geodata is a google.maps.Polygon object. */
+		else if ( typeof geodata.getPaths === 'function' ) {
+			type = 'Polygon';
+			var polygonCoordinates = [];
+			var polygonSize = geodata.getPath().getArray().length;
+			if ( polygonSize &lt; 4 )
+				throw "A geoJSON Polygon must be a LinearRing with four or more vertices.";
+			geoJSON = {
+				"type": "Polygon",
+				"coordinates": toGeoJSON(new google.maps.Polyline({ path: polygonCoordinates })).coordinates
+			};
+		}
+		/* geodata is a google.maps.Polyline object. */
+		else if ( typeof geodata.getPath === 'function' ) {
+			type = 'Polyline';
+			var polylineCoordinates = [];
+			var polylineLength = geodata.getPath().getArray().length;
+			for (var i = 0; i &lt; polylineLength; i++) {
+				polylineCoordinates.push([geodata.getPath().getAt(i).lng(), geodata.getPath().getAt(i).lat()]);
+			}
+			geoJSON = {
+				"type": "LineString",
+				"coordinates": polylineCoordinates
+			};
+		}
+		return geoJSON;
 	}
 
 	// public methods and constructors
@@ -1682,7 +1808,8 @@ var mapHelper = (function()
 		'distributeTimeStamps': distributeTimeStamps,
 		'pixelsToLatLng': pixelsToLatLng,
 		'Line': Line,
-		'init': init
+		'init': init,
+		'toGeoJSON': toGeoJSON
 	};
 
 }());
@@ -1812,32 +1939,68 @@ function getCSSRule(ruleName, deleteFlag) {               // Return requested st
       }                                                   // end For loop
    }                                                      // end styleSheet ability check
    return false;                                          // we found NOTHING!
-}                                                         // end getCSSRule 
-
-/** Gets the URL. */
-function getResourceUrl(filename) {
-	return '../../spatialsurvey/resources/' + filename;
-}
-</code></pre>
-        </article>
-    </section>
+}                                                         // end getCSSRule </pre>
+	</article>
+</section>
 
 
 
 
-</div>
 
-<nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="spatialsurvey.Button.html">Button</a></li><li><a href="spatialsurvey.Instructions.html">Instructions</a></li><li><a href="spatialsurvey.PathData.html">PathData</a></li><li><a href="spatialsurvey.Timestamp.html">Timestamp</a></li></ul><h3>Namespaces</h3><ul><li><a href="mapHelper.html">mapHelper</a></li><li><a href="spatialsurvey.html">spatialsurvey</a></li></ul><h3>Global</h3><ul><li><a href="global.html#getResourceUrl">getResourceUrl</a></li></ul>
-</nav>
+				</div>
 
-<br clear="both">
+				<div class="clearfix"></div>
+				<footer>
+					
+					
+		<span class="copyright">
+		DocStrap Copyright © 2012-2013 The contributors to the JSDoc3 and DocStrap projects.
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a>
+		on Tue May 20th 2014 using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
 
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Mon May 19 2014 15:29:38 GMT-0500 (CDT)
-</footer>
+			
+			<br clear="both">
+		</div>
 
-<script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
+	</div>
+	<script src="scripts/sunlight.js"></script>
+	<script src="scripts/sunlight.javascript.js"></script>
+	<script src="scripts/sunlight-plugin.doclinks.js"></script>
+	<script src="scripts/sunlight-plugin.linenumbers.js"></script>
+	<script src="scripts/sunlight-plugin.menu.js"></script>
+	<script src="scripts/jquery.min.js"></script>
+	<script src="scripts/jquery.scrollTo.js"></script>
+	<script src="scripts/jquery.localScroll.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+
+	<script>  Sunlight.highlightAll({lineNumbers: true,  showMenu: true, enableDoclinks: true}); </script>
+
+	<script>
+		$( function () {
+			$( "#toc" ).toc( {
+			    anchorName  : function(i, heading, prefix) {
+					return $(heading).attr("id") || ( prefix + i );
+				},
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : 60
+			} );
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+
+		} );
+	</script>
+
+	
+
 </body>
 </html>

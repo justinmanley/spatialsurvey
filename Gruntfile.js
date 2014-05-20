@@ -14,10 +14,7 @@ module.exports = function(grunt) {
 		},
 		less: {
 			development: {
-				options: {
-					rootpath: 'css',
-					files: { 'style.css': 'style.less' }
-				}
+				files: { 'css/style.css': 'css/style.less' }
 			}
 		},		
 		qunit: {
@@ -25,7 +22,7 @@ module.exports = function(grunt) {
 		},
 		watch: {
 			less: {
-				files: [ 'style.less' ],
+				files: [ 'css/style.less' ],
 				tasks: [ 'less' ]
 			},
 			jsdoc: {
@@ -37,14 +34,16 @@ module.exports = function(grunt) {
 			dist: {
 				src: forDocumentation,
 				options: {
-					destination: 'docs'
+					destination: 'docs',
+					configure: 'jsdoc.conf.json',
+					template: 'node_modules/ink-docstrap/template'
 				},
 				jsdoc: '/usr/bin/jsdoc'
 			}
 		}		
 	});
-	grunt.registerTask('default', ['clean:docs', 'jsdoc', 'less', 'jshint']);
-	grunt.registerTask('watch', ['watch']);	
+	grunt.registerTask('default', ['jshint', 'clean:docs', 'jsdoc', 'less']);
+	grunt.registerTask('start-watching', ['watch']);	
 	grunt.registerTask('test', ['qunit']);
 	grunt.registerTask('lint', ['jshint']);
 };

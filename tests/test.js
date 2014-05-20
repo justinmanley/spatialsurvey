@@ -50,6 +50,25 @@ test("mapHelper.closestPointOnPolyline()", function() {
 
 	equal(mapHelper.closestPointOnPolyline(testPolyline, midPoint).lat().toFixed(8), midPoint.lat().toFixed(8), "For midpoint, closestPointOnPolyline returns lat of self.");
 	equal(mapHelper.closestPointOnPolyline(testPolyline, midPoint).lng().toFixed(8), midPoint.lng().toFixed(8), "For midpoint, closestPointOnPolyline returns lng of self.");
+});
 
-	
+test("mapHelper.toGeoJSON()", function() {
+	equal(typeof mapHelper.toGeoJSON, 'function', "mapHelper.toGeoJSON() is defined.");
+	var testPoint1 = new google.maps.LatLng(0,0);
+	var testPoint2 = new google.maps.LatLng(0,1);
+
+	deepEqual(mapHelper.toGeoJSON(testPoint1), { "type": "Point", "coordinates": [0,0] }, "The point (0,0) is converted correctly to a geoJSON Point.");
+	deepEqual(mapHelper.toGeoJSON(testPoint2), { "type": "Point", "coordinates": [1,0] }, "geoJSON Point coordinates have the format [longitude, latitude].")
+
+	var testPolyline = new google.maps.Polyline({
+		path: [
+		new google.maps.LatLng(41.79646264332723, -87.60611236095428),
+		new google.maps.LatLng(41.79647961077208, -87.6044574379921),
+	]});
+
+	deepEqual(mapHelper.toGeoJSON(testPolyline), { "type": "LineString", "coordinates": [
+		[-87.60611236095428, 41.79646264332723],
+		[-87.6044574379921, 41.79647961077208]
+	]}, "Simple polyline conversion with thirteen decimal place latitude and longitude.");
+
 });
