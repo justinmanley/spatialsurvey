@@ -103,6 +103,16 @@ spatialsurvey = (function() {
 		this.isEmpty = isEmpty;
 
 		/** 
+		 * Submit the survey responses to the database.
+		 */
+		function submit() {
+			var request = new XMLHttpRequest();
+			request.open('POST', 'record.php', true);
+			request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+			request.send(environment.appName + '-data=' + toString());
+		}
+
+		/** 
 		 * Serializes the SurveyResponse object to JSON format.
 		 * @memberOf spatialsurvey.SurveyResponse		 
 		 * @returns {string} 
