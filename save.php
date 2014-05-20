@@ -10,11 +10,7 @@ $user_id = $_SERVER['persistent-id'];
 $jsondata = mysqli_escape_string($conn, $_SESSION['path-data']);
 
 $sql = <<<sqlstring
-<<<<<<< HEAD
-INSERT INTO paths ( id, user_id, kml_string, json_string, time_submitted ) VALUES ( DEFAULT, "$user_id", "$kml", "$jsondata", NOW() )
-=======
 INSERT INTO paths ( id, kml_string, json_string, time_submitted ) VALUES ( DEFAULT, "", "$jsondata", NOW() )
->>>>>>> master
 sqlstring;
 
 mysqli_select_db($conn, $dbname);

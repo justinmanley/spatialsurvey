@@ -1189,7 +1189,7 @@ var mapHelper = (function()
 	function getDeleteUrl() 
 // ---------------------------------------------------------------
 	{
-		var deleteUrl = getResourceUrl('closebox.png');
+		var deleteUrl = spatialsurvey.getResourceUrl('closebox.png');
 		if (!validDeleteUrl) {
 			var request = new XMLHttpRequest();
 			request.open('GET', deleteUrl, false);
