@@ -2,12 +2,14 @@ spatialsurvey
 =============================
 
 spatialsurvey is a library for creating geographic survey applications using the Google Maps Javascript API.  Geographic surveys - that is, surveys in the questions are geographic or spatial, rather than verbal, are a useful tool for
+
 	* campus planners
 	* architects
 	* urban planners
 	* HR departments
 	* logistics specialists
-to learn about how people are getting around.  The spatialsurvey library has been used at the University of Chicago to develop surveys for campus planning that were administered to approximately 5,000 students (see the code survey application [here](https://github.com/manleyjster/wherewewalk)).
+
+to learn about how people are getting around.  The `spatialsurvey` library has been used at the University of Chicago to develop surveys for campus planning that were administered to approximately 5,000 students (see the code survey application [here](https://github.com/manleyjster/wherewewalk)).
 
 Structure
 ==============================
