@@ -1,7 +1,7 @@
 spatialsurvey
 =============================
 
-spatialsurvey is a library for creating geographic survey applications using the Google Maps Javascript API.  Geographic surveys - that is, surveys in the questions are geographic or spatial, rather than verbal, are a useful tool for
+`spatialsurvey` is a library for creating geographic survey applications using the Google Maps Javascript API.  Geographic surveys - that is, surveys in the questions are geographic or spatial, rather than verbal, are a useful tool for
 
 	* campus planners
 	* architects
