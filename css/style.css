@@ -25,8 +25,8 @@ body {
   font-weight: bold;
 }
 .dowsing-button.dowsing-button-grey {
-  background: linear-gradient(#b6b6b6, #b0b0b0);
-  background: #a6a6a6;
+  background: linear-gradient(#757575, #6e6e6e);
+  background: #696969;
 }
 #instructions-sidebar {
   width: 180px;
