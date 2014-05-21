@@ -111,6 +111,7 @@ spatialsurvey = (function() {
 			request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 			request.send(environment.appName + '-data=' + toString());
 		}
+		this.submit = submit;
 
 		/** 
 		 * Serializes the SurveyResponse object to JSON format.
