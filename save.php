@@ -17,7 +17,6 @@ mysqli_select_db($conn, $dbname);
 $retval = mysqli_query($conn, $sql);
 
         if ( !$retval ) { die('Could not enter data: ' . mysqli_error($conn)); }
-        else { successful_database_save(); }
-
+        
 mysqli_close($conn);
 ?>
