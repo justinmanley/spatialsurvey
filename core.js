@@ -107,7 +107,7 @@ spatialsurvey = (function() {
 		 */
 		function submit() {
 			var request = new XMLHttpRequest();
-			request.open('POST', 'record.php', true);
+			request.open('POST', '../../spatialsurvey/save.php', true);
 			request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 			request.send(environment.appName + '-data=' + toString());
 		}
