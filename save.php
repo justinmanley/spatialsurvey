@@ -8,7 +8,7 @@ $user_id = $_SERVER['persistent-id'];
 $jsondata = mysqli_escape_string($conn, $_POST[$appname . '-data']);
 
 $sql = <<<sqlstring
-INSERT INTO paths ( id, kml_string, json_string, time_submitted ) VALUES ( DEFAULT, "", "$jsondata", NOW() )
+INSERT INTO paths ( id, kml_string, json_string, time_submitted, user_id ) VALUES ( DEFAULT, "", "$jsondata", NOW(), "$user_id" )
 sqlstring;
 
 mysqli_select_db($conn, $dbname);
