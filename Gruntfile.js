@@ -28,6 +28,14 @@ module.exports = function(grunt) {
 			jsdoc: {
 				files: forDocumentation,
 				tasks: ['jsdoc']
+			},
+			jshint: {
+				files: [ 'core.js' ],
+				tasks: [ 'jshint' ]
+			},
+			qunit: {
+				files: [ 'core.js', 'tests/*' ],
+				tasks: [ 'qunit']
 			}
 		},
 		jsdoc: {
@@ -43,7 +51,7 @@ module.exports = function(grunt) {
 		}		
 	});
 	grunt.registerTask('default', ['jshint', 'clean:docs', 'jsdoc', 'less']);
-	grunt.registerTask('start-watching', ['watch']);	
+	grunt.registerTask('work', 'watch');	
 	grunt.registerTask('test', ['qunit']);
 	grunt.registerTask('lint', ['jshint']);
 };

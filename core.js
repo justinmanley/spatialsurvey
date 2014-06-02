@@ -47,7 +47,7 @@ spatialsurvey = (function() {
 			debug(storedData, "storedData");
 			parsedData = JSON.parse(storedData);
 			debug(data, "data");
-			for ( key in parsedData ) {
+			for ( var key in parsedData ) {
 				/* data[key] is a geoJSON object */
 				if ( typeof parsedData[key].type !== 'undefined' ) {
 					if ( parsedData[key].type === "LineString" || parsedData[key].type === "Point") {
@@ -94,7 +94,7 @@ spatialsurvey = (function() {
 		 * @returns {boolean}
 		 */
 		function isEmpty() {
-			for ( key in data ) {
+			for ( var key in data ) {
 				if ( data.hasOwnProperty(key))
 					return false;
 			}
@@ -121,7 +121,7 @@ spatialsurvey = (function() {
 		function toString() {
 			var stringable = {};	
 
-			for ( key in data ) {
+			for ( var key in data ) {
 				/* data[key] is a google.maps.LatLng object. */
 				if ( typeof data[key].lat === 'function' )
 					stringable[key] = mapHelper.toGeoJSON(data[key]);
@@ -143,8 +143,8 @@ spatialsurvey = (function() {
 	 * @returns {GeoJSON}
 	 */
 	SurveyResponse.prototype.toGeoJSON = function() {
-		throw "Error: SurveyResponse.toGeoJSON has not been implemented.\nThe application developer should implement this function."
-	}
+		throw "Error: SurveyResponse.toGeoJSON has not been implemented.\nThe application developer should implement this function.";
+	};
 
 	/** 
 	 * Utility function for console debugging that is controlled by the verbose variable.
@@ -158,6 +158,70 @@ spatialsurvey = (function() {
 				console.log(description);			
 			console.log(object);			
 		}
+	}
+
+	/** 
+	 * @constructor
+	 * @memberOf spatialsurvey
+	 */
+	function UIComponent() {
+		var that = this,
+			data = {};
+
+		/** 
+		 * @memberOf spatialsurvey.UIComponent
+		 * @param {Object} defaults
+		 * @returns {UIComponent}
+		 */
+		function setDefaults(defaults) {
+			for ( var def in defaults) {
+				if ( defaults.hasOwnProperty(def) )
+					data[def] = defaults[def];
+			}
+			return that;
+		}
+		this.setDefaults = setDefaults;
+
+
+		/** 
+		 * @memberOf spatialsurvey.UIComponent
+		 * @param {Object} options
+		 * @returns {UIComponent}
+		 */
+		function setOptions(options) {
+			for ( var option in options) {
+				if ( options.hasOwnProperty(option))
+					data[option] = options[option];
+			}
+			return that;
+		}
+		this.setOptions = setOptions;
+
+		/** 
+		 * @memberOf spatialsurvey.UIComponent
+		 * @param {string} name
+		 * @returns {Object}
+		 */
+		function get(name) {
+			return data[name];
+		}
+		this.get = get;
+
+		/** 
+		 * @memberOf spatialsurvey.UIComponent
+		 * @param {string} name
+		 * @param {Object{ value
+		 * @returns {UIComponent}
+		 */
+		function set(name, value) {
+			if ( typeof name === 'string' )
+				data[name] = value;
+			else
+				throw "Spatialsurvey: TypeError.  Correct usage is UIComponent.set(name, value).";
+
+			return that;
+		}
+		this.set = set;
 	}
 
 	/** 
@@ -182,17 +246,20 @@ spatialsurvey = (function() {
 
 	/** 
 		@constructor
-		@memberOf spatialsurvey		
+		@memberOf spatialsurvey	
 		@param {Object} options
 		@param {string} options.id
 		@param {string} options.text
 		@param {function} options.onClick
 	*/
-	function Button(opt) {	
+	function Button(opt) {
+		UIComponent.call(this);
+		this.setOptions(opt);
+
 		var button = document.createElement('button');
-		button.id = opt.id;
+		button.id = this.get('id');
 		button.setAttribute('class', 'dowsing-button');
-		button.innerHTML = opt.text;
+		button.innerHTML = this.get('text');
 		
 		/** 
 		 * Adds the button to the bottom center control position on the map. 
@@ -202,7 +269,7 @@ spatialsurvey = (function() {
 			environment.map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(button);			
 		};
 
-		google.maps.event.addDomListener(button, 'click', opt.onClick);
+		google.maps.event.addDomListener(button, 'click', this.get('onClick'));
 	}
 
 	/** 
@@ -263,60 +330,53 @@ spatialsurvey = (function() {
 	 * @param {string} options.type - duration or single
 	*/
 	function Timestamp(options) {
-		// Timestamp defaults
-		var data = {
+		UIComponent.call(this);
+		this.setDefaults({
 			polyline: new google.maps.Polyline({}),
 			position: new google.maps.LatLng({}),
 			startTime: '',
 			endTime: '',
 			type: 'duration'
-		};
+		}).setOptions(options);
 
-		// initialize Timestamp data
-		for ( var property in options ) {
-			if ( options.hasOwnProperty(property) ) {
-				data[property] = options[property];
-			}
-		}
-
-		var openedContent = timestampOpenedContent(data);
-		var closedContent = timestampClosedContent(data);		
-
-		var timestamp = {
-			opened: new InfoBox({
-				content: openedContent.content,
-				position: data.position,
-				boxStyle: {
-					background: '#ffffff',
-					opacity: 1,
-					padding: '5px',
-					width: '130px',
-					height: '60px',
-					'border-radius': '7px'
-				},
-				closeBoxURL: getResourceUrl('close-icon.png'),
-				pixelOffset: new google.maps.Size(-68,-95)
-			}),
-			closed: new InfoBox({
-				content: closedContent.content,
-				position: data.position,
-				boxStyle: {
-					background: '#ffffff',
-					opacity: 1,
-					padding: '5px',
-					width: '105px',
-					height: '20px',
-					'border-radius': '7px'
-				},
-				closeBoxURL: "",
-				pixelOffset: new google.maps.Size(-55,-55)
-			}),
-			pyramid: new google.maps.Marker({
-				icon: { url: getResourceUrl('pyramid.png'), anchor: new google.maps.Point(10,30) },
-				shape: { type: "rect", coords: [0,0,20,20] },
-				position: data.position
-			})
-		};
+		var that = this,
+			openedContent = timestampOpenedContent(),
+			closedContent = timestampClosedContent(),
+			timestamp = {
+				opened: new InfoBox({
+					content: openedContent.content,
+					position: that.get('position'),
+					boxStyle: {
+						background: '#ffffff',
+						opacity: 1,
+						padding: '5px',
+						width: '130px',
+						height: '60px',
+						'border-radius': '7px'
+					},
+					closeBoxURL: getResourceUrl('close-icon.png'),
+					pixelOffset: new google.maps.Size(-68,-95)
+				}),
+				closed: new InfoBox({
+					content: closedContent.content,
+					position: that.get('position'),
+					boxStyle: {
+						background: '#ffffff',
+						opacity: 1,
+						padding: '5px',
+						width: '105px',
+						height: '20px',
+						'border-radius': '7px'
+					},
+					closeBoxURL: "",
+					pixelOffset: new google.maps.Size(-55,-55)
+				}),
+				pyramid: new google.maps.Marker({
+					icon: { url: getResourceUrl('pyramid.png'), anchor: new google.maps.Point(10,30) },
+					shape: { type: "rect", coords: [0,0,20,20] },
+					position: that.get('position')
+				})
+			};
 
 		/**
 		 * Show the timestamp on the map. 
@@ -333,7 +393,7 @@ spatialsurvey = (function() {
 			else if ( state == 'closed' ) {
 				var startTime = openedContent.getStartTime();
 				var endTime = openedContent.getEndTime();
-				if ( isValidTime(startTime) && ( isValidTime(endTime) || data.type === 'single' ) ) {
+				if ( isValidTime(startTime) && ( isValidTime(endTime) || this.get('type') === 'single' ) ) {
 					timestamp.opened.setMap(null);
 
 					closedContent.updateTimes(startTime, endTime);
@@ -433,9 +493,7 @@ spatialsurvey = (function() {
 		    return false;
 		}
 
-		function timestampOpenedContent(openedOptions) {
-			if ( typeof openedOptions.startTime === 'undefined') { openedOptions.startTime = ''; }		
-			if ( typeof openedOptions.endTime === 'undefined') { openedOptions.endTime = ''; }	
+		function timestampOpenedContent() {
 			var info = document.createElement('div');
 			info.setAttribute('class', 'timestamp-opened timestamp-container');
 
@@ -444,10 +502,10 @@ spatialsurvey = (function() {
 					'<label class="timestamp-label" for="time">Time</label>'+
 					'<br />'+
 					'<fieldset class="timestamp-data">'+
-						'<input type="text" name="start-time" class="timestamp" value="'+openedOptions.startTime+'"/>'+
-						'<input type="text" name="end-time" class="timestamp" value="'+openedOptions.endTime+'"/>'+
-						'<input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + openedOptions.position.lat() + '"/>'+
-						'<input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + openedOptions.position.lng() + '"/>'+
+						'<input type="text" name="start-time" class="timestamp" value="' + that.get('startTime') + '"/>'+
+						'<input type="text" name="end-time" class="timestamp" value="' + that.get('endTime') + '"/>'+
+						'<input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + that.get('position').lat() + '"/>'+
+						'<input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + that.get('position').lng() + '"/>'+
 					'</fieldset>'+
 				'</form>';
 
@@ -471,22 +529,19 @@ spatialsurvey = (function() {
 			};
 		}
 
-		function timestampClosedContent(closedOptions) {
-			if ( typeof closedOptions.startTime === 'undefined') { closedOptions.startTime = ''; }
-			if ( typeof closedOptions.endTime === 'undefined') { closedOptions.endTime = ''; }
-
+		function timestampClosedContent() {
 			var placeholder = document.createElement('div');
-			var separator = closedOptions.type === 'double' ? ' - ' : '';
+			var separator = that.get('type') === 'double' ? ' - ' : '';
 
 			placeholder.setAttribute('class', 'timestamp-closed timestamp-container');
 			placeholder.innerHTML = '<form class="timestamp-form">'+
-					'<label for="start-time" class="timestamp-label">'+closedOptions.startTime+'</label>'+
+					'<label for="start-time" class="timestamp-label">' + that.get('startTime') + '</label>'+
 					separator+
-					'<input type="hidden" name="start-time" class="timestamp" value="'+closedOptions.startTime+'"/>'+	
-					'<label for="end-time" class="timestamp-label">'+closedOptions.endTime+'</label>'+							
-					'<input type="hidden" name="end-time" class="timestamp" value="'+closedOptions.endTime+'"/>'+				
-					'<input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + closedOptions.position.lat() + '"/>'+
-					'<input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + closedOptions.position.lng() + '"/>'+
+					'<input type="hidden" name="start-time" class="timestamp" value="' + that.get('startTime') + '"/>'+	
+					'<label for="end-time" class="timestamp-label">' + that.get('endTime') + '</label>'+							
+					'<input type="hidden" name="end-time" class="timestamp" value="' + that.get('endTime') + '"/>'+				
+					'<input type="hidden" name="position-lat" class="timestamp-position-lat" value="' + that.get('position').lat() + '"/>'+
+					'<input type="hidden" name="position-lng" class="timestamp-position-lng" value="' + that.get('position').lng() + '"/>'+
 				'</form>';
 
 			function updateTimes(updatedStartTime, updatedEndTime) {
@@ -516,22 +571,16 @@ spatialsurvey = (function() {
 	 * @param {function} options.hideAction 
 	 */
 	function Instructions(options) {
-		// set defaults
-		var data = { 
-			content: [], 
+		UIComponent.call(this);
+		this.setDefaults({ 
+			content: [''], 
 			action: function() { },
 			hideAction: function() { }
-		};
+		}).setOptions(options);
 
-		// initialize data object
-		for ( var property in options) {
-			if ( options.hasOwnProperty(property) ) {
-				data[property] = options[property];
-			}
-		}
-
-		// initialize the div element
-		var extra = document.getElementById('extra');
+		var that = this,
+			extra = document.createElement('div');
+		extra.id = 'extra';
 		extra.innerHTML = '<div id="instructions-main">'+
 			'<div class="close-box">'+
 				'<img src="' + getResourceUrl('close-icon.png') + '"/>'+
@@ -540,6 +589,7 @@ spatialsurvey = (function() {
 			'</div><!-- #instructions-main-content -->'+
 			'<button class="dowsing-button" id="next-instruction">Next</button>'+				
 			'</div><!-- #instructions-main -->';
+		document.getElementsByTagName('body')[0].appendChild(extra);
 		document.getElementById('instructions-main').style.display = 'none';				
 		
 		/** 
@@ -548,7 +598,7 @@ spatialsurvey = (function() {
 		 */
 		function show() {
 			// if user defines hideAction, this allows primary and action to toggle back and forth
-			data.hideAction();
+			that.get('hideAction')();
 
 			var primary = document.getElementById('instructions-main');
 			var primary_content = document.getElementById('instructions-main-content');
@@ -557,7 +607,7 @@ spatialsurvey = (function() {
 
 			// initialize instructions_main screen
 		    var primary_screen_index = 0;
-		    var content = data.content;
+		    var content = that.get('content');
 		    var nextButton = document.getElementById('next-instruction');
 
 		    primary_content.innerHTML = content[primary_screen_index].content;
@@ -583,15 +633,28 @@ spatialsurvey = (function() {
 			document.getElementById('instructions-main').style.display = 'none';
 			google.maps.event.clearListeners(document.getElementById('next-instruction'), 'click');
 
-			data.action();
+			that.get('action')();
 		}
 		this.hide = hide;
 		return this;
 	}
 
-	var sidebar = (function() {
-		// set defaults
-		data = {
+	/** 
+	 * @constructor
+	 * @memberOf spatialsurvey
+	 * @param {Object} options
+	 * @param {string} options.content
+	 * @param {int} options.height
+	 * @param {string} options.sidebarId
+	 * @param {Object} options.help
+	 * @param {string} options.content
+	 * @param {string} options.teaser
+	 * @param {string} options.contentId
+	 * @param {string} options.teaserId
+	 */
+	function Sidebar(options) {
+		UIComponent.call(this);
+		this.setDefaults({
 			content: '',
 			height: 395,
 			sidebarOpenOnCreate: true,
@@ -602,116 +665,116 @@ spatialsurvey = (function() {
 				contentId: 'help-content',
 				teaserId: 'help-teaser'
 			}
+		}).setOptions(options);
+
+		var that = this,
+			sidebar = document.createElement('div'),
+			help = document.createElement('div');
+
+		sidebar.id = this.get('sidebarId');
+		sidebar.innerHTML = this.get('content');
+		sidebar.style.height = this.get('height');		
+		helpContent = document.createElement('div'),
+		helpTeaser = document.createElement('p');
+		help.id = 'help-panel';
+		helpContent.id = this.get('help').contentId;
+		helpTeaser.id = this.get('help').teaserId;
+		helpContent.innerHTML = this.get('help').content;
+		helpTeaser.innerHTML = this.get('help').teaser;
+
+		sidebar.appendChild(helpTeaser);
+		sidebar.appendChild(helpContent);
+
+		var show = function() {
+			sidebar.style.display = 'block';	
+
+			environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].clear();
+			environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sidebar);					
 		};
+		this.show = show;
 
-		var sidebar = document.createElement('div');
+		var hide = function() {
+			sidebar.style.display = 'none';			
+		};
+		this.hide = hide;
 
-		var create = function(options) {
-			// initialize data object
-			for ( var property in options) {
-				if ( options.hasOwnProperty(property) ) {
-					data[property] = options[property];
-				}
-			}
-			sidebar.id = data.sidebarId;
-			sidebar.innerHTML = data.content;
-			sidebar.style.height = data.height;		
-
-			var help = document.createElement('div');
-			var helpContent = document.createElement('div');
-			var helpTeaser = document.createElement('p');
-			help.id = 'help-panel';
-			helpContent.id = data.help.contentId;
-			helpTeaser.id = data.help.teaserId;
-			helpContent.innerHTML = data.help.content;
-			helpTeaser.innerHTML = data.help.teaser;
-
-			sidebar.appendChild(helpTeaser);
-			sidebar.appendChild(helpContent);
-
-			var show = function() {
-				sidebar.style.display = 'block';	
-
+		var toggleHelp = function() {
+			var sidebar = document.getElementById(that.get('sidebarId'));
+			var openListener = google.maps.event.addDomListener(helpTeaser, 'click', function() {
+				helpContent.style.display = 'block';		
 				environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].clear();
-				environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sidebar);					
-			};
-
-			var hide = function() {
-				sidebar.style.display = 'none';			
-			};
-
-			var toggleHelp = function() {
-				var sidebar = document.getElementById(data.sidebarId);
-				var openListener = google.maps.event.addDomListener(helpTeaser, 'click', function() {
-					helpContent.style.display = 'block';		
+				environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sidebar);
+				google.maps.event.removeListener(openListener);
+				var closeListener = google.maps.event.addDomListener(helpTeaser, 'click', function() {
+					helpContent.style.display = 'none';
+					google.maps.event.removeListener(closeListener);
 					environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].clear();
-					environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sidebar);
-					google.maps.event.removeListener(openListener);
-					var closeListener = google.maps.event.addDomListener(helpTeaser, 'click', function() {
-						helpContent.style.display = 'none';
-						google.maps.event.removeListener(closeListener);
-						environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].clear();
-						environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sidebar);				
-						toggleHelp();
-					});
-				});					
-			};	
-
-			var refresh = function(action) {
-				action();
-				var thisSidebar = document.getElementById('instructions-sidebar');
-				environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].clear();
-				environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(thisSidebar);						
-			};	
-
-			return {
-				'show': show,
-				'hide': hide,
-				'toggleHelp': toggleHelp,
-				'refresh': refresh
-			};		
-		};	
-
-		return { 
-			'create': create,
+					environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sidebar);				
+					toggleHelp();
+				});
+			});					
 		};
-	}());
+		this.toggleHelp = toggleHelp;
 
-	function showProgress(currentScreen, max, description) 
-	{
-		var progressBar = document.createElement('div');
-		var progressIndicator = document.createElement('div');
-		var progressText = document.createElement('div');
+		function refresh(action) {
+			action();
+			var thisSidebar = document.getElementById('instructions-sidebar');
+			environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].clear();
+			environment.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(thisSidebar);									
+		}
+		this.refresh = refresh;
+
+		return this;
+	}
+
+	/**
+	 * @constructor
+	 * @memberOf spatialsurvey
+	 * @param {Object} options
+	 * @param {int} options.currentScreen
+	 * @param {int} options.max
+	 * @param {string} options.description
+	 */
+	function ProgressBar(options) {
+		UIComponent.call(this);
+		this.setOptions(options);
+		var that = this,
+			progressBar = document.createElement('div'),
+			progressIndicator = document.createElement('div'),
+			progressText = document.createElement('div'),
+			widthFormat = /^([0-9]*)px$/;
+
 		progressBar.id = 'progress-bar';
 		progressIndicator.id = 'progress-indicator';
 		progressText.id = 'progress-text';
 
-		var widthFormat = /^([0-9]*)px$/;
 		var progressBarWidth = parseInt(widthFormat.exec(getCSSRule('#progress-bar').style.width)[1], 10);
 
-		progressIndicator.style.width = (currentScreen/max)*progressBarWidth + 'px';
+		progressIndicator.style.width = (this.get('currentScreen')/this.get('max'))*progressBarWidth + 'px';
 
-		progressText.innerHTML = currentScreen + ' : ' + description;
+		progressText.innerHTML = this.get('currentScreen') + ' : ' + this.get('description');
 
 		progressBar.appendChild(progressIndicator);
 		progressBar.appendChild(progressText);
-		environment.map.controls[google.maps.ControlPosition.TOP_CENTER].push(progressBar);				
+
+		function show() {
+			environment.map.controls[google.maps.ControlPosition.TOP_CENTER].push(progressBar);
+			return that;				
+		}
+		this.show = show;
+
+		return this;
 	}
 
-	var tutorial = (function() {
-		var drawingManager;
-
-		// for sharing data between different lessons in the standard tutorial
-		var standardTutorialData = {};
-
-		// for the end-user of the framework to share data 
-		// between different lessons in his/her custom tutorial
-		var userTutorialData = {};
-
+	/** 
+	 * @constructor
+	 * @memberOf spatialsurvey
+	 */
+	function Tutorial(lessons) {
 		// initialize the tutorialBox DOM element
-		var tutorialBox = document.createElement('div');
-		var tutorialText = document.createElement('div');
-		var button = document.createElement('button');
+		var tutorialBox = document.createElement('div'),
+			tutorialText = document.createElement('div'),
+			button = document.createElement('button');
 
 		tutorialBox.id = 'tutorial-fixed-box';		
 		tutorialText.id = 'tutorial-fixed-text';
@@ -727,33 +790,42 @@ spatialsurvey = (function() {
 
 		var mapCanvas = document.getElementById('map-canvas');
 
-		function create(manager, lessons) {
-			drawingManager = manager;
-			var TUTORIAL_START = 0;
+		var TUTORIAL_START = 0;
 
-			infoBoxManager.init('interactive');
-			initClickNoDrag();
+		infoBoxManager.init('interactive');
 
-			document.addEventListener("lessoncomplete", function(event) {
-				if ( event.detail.lessonIndex + 1 < lessons.length )
-					nextLesson(lessons, event.detail.lessonIndex + 1);
-				else if ( event.detail.lessonIndex == lessons.length - 1 ) {
-					environment.map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
-					var nextButton = document.createElement('a');
-					nextButton.setAttribute('href', '../start/');
-					nextButton.innerHTML = '<button class="dowsing-button">NEXT</button>';
-					environment.map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextButton);						
-				}
-			});
+		document.addEventListener("lessoncomplete", function(event) {
+			if ( event.detail.lessonIndex + 1 < lessons.length )
+				startLesson(event.detail.lessonIndex + 1, event.detail.data);
+			else if ( event.detail.lessonIndex == lessons.length - 1 ) {
+				environment.map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();
+				var nextButton = document.createElement('a');
+				nextButton.setAttribute('href', '../start/');
+				nextButton.innerHTML = '<button class="dowsing-button">NEXT</button>';
+				environment.map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(nextButton);						
+			}
+		});
 
-			document.addEventListener('mapUserError', function(event) {
-				error.show(event.detail.message, function() { event.detail.action(); });
-			});
+		document.addEventListener('mapUserError', function(event) {
+			error.show(event.detail.message, function() { event.detail.action(); });
+		});
 
-			nextLesson(lessons, TUTORIAL_START);
-
+		/** 
+		 * @memberOf spatialsurvey.Tutorial
+		 */
+		function start() {
+			startLesson(TUTORIAL_START);
 		}
+		this.start = start;
 
+		/** 
+		 * @memberOf spatialsurvey.Tutorial
+		 * @param {Object} options
+		 * @param {int} options.width
+		 * @param {string} options.content
+		 * @param {string} [options.buttonText]
+		 * @param {bool} options.hasButton
+		 */
 		function fixedTutorialBox(options) {
 			environment.map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
 			infoBoxManager.clear('interactive');	
@@ -770,13 +842,22 @@ spatialsurvey = (function() {
 				button.innerHTML = options.buttonText;
 
 				google.maps.event.addDomListener(button, 'click', function() {
-					dispatchLessonComplete();
+					Tutorial.completeLesson();
 				});
 			}
 			environment.map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(tutorialBox);				
 		}
+		this.fixedTutorialBox = fixedTutorialBox;
 
-		function interactiveTutorialBox(options, getPosition) {
+		/** 
+		 * @memberOf spatialsurvey.Tutorial
+		 * @param {Object} options
+		 * @param {function} options.getPosition
+		 * @param {int} options.width
+		 * @param {string} options.content
+		 * @param {int} options.pixelOffset
+		 */
+		function interactiveTutorialBox(options) {
 			if ( typeof clear === 'undefined' || clear === true )
 				environment.map.controls[google.maps.ControlPosition.BOTTOM_CENTER].clear();	
 
@@ -806,40 +887,14 @@ spatialsurvey = (function() {
 
 			infoBoxManager.register('interactive', { 'infoBox': tutorial, 'anchor': pyramid });			
 		}
+		this.interactiveTutorialBox = interactiveTutorialBox;
 
-		function interactiveArrow() {
-			//
-		}		
-
-		var dispatchLessonComplete = (function() {
-			var lessonCounter = 0;
-			return function(i) {
-				if ( typeof i !== 'undefined' )
-					lessonCounter = i;
-
-				var lessonComplete = new CustomEvent("lessoncomplete", {
-					detail: {
-						'lessonIndex': lessonCounter
-					}
-				});
-				document.dispatchEvent(lessonComplete);
-				lessonCounter++;
-			};
-		}());
-
-		function storeData(dataName, data) {
-			userTutorialData[dataName] = data;
-		}
-
-		function retrieveData(dataName) {
-			return userTutorialData[dataName];
-		}
-
-		function forgetData(dataName) {
-			delete userTutorialData[dataName];
-		}
-
-		function nextLesson(lessons, lessonIndex) {
+		/** 
+		 * @memberOf spatialsurvey.Tutorial
+		 * @param {int} lessonIndex
+		 * @param {Object} data
+		 */
+		function startLesson(lessonIndex, data) {
 			// set defaults
 			var thisLesson = {
 				instruction: {
@@ -855,9 +910,9 @@ spatialsurvey = (function() {
 			};
 
 			// initialize the data for this stage of the tutorial
-			for ( var data in lessons[lessonIndex] ) {
-				if ( lessons[lessonIndex].hasOwnProperty(data) )
-					thisLesson[data] = lessons[lessonIndex][data];
+			for ( var option in lessons[lessonIndex] ) {
+				if ( lessons[lessonIndex].hasOwnProperty(option) )
+					thisLesson[option] = lessons[lessonIndex][option];
 			}
 
 			if ( thisLesson.fixed )
@@ -865,186 +920,206 @@ spatialsurvey = (function() {
 			else 
 				interactiveTutorialBox(thisLesson.instruction);				
 
-			thisLesson.advance();
+			thisLesson.advance(data || {});
 		}
+		this.startLesson = startLesson;
 
-		var standardCurriculum = [
-			{
-				instruction: {
-					content: 'Click anywhere on the map to start drawing.',
-					hasButton: false,
-					buttonText: 'NEXT',
-					width: 250
-				},
-				fixed: true,
-				advance: function() { 
-					function onFirstPoint() {
-						dispatchLessonComplete(0);
-						document.removeEventListener('clicknodrag', onFirstPoint);
-					}
-					document.addEventListener('clicknodrag', onFirstPoint);
+		return this;
+	}
+
+	/** 
+	 * @memberOf spatialsurvey.Tutorial
+	 * @param {Object} data
+	 * @static
+	 */
+	Tutorial.completeLesson = (function() {
+		var lessonCounter = 0;
+		return function(options) {
+			if ( typeof options === 'undefined' )
+				options = {};
+			if ( typeof options.lessonIndex !== 'undefined' )
+				lessonCounter = options.lessonIndex;
+
+			var lessonComplete = new CustomEvent("lessoncomplete", {
+				detail: {
+					'lessonIndex': lessonCounter,
+					'data': options.data
 				}
-			},
-			{
-				instruction: {
-					content: 'Click somewhere else to draw a path.  To start, draw a path with three segments.',
-					hasButton: false,
-					buttonText: 'NEXT',
-					width: 440
-				},
-				fixed: true,
-				advance: function() { 
-					var points = 1;
-					var proj = environment.map.getProjection();
-					console.log(proj);
-					function onThirdPoint(event) {
-						if ( points == 3 ) {
-							var browserCursorX = event.detail.clientX;
-							var browserCurxorY = event.detail.clientY;
-							var browserPoint = new google.maps.Point(browserCursorX, browserCurxorY);
-							standardTutorialData.position = proj.fromPointToLatLng(browserPoint);
-
-							debug('at least three points in polyline');
-							dispatchLessonComplete();
-							document.removeEventListener('clicknodrag', onThirdPoint);	
-						} 
-						else 
-							points++;
-					}
-					document.addEventListener('clicknodrag', onThirdPoint);
-
-					var prematurePolylineComplete = google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
-						var numberOfVertices = polyline.getPath().getArray().length;
-						var verticesString = numberOfVertices == 1 ? 'vertex' : 'vertices';
-						if ( numberOfVertices < 3 ) {
-							document.removeEventListener('clicknodrag', onThirdPoint);								
-							google.maps.event.removeListener(prematurePolylineComplete);
-
-							var errorMessage = 'You created a line with only ' + numberOfVertices + ' ' + verticesString + ', probably because you clicked twice on the same point.<br />To draw a line, single-click along your desired path to place vertices on the map.';
-							error.report(errorMessage, function() { 
-								polyline.setMap(null);
-								drawingManager.setOptions({ drawingMode: google.maps.drawing.OverlayType.POLYLINE});
-								nextLesson(standardCurriculum, 0);
-							});		
-						}					
-					});		
-				}
-			},
-			{
-				instruction: {
-					content: 'To complete the path, click twice on the same point.',
-					hasButton: false,
-					buttonText: 'NEXT',
-					width: 370
-				},
-				fixed: true,
-				advance: function() { 
-					var onCompletePolyline = google.maps.event.addListener(drawingManager, 'polylinecomplete', function(polyline) {
-						drawingManager.setOptions({ drawingMode: null });
-						mapHelper.rightClickButton(polyline);
-						standardTutorialData.polyline = polyline;						
-
-						console.log('path is completed');
-						dispatchLessonComplete();
-						google.maps.event.removeListener(onCompletePolyline);						
-					});				
-				}
-			},
-			{
-				instruction: {
-					content: 'Nice!  Now that you\'ve drawn a path, you can modify it by dragging vertices.  Give it a try!',
-					hasButton: false,
-					buttonText: 'NEXT',
-					width: 560,
-				},
-				fixed: true,
-				advance: function() { 
-					var polyline = standardTutorialData.polyline;
-					editPolyline = 0;
-
-					function onEditPolyline() {
-						editPolyline += 1;
-						if ( editPolyline == 1 ) { 
-							dispatchLessonComplete();
-							google.maps.event.removeListener(insertListener);
-							google.maps.event.removeListener(deleteListener);
-							google.maps.event.removeListener(setListener);
-						}
-					}
-
-					var insertListener = google.maps.event.addListener(polyline.getPath(), 'insert_at', onEditPolyline);
-					var deleteListener = google.maps.event.addListener(polyline.getPath(), 'remove_at', onEditPolyline);
-					var setListener = google.maps.event.addListener(polyline.getPath(), 'set_at', onEditPolyline);
-				}
-			},
-			{
-				instruction: {
-					content: 'You can add new vertices to the line by dragging the dot in the middle of each segment.  Try it.',
-					hasButton: false,
-					buttonText: 'NEXT',
-					width: 560,
-				},
-				fixed: true,
-				advance: function() {
-					var polyline = standardTutorialData.polyline;
-
-					var secondVertex = polyline.getPath().getAt(1);
-					var thirdVertex = polyline.getPath().getAt(2);
-
-					var midpointLatitude = secondVertex.lat() + (1/2)*(thirdVertex.lat() - secondVertex.lat());
-					var midpointLongitude = secondVertex.lng() + (1/2)*(thirdVertex.lng() - secondVertex.lng());
-
-					var arrow = new google.maps.Marker({
-						position: new google.maps.LatLng(midpointLatitude, midpointLongitude),
-						icon: { 
-							url: getResourceUrl("arrow-diagonal-down-small-white.png"), 
-							anchor: new google.maps.Point(75,80)
-						},
-						map: environment.map						
-					});
-
-					function onInsertPoint() {
-						dispatchLessonComplete();
-						arrow.setMap(null);
-						google.maps.event.removeListener(insertListener);
-					}
-					var insertListener = google.maps.event.addListener(polyline.getPath(), 'insert_at', onInsertPoint);
-				}				
-			},
-			{
-				instruction: {
-					content: 'You can delete vertices by right-clicking on a vertex.  Try deleting a point.',
-					hasButton: false,
-					buttonText: 'NEXT',
-					width: 560,
-				},
-				fixed: true,
-				advance: function() {
-					var polyline = standardTutorialData.polyline;
-
-					function onDeletePoint() {
-						dispatchLessonComplete();
-						google.maps.event.removeListener(deleteListener);
-					}
-					var deleteListener = google.maps.event.addListener(polyline.getPath(), 'remove_at', onDeletePoint);
-				}				
-			},								
-			{
-				instruction: {
-					content: 'Great!  You\'re ready for the survey.',
-					width: 380,
-					hasButton: true,
-					buttonText: 'NEXT'				
-				},
-				fixed: true
-			}								
-		];
-
-		return {
-			'standardCurriculum': standardCurriculum,
-			'create': create
+			});
+			document.dispatchEvent(lessonComplete);
+			lessonCounter++;
 		};
 	}());
+
+	var standardTutorialLessons = [
+		{
+			instruction: {
+				content: 'Click anywhere on the map to start drawing.',
+				hasButton: false,
+				buttonText: 'NEXT',
+				width: 250
+			},
+			fixed: true,
+			advance: function() { 
+				function onFirstPoint() {
+					Tutorial.completeLesson();
+					document.removeEventListener('clicknodrag', onFirstPoint);
+				}
+				document.addEventListener('clicknodrag', onFirstPoint);
+			}
+		},
+		{
+			instruction: {
+				content: 'Click somewhere else to draw a path.  To start, draw a path with three segments.',
+				hasButton: false,
+				buttonText: 'NEXT',
+				width: 440
+			},
+			fixed: true,
+			advance: function() { 
+				var points = 1;
+				var proj = environment.map.getProjection();
+				console.log(proj);
+				function onThirdPoint(event) {
+					if ( points == 3 ) {
+						var browserCursorX = event.detail.clientX;
+						var browserCurxorY = event.detail.clientY;
+						var browserPoint = new google.maps.Point(browserCursorX, browserCurxorY);
+
+						debug('at least three points in polyline');
+						Tutorial.completeLesson({ data: { 'position': proj.fromPointToLatLng(browserPoint) }});
+						document.removeEventListener('clicknodrag', onThirdPoint);	
+					} 
+					else 
+						points++;
+				}
+				document.addEventListener('clicknodrag', onThirdPoint);
+
+				var prematurePolylineComplete = google.maps.event.addListener(environment.drawingManager, 'polylinecomplete', function(polyline) {
+					var numberOfVertices = polyline.getPath().getArray().length;
+					var verticesString = numberOfVertices == 1 ? 'vertex' : 'vertices';
+					if ( numberOfVertices < 3 ) {
+						document.removeEventListener('clicknodrag', onThirdPoint);								
+						google.maps.event.removeListener(prematurePolylineComplete);
+
+						var errorMessage = 'You created a line with only ' + numberOfVertices + ' ' + verticesString + ', probably because you clicked twice on the same point.<br />To draw a line, single-click along your desired path to place vertices on the map.';
+						error.report(errorMessage, function() { 
+							polyline.setMap(null);
+							environment.drawingManager.setOptions({ drawingMode: google.maps.drawing.OverlayType.POLYLINE});
+							startLesson(0);
+						});		
+					}					
+				});		
+			}
+		},
+		{
+			instruction: {
+				content: 'To complete the path, click twice on the same point.',
+				hasButton: false,
+				buttonText: 'NEXT',
+				width: 370
+			},
+			fixed: true,
+			advance: function(data) { 
+				var onCompletePolyline = google.maps.event.addListener(environment.drawingManager, 'polylinecomplete', function(polyline) {
+					environment.drawingManager.setOptions({ drawingMode: null });
+					mapHelper.enableVertexDelete(polyline);
+
+					console.log('path is completed');
+					Tutorial.completeLesson({ data: { 'polyline': polyline }});
+					google.maps.event.removeListener(onCompletePolyline);						
+				});				
+			}
+		},
+		{
+			instruction: {
+				content: 'Nice!  Now that you\'ve drawn a path, you can modify it by dragging vertices.  Give it a try!',
+				hasButton: false,
+				buttonText: 'NEXT',
+				width: 560,
+			},
+			fixed: true,
+			advance: function(data) {
+				console.log(data);
+				var polyline = data.polyline;
+				editPolyline = 0;
+
+				function onEditPolyline() {
+					editPolyline += 1;
+					if ( editPolyline == 1 ) { 
+						Tutorial.completeLesson({ 'data': data });
+						google.maps.event.removeListener(insertListener);
+						google.maps.event.removeListener(deleteListener);
+						google.maps.event.removeListener(setListener);
+					}
+				}
+
+				var insertListener = google.maps.event.addListener(polyline.getPath(), 'insert_at', onEditPolyline);
+				var deleteListener = google.maps.event.addListener(polyline.getPath(), 'remove_at', onEditPolyline);
+				var setListener = google.maps.event.addListener(polyline.getPath(), 'set_at', onEditPolyline);
+			}
+		},
+		{
+			instruction: {
+				content: 'You can add new vertices to the line by dragging the dot in the middle of each segment.  Try it.',
+				hasButton: false,
+				buttonText: 'NEXT',
+				width: 560,
+			},
+			fixed: true,
+			advance: function(data) {
+				var polyline = data.polyline;
+
+				var secondVertex = polyline.getPath().getAt(1);
+				var thirdVertex = polyline.getPath().getAt(2);
+
+				var midpointLatitude = secondVertex.lat() + (1/2)*(thirdVertex.lat() - secondVertex.lat());
+				var midpointLongitude = secondVertex.lng() + (1/2)*(thirdVertex.lng() - secondVertex.lng());
+
+				var arrow = new google.maps.Marker({
+					position: new google.maps.LatLng(midpointLatitude, midpointLongitude),
+					icon: { 
+						url: getResourceUrl("arrow-diagonal-down-small-white.png"), 
+						anchor: new google.maps.Point(75,80)
+					},
+					map: environment.map						
+				});
+
+				function onInsertPoint() {
+					Tutorial.completeLesson({ 'data': data});
+					arrow.setMap(null);
+					google.maps.event.removeListener(insertListener);
+				}
+				var insertListener = google.maps.event.addListener(polyline.getPath(), 'insert_at', onInsertPoint);
+			}				
+		},
+		{
+			instruction: {
+				content: 'You can delete vertices by right-clicking on a vertex.  Try deleting a point.',
+				hasButton: false,
+				buttonText: 'NEXT',
+				width: 560,
+			},
+			fixed: true,
+			advance: function(data) {
+				var polyline = data.polyline;
+
+				var deleteListener = google.maps.event.addListener(polyline.getPath(), 'remove_at', function() {
+					Tutorial.completeLesson({'data': data});
+					google.maps.event.removeListener(deleteListener);					
+				});
+			}				
+		},								
+		{
+			instruction: {
+				content: 'Great!  You\'re ready for the survey.',
+				width: 380,
+				hasButton: true,
+				buttonText: 'NEXT'				
+			},
+			fixed: true
+		}								
+	];
 
 	var error = (function() {
 		var errorBox = document.createElement('div');
@@ -1128,15 +1203,51 @@ spatialsurvey = (function() {
 		}			
 	}
 
+	function getCSSRule(ruleName, deleteFlag) {               // Return requested style obejct
+		ruleName=ruleName.toLowerCase();                       // Convert test string to lower case.
+		if (document.styleSheets) {                            // If browser can play with stylesheets
+			for (var i=0; i<document.styleSheets.length; i++) { // For each stylesheet
+				var styleSheet=document.styleSheets[i];          // Get the current Stylesheet
+				var ii=0;                                        // Initialize subCounter.
+				var cssRule=false;                               // Initialize cssRule. 
+				do {                                             // For each rule in stylesheet
+					if (styleSheet.cssRules) {                    // Browser uses cssRules?
+						cssRule = styleSheet.cssRules[ii];         // Yes --Mozilla Style
+					} else {                                      // Browser usses rules?
+						cssRule = styleSheet.rules[ii];            // Yes IE style. 
+					}                                             // End IE check.
+					if (cssRule)  {                               // If we found a rule...
+						if (cssRule.selectorText.toLowerCase()==ruleName) { //  match ruleName?
+							if (deleteFlag=='delete') {             // Yes.  Are we deleteing?
+								if (styleSheet.cssRules) {           // Yes, deleting...
+									styleSheet.deleteRule(ii);        // Delete rule, Moz Style
+								} else {                             // Still deleting.
+									styleSheet.removeRule(ii);        // Delete rule IE style.
+								}                                    // End IE check.
+								return true;                         // return true, class deleted.
+							} else {                                // found and not deleting.
+								return cssRule;                      // return the style object.
+							}                                       // End delete Check
+						}                                          // End found rule name
+					}                                             // end found cssRule
+					ii++;                                         // Increment sub-counter
+				} while (cssRule);                               // end While loop
+			}                                                   // end For loop
+		}                                                      // end styleSheet ability check
+		return false;                                          // we found NOTHING!
+	}															// end getCSSRule
+
 	// public methods and constructors for module spatialsurvey
 	return {
 		'SurveyResponse': SurveyResponse,
 		'Button': Button,
 		'Timestamp': Timestamp,
 		'Instructions': Instructions,
-		'sidebar': sidebar,
-		'showProgress': showProgress,	
-		'tutorial': tutorial,
+		'UIComponent': UIComponent,
+		'Sidebar': Sidebar,
+		'ProgressBar': ProgressBar,	
+		'Tutorial': Tutorial,
+		'standardTutorialLessons': standardTutorialLessons,
 		'error': error,
 		'isValidTime': isValidTime,
 		'advance': advance,
@@ -1167,12 +1278,11 @@ var mapHelper = (function()
 	function init(opt) {
 		environment.map = opt.map;
 		google.maps.event.addListener(opt.drawingManager, 'polylinecomplete', function(polyline) {
-			rightClickButton(polyline);
+			enableVertexDelete(polyline);
 		});
 	}
 
-	function comparePoints(a, b) 
-	{
+	function comparePoints(a, b) {
 		if (google.maps.geometry.spherical.computeDistanceBetween(a.point, a.coord) < google.maps.geometry.spherical.computeDistanceBetween(b.point, b.coord)) 
 			return -1;
 		if (google.maps.geometry.spherical.computeDistanceBetween(b.point, b.coord) < google.maps.geometry.spherical.computeDistanceBetween(a.point, a.coord))
@@ -1181,8 +1291,7 @@ var mapHelper = (function()
 			return 0;
 	}
 
-	function placeMarker(point) 
-	{
+	function placeMarker(point) {
 		var marker = new google.maps.Marker({
 			position: point,
 			map: environment.map
@@ -1192,10 +1301,7 @@ var mapHelper = (function()
 
 	var validDeleteUrl = false;
 
-// ---------------------------------------------------------------
-	function getDeleteUrl() 
-// ---------------------------------------------------------------
-	{
+	function getDeleteUrl() {
 		var deleteUrl = 'http://i.imgur.com/RUrKV.png';
 		if (!validDeleteUrl) {
 			var request = new XMLHttpRequest();
@@ -1211,10 +1317,7 @@ var mapHelper = (function()
 		else throw "Link to delete vertex image is broken.";
 	}
 
-// --------------------------------------------------------------
-	function getUndoButton(doc) 
-// --------------------------------------------------------------
-	{
+	function getUndoButton(doc) {
 		var images = document.getElementsByTagName('img');
 		for (var i = 0; i < images.length; i++) {
 			console.log(images[i].src);
@@ -1224,10 +1327,7 @@ var mapHelper = (function()
 		return -1;
 	}
 
-// --------------------------------------------------------------
-	function getDeleteButton(doc)
-// --------------------------------------------------------------
-	{
+	function getDeleteButton(doc) {
 		var images = document.getElementsByTagName('img');
 		for (var i = 0; i < images.length; i++) {
 			console.log(images[i].src);
@@ -1237,10 +1337,7 @@ var mapHelper = (function()
 		return -1;
 	}
 
-// --------------------------------------------------------------
-	var addDeleteButton = function(doc, polyline)
-// --------------------------------------------------------------
-	{
+	function addDeleteButton(doc, polyline) {
 		var deleteButton = document.createElement('div');
 		deleteButton.setAttribute('style', 'overflow-x: hidden; overflow-y: hidden; position: absolute; width: 30px; height: 27px; top: -10px; left: 5px;');
 		deleteButton.innerHTML = '<img src="' + getDeleteUrl() + '" class="deletePoly" style="height:auto; width:auto; position: absolute; left:0;"/>';
@@ -1258,11 +1355,13 @@ var mapHelper = (function()
 		});
 		return deleteButton;
 
-	};
+	}
 
-// ----------------------------------------------------------------------
-	var rightClickButton = function(polyline)
-// ----------------------------------------------------------------------
+	/** 
+	 * @memberOf mapHelper
+	 * @param {google.maps.Polyline} polyline
+	 */
+	var enableVertexDelete = function(polyline)
 	{
 		var deleteButton = addDeleteButton(document, polyline);
 		var rightClickDiv = new InfoBox({
@@ -1335,7 +1434,7 @@ var mapHelper = (function()
 		return rightClickDiv;
 	};
 
-	/*
+	/**
 	 * @constructor
 	 * @memberOf mapHelper
 	 * @param {Object} pointSlope
@@ -1464,130 +1563,12 @@ var mapHelper = (function()
 		return betweenLat && betweenLng;
 	}
 
-// takes a LatLng point and a polyline
-// -----------------------------------------------------------------------------
-	function closestVertex(point, polyline) 
-// -----------------------------------------------------------------------------
-	{
+	function closestVertex(point, polyline) {
 		var path = polyline.getPath().getArray().slice(0);
 		path.sort(function(a,b) { 
 			return google.maps.geometry.spherical.computeDistanceBetween(a, point) - google.maps.geometry.spherical.computeDistanceBetween(b, point);
 		});
 		return path[0];
-	}
-
-// ------------------------------------------------------------------------------
-	function distanceAlongPolyline(polyline, lastVertex, nextPoint) 
-// ------------------------------------------------------------------------------	
-	{
-		var partialPath = new google.maps.Polyline({
-			path: polyline.getPath().getArray().slice(0, lastVertex).push(nextPoint)
-		});
-		return google.maps.geometry.spherical.computeLength(partialPath);
-	}
-
-// -------------------------------------------------------------------------------
-	function distributeTimeStamps(polyline, startTime, endTime) 
-// -------------------------------------------------------------------------------	
-	{
-		/* These variables remain constant, and so may safely be referenced by functions defined herein. */
-		var path = polyline.getPath().getArray();
-		var totalLength = google.maps.geometry.spherical.computeLength(path);
-		var totalTime = getTotalTime(startTime, endTime);
-		var timeDelta = 3;
-		var numberOfTimestamps = Math.ceil(totalTime/timeDelta);
-		var delta = totalLength/numberOfTimestamps;
-
-		var timestampCollection = [];
-
-		function segmentLength(i) { 
-			return google.maps.geometry.spherical.computeDistanceBetween(polyline.getPath().getAt(i), polyline.getPath().getAt(i+1));
-		}
-		function segmentVerticalChange(i) {
-			return google.maps.geometry.spherical.computeDistanceBetween(
-				polyline.getPath().getAt(i), 
-				new google.maps.LatLng(polyline.getPath().getAt(i + 1).lat(), polyline.getPath().getAt(i).lng())
-			);			
-		}
-
-		function getSpilloverPastVertex(info) {
-			if (info.currentVertex < path.length - 1) {
-				var thisSegmentLength = segmentLength(info.currentVertex);
-				return info.spillover + ((info.i + 1) - info.oldI)*delta - thisSegmentLength;
-			}
-			else return 0;
-		}
-
-		function getVerticalDistance(info) {
-			var thisSegmentLength = segmentLength(info.currentVertex);
-			var thisSegmentVerticalChange = segmentVerticalChange(info.currentVertex);
-			var verticalDelta = delta*thisSegmentVerticalChange/thisSegmentLength;
-
-			info.verticalDistance = verticalDelta;
-			while ( getSpilloverPastVertex(info) > 0 ) {
-				info.spillover = getSpilloverPastVertex(info);
-				info.currentVertex += 1;
-				var verticalSpillover = 0;
-
-				if (info.currentVertex < path.length - 1) {
-					var nextSegmentLength = segmentLength(info.currentVertex);
-					var nextSegmentVerticalChange = segmentVerticalChange(info.currentVertex);
-
-					verticalSpillover = info.spillover*nextSegmentVerticalChange/nextSegmentLength;
-				}
-
-				info.basePoint = polyline.getPath().getAt(info.currentVertex);
-				info.oldI = info.i + 1;
-				info.verticalDistance = verticalSpillover;
-			}
-			return info;
-		}
-
-		var thisTimestampInfo = {
-			'basePoint': polyline.getPath().getAt(0),
-			'i': 0,
-			'currentVertex': 0,
-			'spillover': 0,
-			'oldI': 0,
-			'verticalSpillover': 0
-		};
-		var timestamp = spatialsurvey(environment.map, doc).timestamp({
-			polyline: polyline, 
-			position: closestPointOnPolyline(polyline, thisTimestampInfo.basePoint), 
-			startTime: startTime,
-			endTime: endTime			
-		});	
-		timestamp.create();
-		timestampCollection.push(timestamp);
-
-		for (var i = 0; i < numberOfTimestamps; i++) {
-			thisTimestampInfo = getVerticalDistance(thisTimestampInfo);
-	
-			if (thisTimestampInfo.currentVertex < path.length - 1) {
-				var endpoint1 = polyline.getPath().getAt(thisTimestampInfo.currentVertex);
-				var endpoint2 = polyline.getPath().getAt(thisTimestampInfo.currentVertex + 1);
-				var line = new Line({
-					'point1': endpoint1, 
-					'point2': endpoint2
-				});
-
-				thisTimestampInfo.basePoint = line.extrapolate(thisTimestampInfo.basePoint.lat() + Math.sgn(endpoint2.lat() - endpoint1.lat())*thisTimestampInfo.verticalDistance*metersToLat(thisTimestampInfo.basePoint));	
-			}
-
-			
-			if (i == numberOfTimestamps - 1) { // last timestamp 
-				timestamp = spatialsurvey(environment.map, doc).timestamp(polyline, thisTimestampInfo.basePoint, endTime, false);
-				timestamp.create();
-				timestampCollection.push(timestamp);
-			}
-			else {
-				timestamp = spatialsurvey(environment.map, doc).timestamp(polyline, thisTimestampInfo.basePoint, incrementTimestamp(startTime, timeDelta*(i+1)), false);
-				timestamp.create();
-				timestampCollection.push(timestamp);
-			}
-			thisTimestampInfo.i++;
-		}
-		return timestampCollection;
 	}
 
 	/** 
@@ -1678,14 +1659,13 @@ var mapHelper = (function()
 				throw "mapHelper.fromGeoJSON() cannot yet convert this type of GeoJSON.";
 			}
 		}
-	}
+	}	
 
 	// public methods and constructors
 	return {
 		'closestPointOnPolyline': closestPointOnPolyline, 
-		'rightClickButton': rightClickButton,
+		'enableVertexDelete': enableVertexDelete,
 		'placeMarker': placeMarker,
-		'distributeTimeStamps': distributeTimeStamps,
 		'pixelsToLatLng': pixelsToLatLng,
 		'Line': Line,
 		'init': init,
@@ -1694,130 +1674,3 @@ var mapHelper = (function()
 	};
 
 }());
-
-function metersToLat(point) {
-	var latDistance = google.maps.geometry.spherical.computeDistanceBetween(
-		point,
-		new google.maps.LatLng(point.lat() + 1, point.lng())
-	);
-	return 1/latDistance;
-}
-
-function metersToLng(point) {
-	var lngDistance = google.maps.geometry.spherical.computeDistanceBetween(
-		point,
-		new google.maps.LatLng(point.lat(), point.lng() + 1)
-	);
-	return 1/lngDistance;
-}
-
-function getTotalTime(startTimeString, endTimeString) 
-{
-	var regex = /^(\d|[1][0-2])(?::)?([0-5]\d)?\s?(AM|PM)$/i;
-	var startParsed = regex.exec(startTimeString);
-	console.log(startParsed);
-	var startHour = startParsed[1];
-	var startMinute = typeof startParsed[2] === 'undefined' ? 0 : startParsed[2];
-	var startTime = parseInt(startHour, 10) + (startMinute/60);
-
-	// if ( /^P.?M.?$/i.test(startParsed[3]) ) 
-	// 	endTime += 12;	
-
-	var endParsed = regex.exec(endTimeString);
-	var endHour = parseInt(endParsed[1], 10);
-	var endMinute = typeof endParsed[2] === 'undefined' ? 0 : endParsed[2];
-	var endTime = endHour + (endMinute/60);
-
-	if ( /^P.?M.?$/i.test(endParsed[3]) && endHour != 12 ) 
-		endTime += 12; 
-	else if ( /^A.?M.?$/i.test(endParsed[3]) && endHour != 12 )
-		endTime += 24;
-	else if ( /^A.?M.?$/i.test(endParsed[3]) && endHour == 12 )
-		endTime += 12;
-
-	return endTime - startTime;
-}
-
-function incrementTimestamp(baseTimeString, timeDifference) {
-	var regex = /^(\d|[1][0-2])(?::)?([0-5]\d)?\s?(AM|PM)$/i;
-
-	var baseParsed = regex.exec(baseTimeString);
-	var baseHour = parseInt(baseParsed[1], 10);
-	var baseMinute = typeof baseParsed[2] === 'undefined' ? 0 : baseParsed[2];
-
-	var newTime = new Date();
-
-	newTime.setHours(parseInt(baseParsed[1], 10) + Math.floor(timeDifference));
-	newTime.setMinutes(baseMinute + 60*(timeDifference - Math.floor(timeDifference)));
-
-	var newHour = newTime.getHours();
-	var period = newHour >= 12 ? ' pm' : ' am';
-
-	var newHourString = String(newHour) % 12 === 0 ? 12 : String(newHour % 12);
-
-	var newMinuteString = newTime.getMinutes() === 0 ? '' : ':' + String(padInteger(newTime.getMinutes(),2));
-
-	var newTimeString = newHourString + newMinuteString + period;
-
-	return newTimeString;
-}
-
-function timestringToInteger(timeString) {
-	var regex = /^(\d|[1][0-2])(?::)?([0-5]\d)?\s?(AM|PM)$/i;
-	var parsed = regex.exec(timeString);
-
-	var hour = parseInt(parsed[1], 10) % 24;
-	var minute = typeof parsed[2] === 'undefined' ? 0 : parseInt(parsed[2], 10)/60;
-
-	if ( /^P.?M.?$/i.test(parsed[3]) && hour != 12) 
-		hour += 12; 
-	if ( /^A.?M.?$/i.test(parsed[3]) && hour == 12 )
-		hour = 0;
-
-	return hour + minute;
-}
-
-function padInteger(num, length) {
-
-    return (num / Math.pow(10, length)).toFixed(length).substr(2);
-}
-
-if(!Array.prototype.last) {
-    Array.prototype.last = function() {
-        return this[this.length - 1];
-    };
-}
-
-function getCSSRule(ruleName, deleteFlag) {               // Return requested style obejct
-   ruleName=ruleName.toLowerCase();                       // Convert test string to lower case.
-   if (document.styleSheets) {                            // If browser can play with stylesheets
-      for (var i=0; i<document.styleSheets.length; i++) { // For each stylesheet
-         var styleSheet=document.styleSheets[i];          // Get the current Stylesheet
-         var ii=0;                                        // Initialize subCounter.
-         var cssRule=false;                               // Initialize cssRule. 
-         do {                                             // For each rule in stylesheet
-            if (styleSheet.cssRules) {                    // Browser uses cssRules?
-               cssRule = styleSheet.cssRules[ii];         // Yes --Mozilla Style
-            } else {                                      // Browser usses rules?
-               cssRule = styleSheet.rules[ii];            // Yes IE style. 
-            }                                             // End IE check.
-            if (cssRule)  {                               // If we found a rule...
-               if (cssRule.selectorText.toLowerCase()==ruleName) { //  match ruleName?
-                  if (deleteFlag=='delete') {             // Yes.  Are we deleteing?
-                     if (styleSheet.cssRules) {           // Yes, deleting...
-                        styleSheet.deleteRule(ii);        // Delete rule, Moz Style
-                     } else {                             // Still deleting.
-                        styleSheet.removeRule(ii);        // Delete rule IE style.
-                     }                                    // End IE check.
-                     return true;                         // return true, class deleted.
-                  } else {                                // found and not deleting.
-                     return cssRule;                      // return the style object.
-                  }                                       // End delete Check
-               }                                          // End found rule name
-            }                                             // end found cssRule
-            ii++;                                         // Increment sub-counter
-         } while (cssRule);                               // end While loop
-      }                                                   // end For loop
-   }                                                      // end styleSheet ability check
-   return false;                                          // we found NOTHING!
-}                                                         // end getCSSRule 

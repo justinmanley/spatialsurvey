@@ -1,20 +1,98 @@
+var appName = 'test-app';
+QUnit.begin(function() {
+	var mapCenter = new google.maps.LatLng(41.78961025632396, -87.59967505931854);
+	var map = new google.maps.Map(document.getElementById("qunit-fixture"), {
+		center: mapCenter,
+		zoom: 19,
+		maxZoom: 20,
+		minZoom: 18,
+		zoomControl: { style: 'SMALL' },
+		mapTypeId: google.maps.MapTypeId.HYBRID
+	});
+	var drawingManager = new google.maps.drawing.DrawingManager({
+		drawingMode: google.maps.drawing.OverlayType.POLYLINE,
+		drawingControl: false,
+		polylineOptions: {
+			editable: true,
+			strokeColor: '#4387fd',
+			strokeWeight: 4
+		}
+	});
+	spatialsurvey.init({
+		map: map, 
+		drawingManager: drawingManager,
+		appName: appName
+
+	});	
+});
+
+module("spatialsurvey");
 test("getResouceUrl()", function() {
-	equal(getResourceUrl('hello.js'), '../../spatialsurvey/resources/hello.js');
+	equal(spatialsurvey.getResourceUrl('hello.js'), '../../spatialsurvey/resources/hello.js');
+});	
+
+function inheritsFromUIComponent(obj, type) {
+	equal(obj.hasOwnProperty('get'), true, type + " has getter.");
+	equal(obj.hasOwnProperty('set'), true, type + " has setter.");
+	deepEqual(obj.set('test', 'This is a test.'), obj, type + ".set() returns self.");
+	deepEqual(obj.setDefaults({'test': 'This is a test.'}), obj, type + ".set() returns self.");
+	equal(obj.setDefaults({ test: "This is a test." }).get("test"), "This is a test.", type + ".setDefaults(options).");
+}
+
+test("UIComponent()", function() {
+	var component = new spatialsurvey.UIComponent();
+	inheritsFromUIComponent(component, "UIComponent");
 });
 
-test("timestringToInteger()", function() {
-	equal(timestringToInteger("10am"), 10);
+test("Button()", function() {
+	var button = new spatialsurvey.Button({ 
+		id: appName + '-button', 
+		text: 'NEXT', 
+		onClick: function() {}
+	});
+	inheritsFromUIComponent(button, "Button");
+	button.show();
+	equal(button.get('id'), appName + '-button', "Button.get(key) returns option indexed by key.");
 });
 
-test("PathData.load() empty", function() {
-	sessionStorage.clear();
-	var pathData = new spatialsurvey.PathData();
-	pathData.load();
-	equal(pathData.toString(), "{}", "pathData.load() serializes to the empty string.");
-	deepEqual(pathData.getPolylineCoordinates(), [], "pathData.load() is the empty array [].");
+test("ProgressBar()", function() {
+	var progressBar = new spatialsurvey.ProgressBar({
+		currentPage: 2,
+		max: 4,
+		description: 'Sample description'
+	});
+	inheritsFromUIComponent(progressBar, "ProgressBar");
+	progressBar.show();
 });
 
-test("mapHelper.Line()", function() {
+test("Sidebar()", function() {
+	var sidebar = new spatialsurvey.Sidebar();
+	inheritsFromUIComponent(sidebar, "Sidebar");
+	sidebar.show();
+});
+
+test("Instructions()", function() {
+	var instructions = new spatialsurvey.Instructions({
+
+	});
+	inheritsFromUIComponent(instructions, "Instructions");
+	instructions.show();
+});
+
+
+test("Timestamp()", function() {
+	var timestamp = new spatialsurvey.Timestamp();
+	inheritsFromUIComponent(timestamp, "Timestamp");
+	timestamp.show();
+});
+
+test("Tutorial()", function() {
+	var tutorial = new spatialsurvey.Tutorial();
+	equal(1,1);
+});
+
+module("mapHelper");
+test("Line()", function() {
 	equal(typeof mapHelper.Line, 'function', "mapHelper.Line() is defined.");
 
 	var testLine = new mapHelper.Line({
@@ -31,7 +109,7 @@ test("mapHelper.Line()", function() {
 	// equal(perpendicular.getPerpendicularThroughPoint(new google.maps.LatLng(0,0)).getSlope(), -1, "getPerpendicularThroughPoint() is -1 for line with slope 1.");
 });
 
-test("mapHelper.closestPointOnPolyline()", function() {
+test("closestPointOnPolyline()", function() {
 	equal(typeof mapHelper.closestPointOnPolyline, 'function', "mapHelper.closestPointOnPolyline() is defined.");
 
 	var A = new google.maps.LatLng(41.7858769102, -87.6007640362);
@@ -52,7 +130,7 @@ test("mapHelper.closestPointOnPolyline()", function() {
 	equal(mapHelper.closestPointOnPolyline(testPolyline, midPoint).lng().toFixed(8), midPoint.lng().toFixed(8), "For midpoint, closestPointOnPolyline returns lng of self.");
 });
 
-test("mapHelper.toGeoJSON()", function() {
+test("toGeoJSON()", function() {
 	equal(typeof mapHelper.toGeoJSON, 'function', "mapHelper.toGeoJSON() is defined.");
 	var testPoint1 = new google.maps.LatLng(0,0);
 	var testPoint2 = new google.maps.LatLng(0,1);
@@ -71,4 +149,4 @@ test("mapHelper.toGeoJSON()", function() {
 		[-87.6044574379921, 41.79647961077208]
 	]}, "Simple polyline conversion with thirteen decimal place latitude and longitude.");
 
-});
+});	
